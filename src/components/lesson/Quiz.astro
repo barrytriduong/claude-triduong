@@ -74,6 +74,23 @@ const minutes = Math.max(2, Math.round(count * 0.4));
         <h3>Look at these again</h3>
         <ul data-review-list></ul>
       </div>
+      <div class="lb" data-lb hidden>
+        <div class="lb-head">
+          <h3>This week's top 10</h3>
+          <span>Resets every Monday</span>
+        </div>
+        <ol class="lb-list" data-lb-list></ol>
+        <p class="lb-empty" data-lb-empty hidden>No scores yet this week. Be the first!</p>
+        <form class="lb-form" data-lb-form>
+          <label for="lb-name">Add your score as</label>
+          <div class="lb-row">
+            <input id="lb-name" name="name" required minlength="2" maxlength="20" placeholder="Nickname" autocomplete="nickname" />
+            <button type="submit" class="btn btn-sun btn-sm">Add my score</button>
+          </div>
+          <p class="lb-note">Shown publicly for this week. Please don't use your full name.</p>
+        </form>
+        <p class="lb-msg" data-lb-msg aria-live="polite" hidden></p>
+      </div>
       <div class="r-actions">
         <button type="button" class="btn btn-sun" data-retry>Try again</button>
         <button type="button" class="btn btn-ghost light" data-share>Share my score</button>
@@ -485,6 +502,96 @@ const minutes = Math.max(2, Math.round(count * 0.4));
   }
   .review :global(b) {
     color: #9fe0c1;
+  }
+  .lb {
+    width: min(100%, 520px);
+    display: grid;
+    gap: 12px;
+    padding: 20px 22px;
+    border-radius: 18px;
+    background: var(--navy-soft);
+    text-align: left;
+  }
+  .lb-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .lb-head h3 {
+    color: var(--cream);
+    font-size: 20px;
+  }
+  .lb-head span,
+  .lb-note,
+  .lb-empty {
+    font-size: 13px;
+    color: #b9c1cf;
+  }
+  .lb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    counter-reset: lb;
+  }
+  .lb-list :global(li) {
+    counter-increment: lb;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  .lb-list :global(li::before) {
+    content: counter(lb);
+    font: 700 14px var(--serif);
+    color: #b9c1cf;
+    text-align: center;
+  }
+  .lb-list :global(li:nth-child(-n + 3)::before) {
+    color: var(--gold);
+  }
+  .lb-list :global(li.me) {
+    background: rgb(244 182 63 / 0.18);
+  }
+  .lb-list :global(b) {
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .lb-form {
+    display: grid;
+    gap: 6px;
+  }
+  .lb-form label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .lb-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .lb-row input {
+    flex: 1 1 160px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--cream);
+    color: var(--navy);
+    font: 500 16px var(--sans);
+  }
+  .lb-msg {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9fe0c1;
+  }
+  .lb-msg.err {
+    color: #f2a9b2;
   }
   .r-actions {
     display: flex;

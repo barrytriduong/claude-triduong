@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#1B2A41"/>
+  <circle cx="980" cy="600" r="300" fill="#2C3D57"/>
+  <circle cx="160" cy="90" r="140" fill="#2C3D57"/>
+  <g transform="translate(150 360)">
+    <rect x="0" y="40" width="360" height="230" rx="26" fill="#A84A14"/>
+    <rect x="120" y="0" width="120" height="60" rx="16" fill="none" stroke="#A84A14" stroke-width="18"/>
+    <rect x="0" y="120" width="360" height="18" fill="#7C3510"/>
+    <rect x="160" y="108" width="40" height="44" rx="8" fill="#F4B63F"/>
+  </g>
+  <g font-family="Georgia, serif" font-weight="700" font-size="58">
+    <g transform="translate(600 120) rotate(-4)"><rect width="200" height="110" rx="20" fill="#FBF6EC"/><text x="100" y="74" text-anchor="middle" fill="#1B2A41">set</text></g>
+    <text x="840" y="190" font-family="Helvetica, Arial, sans-serif" font-size="70" fill="#F4B63F">+</text>
+    <g transform="translate(900 110) rotate(5)"><rect width="170" height="110" rx="20" fill="#E8772E"/><text x="85" y="74" text-anchor="middle" fill="#1B2A41">up</text></g>
+    <g transform="translate(620 300) rotate(3)"><rect width="250" height="110" rx="20" fill="#FBF6EC"/><text x="125" y="74" text-anchor="middle" fill="#1B2A41">follow</text></g>
+    <text x="900" y="375" font-family="Helvetica, Arial, sans-serif" font-size="70" fill="#F4B63F">+</text>
+    <g transform="translate(960 300) rotate(-6)"><rect width="170" height="110" rx="20" fill="#F4B63F"/><text x="85" y="74" text-anchor="middle" fill="#1B2A41">up</text></g>
+    <g transform="translate(640 480) rotate(-2)"><rect width="200" height="110" rx="20" fill="#FBF6EC"/><text x="100" y="74" text-anchor="middle" fill="#1B2A41">sort</text></g>
+    <text x="870" y="555" font-family="Helvetica, Arial, sans-serif" font-size="70" fill="#F4B63F">+</text>
+    <g transform="translate(930 480) rotate(4)"><rect width="170" height="110" rx="20" fill="#E8772E"/><text x="85" y="74" text-anchor="middle" fill="#1B2A41">out</text></g>
+  </g>
+</svg>

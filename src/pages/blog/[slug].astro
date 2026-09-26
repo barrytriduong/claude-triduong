@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import BlogCard from '../../components/BlogCard.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
 import { SITE, formatDate } from '../../lib/site';
 
 export async function getStaticPaths() {
@@ -44,8 +45,17 @@ const jsonLd = {
       <img class="cover" src={d.cover} alt={d.coverAlt} width="1200" height="675" />
     </div>
     <div class="wrap body">
-      <div class="prose">
-        <Content />
+      <div class="main-col">
+        {d.affiliate && (
+          <p class="aff-note">
+            This article contains affiliate links. If you buy through them, we may earn a small commission at no extra cost to you.
+            <a href="/disclosure/">Learn more</a>.
+          </p>
+        )}
+        <div class="prose">
+          <Content />
+        </div>
+        <NewsletterForm id="nl-post" source={`blog:${post.id}`} title="Get one useful tip every week" />
       </div>
       <aside class="cta card">
         <p class="eyebrow">Practise with a story</p>
@@ -106,6 +116,19 @@ const jsonLd = {
     gap: 48px;
     align-items: start;
     padding-top: 48px;
+  }
+  .aff-note {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--sand);
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 68ch;
+  }
+  .main-col {
+    display: grid;
+    gap: 56px;
+    min-width: 0;
   }
   .cta {
     position: sticky;

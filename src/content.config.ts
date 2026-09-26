@@ -88,6 +88,8 @@ const blog = defineCollection({
     cover: z.string(),
     coverAlt: z.string(),
     readingTime: z.string().optional(),
+    // true = the post contains affiliate links; shows a short disclosure at the top
+    affiliate: z.boolean().default(false),
     draft: z.boolean().default(false),
   }),
 });

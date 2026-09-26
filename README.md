@@ -2,7 +2,7 @@
 
 *Real stories. Real English.* A website that teaches English through short, inspiring videos about real people.
 
-Built with [Astro](https://astro.build): a fast, static site with good SEO and no server to maintain.
+Built with [Astro](https://astro.build): a fast, static site with good SEO and no server to maintain. Fonts are self-hosted, so the site makes no requests to Google Fonts.
 
 ## What's inside
 
@@ -12,8 +12,11 @@ Built with [Astro](https://astro.build): a fast, static site with good SEO and n
 | `/lessons/` | All video lessons, filterable by level (A1–C2) |
 | `/lessons/<slug>/` | A lesson: YouTube video, synced transcript, flashcards, Story Challenge quiz |
 | `/blog/` and `/blog/<slug>/` | Articles, filterable by level |
+| `/lessons/<slug>/worksheet/` | Printable worksheet with answer key (print or save as PDF) |
 | `/levels/` | CEFR guide and a 1-minute self-check |
-| `/about/`, `/thanks/`, `404` | About, newsletter thank-you, not found |
+| `/about/`, `/privacy/`, `/disclosure/` | About, privacy policy, affiliate disclosure |
+| `/thanks/`, `404` | Newsletter thank-you, not found |
+| `/youtube/<slug>.txt` | Ready-to-paste YouTube description for each lesson (not listed in search) |
 
 ### Lesson features
 
@@ -21,7 +24,10 @@ Built with [Astro](https://astro.build): a fast, static site with good SEO and n
 - **Transcript**: hidden until the learner opens it. The current line lights up while the video plays. Tapping a time jumps to that moment. Vocabulary words are highlighted, and tapping one shows its meaning and says it aloud. With no video yet, each line can be read aloud by the browser instead.
 - **Flashcards**: flip cards with audio, the example sentence from the video, and **Hear it in the video**. Learners sort cards into *I know this* and *Still learning*, and can practise the "still learning" ones again.
 - **Story Challenge**: five question types (multiple choice, true/false, fill the gap, build the sentence, match the pairs). It has points, streak bonuses, stars, a personal best, "watch that part again" links, a review of missed answers, and a share button.
-- **Progress**: the four lesson steps are ticked off and saved in the learner's browser, and lesson cards show "Done" or "2/4 steps". No accounts needed.
+- **Say it**: on flashcards, learners say the word and the browser's speech recognition checks it (Chrome, Edge and Safari; the button is hidden where it isn't supported). It checks whether the word was recognised, so treat it as friendly practice, not a pronunciation score.
+- **Weekly leaderboard**: after the quiz, learners can add a nickname to that lesson's top 10 for the week (resets every Monday). See [Leaderboard](#leaderboard) below.
+- **Progress and streak**: the four lesson steps are ticked off and saved in the learner's browser, lesson cards show "Done" or "2/4 steps", and the header shows a daily streak (e.g. "3-day streak"). No accounts needed.
+- **Newsletter sign-up** at the end of every lesson and blog post, as well as in the footer.
 
 ### Translation
 
@@ -44,9 +50,15 @@ If a required field is missing or wrong, the build stops with a clear error.
 
 **The two sample lessons** (Terry Fox, Wangari Maathai) are original scripts written for this site. They have no `youtubeId` yet, so they show "Video coming soon". Record them as videos, or replace them with your own.
 
+### Link the YouTube video to the lesson
+
+After publishing a lesson, open `https://yourdomain.com/youtube/<slug>.txt`. It's a ready-made YouTube description with the lesson link, the words from the story and hashtags. Paste it into the video's description, and pin a comment with the lesson link too. Every video then sends viewers to the site.
+
 ## Add a blog post
 
-Create a file in `src/content/blog/` like the existing ones. Set `levels` to the levels the post suits. That list drives the level filter. Put the cover image in `public/images/blog/`.
+Create a file in `src/content/blog/` like the existing ones. Set `levels` to the levels the post suits. That list drives the level filter. Put the cover image in `public/images/blog/`. If the post contains affiliate links, add `affiliate: true` to show a short disclosure at the top.
+
+**Topics that bring search traffic:** write about what learners type into Google, e.g. "IELTS speaking part 2 topics", "phrasal verbs for travel", "how to improve English listening", "difference between say and tell". Put the main phrase in the title and the first paragraph, and link to one or two lessons from each post.
 
 ## Social preview images
 
@@ -56,6 +68,14 @@ Social networks don't show SVG images, so each cover also has a `.png` copy. Aft
 npm i -D playwright && npx playwright install chromium
 node scripts/make-og-images.mjs
 ```
+
+## Leaderboard
+
+The weekly leaderboard is a small Netlify Function (`netlify/functions/leaderboard.mjs`) that stores scores in **Netlify Blobs**. Both are included in Netlify's free plan, and there's nothing to set up: it works as soon as the site is deployed on Netlify. On your own computer (`npm run dev`) the leaderboard simply stays hidden.
+
+- The server rejects impossible scores (it knows the maximum for each lesson), invalid nicknames and a list of rude words. It's a fun, anonymous board, though, so someone determined could still add a fake score.
+- To remove an entry: Netlify dashboard → your site → **Blobs** → store `leaderboard` → open this week's key (e.g. `2026-W39/terry-fox-marathon-of-hope`) and delete it or edit the list.
+- The scoring logic has tests: `npm test`.
 
 ## Run it locally
 
@@ -76,6 +96,8 @@ npm run build    # production build into dist/
 ## Before launch
 
 - [ ] Add real YouTube IDs and transcripts
-- [ ] Write your story on `/about/` (replace the `[ADD YOUR STORY HERE]` and `[YOUR EMAIL]` placeholders)
+- [ ] In `src/lib/site.ts`, replace `[YOUR EMAIL]` and `[YOUR NAME]` (used on the About, Privacy and Disclosure pages)
+- [ ] Write your story on `/about/` (replace `[ADD YOUR STORY HERE]`)
 - [ ] Set `SITE_URL` and `robots.txt` to your domain
-- [ ] Add a privacy policy (needed for the newsletter and affiliate programmes)
+- [ ] Read the privacy policy and affiliate disclosure and adjust them to your situation. They are a plain-language starting point, not legal advice.
+- [ ] Paste each lesson's `/youtube/<slug>.txt` into its YouTube description

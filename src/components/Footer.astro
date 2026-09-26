@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import NewsletterForm from './NewsletterForm.astro';
 import { SITE } from '../lib/site';
 const year = new Date().getFullYear();
 ---
@@ -10,23 +11,7 @@ const year = new Date().getFullYear();
       <p>{SITE.tagline} Short, inspiring videos about real people, turned into English lessons you can actually enjoy.</p>
     </div>
 
-    <form class="newsletter" name="newsletter" method="POST" action="/thanks/" data-netlify="true" netlify-honeypot="company">
-      <input type="hidden" name="form-name" value="newsletter" />
-      <p class="visually-hidden"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off" /></label></p>
-      <h2>One new story every week</h2>
-      <p class="nl-sub">Get the newest lesson, five useful words and a study tip by email. Free, and you can leave any time.</p>
-      <div class="nl-row">
-        <label class="visually-hidden" for="nl-email">Email address</label>
-        <input id="nl-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email" />
-        <label class="visually-hidden" for="nl-level">Your level</label>
-        <select id="nl-level" name="level">
-          <option value="">My level…</option>
-          <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
-          <option value="unsure">Not sure</option>
-        </select>
-        <button class="btn btn-sun" type="submit">Join free</button>
-      </div>
-    </form>
+    <NewsletterForm id="nl-footer" source="footer" dark />
   </div>
 
   <div class="wrap bottom">
@@ -36,6 +21,8 @@ const year = new Date().getFullYear();
       <a href="/levels/">Find your level</a>
       <a href="/about/">About</a>
       <a href={SITE.youtube} target="_blank" rel="noopener">YouTube</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/disclosure/">Affiliate disclosure</a>
     </nav>
     <p>© {year} Bright Lives English</p>
   </div>
@@ -58,39 +45,6 @@ const year = new Date().getFullYear();
     gap: 18px;
     align-content: start;
     max-width: 38ch;
-  }
-  .newsletter {
-    display: grid;
-    gap: 10px;
-    padding: 28px;
-    background: var(--navy-soft);
-    border-radius: var(--radius);
-  }
-  .newsletter h2 {
-    color: var(--cream);
-    font-size: 28px;
-  }
-  .nl-sub {
-    font-size: 15px;
-  }
-  .nl-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 8px;
-  }
-  .nl-row input,
-  .nl-row select {
-    min-height: 48px;
-    padding: 0 16px;
-    border-radius: 999px;
-    border: 1.5px solid transparent;
-    background: var(--cream);
-    color: var(--navy);
-    font: 500 16px var(--sans);
-  }
-  .nl-row input {
-    flex: 1 1 220px;
   }
   .bottom {
     display: flex;

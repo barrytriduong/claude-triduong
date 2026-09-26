@@ -6,5 +6,5 @@ const SITE = process.env.SITE_URL || 'https://brightlivesenglish.com';
 
 export default defineConfig({
   site: SITE,
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !/\/(youtube|thanks)\//.test(page) })],
 });

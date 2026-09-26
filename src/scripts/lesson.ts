@@ -1,5 +1,6 @@
 // Interactive lesson page: YouTube player, synced transcript, flashcards and the Story Challenge quiz.
 // All progress is saved in the learner's browser (localStorage) — no account needed.
+import { recordActivity } from './streak';
 
 type Line = { t: number; text: string };
 type Word = { word: string; pos: string; meaning: string; example: string; t?: number };
@@ -95,6 +96,7 @@ function init(L: LessonData) {
   const progress = store.get<Record<string, boolean>>(progressKey, {});
 
   function markStep(step: 'watch' | 'read' | 'words' | 'quiz') {
+    recordActivity();
     if (!progress[step]) {
       progress[step] = true;
       store.set(progressKey, progress);
@@ -394,6 +396,7 @@ function setupVocab(L: LessonData, player: Player, markStep: (s: 'words') => voi
   }
 
   function render() {
+    root.querySelector<HTMLElement>('[data-speak-result]')!.hidden = true;
     cards.forEach((c, i) => {
       c.hidden = i !== order[at];
       c.classList.remove('flipped');
@@ -428,6 +431,7 @@ function setupVocab(L: LessonData, player: Player, markStep: (s: 'words') => voi
   $('[data-prev]').addEventListener('click', () => move(-1));
   $('[data-next]').addEventListener('click', () => move(1));
   $('[data-say]').addEventListener('click', () => speak(L.vocabulary[order[at]].word));
+  setupSayIt(root, () => L.vocabulary[order[at]].word);
   root.querySelector('[data-hear]')?.addEventListener('click', () => {
     const w = L.vocabulary[order[at]];
     if (w.t !== undefined) player.seek(w.t, true);
@@ -462,6 +466,148 @@ function setupVocab(L: LessonData, player: Player, markStep: (s: 'words') => voi
       if (scroll) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
   };
+}
+
+/* ---------- Weekly leaderboard (Netlify Function; hidden when it isn't available) ---------- */
+
+function setupLeaderboard(root: HTMLElement, slug: string) {
+  const box = root.querySelector<HTMLElement>('[data-lb]')!;
+  const list = root.querySelector<HTMLElement>('[data-lb-list]')!;
+  const empty = root.querySelector<HTMLElement>('[data-lb-empty]')!;
+  const form = root.querySelector<HTMLFormElement>('[data-lb-form]')!;
+  const msg = root.querySelector<HTMLElement>('[data-lb-msg]')!;
+  const input = form.querySelector<HTMLInputElement>('input[name=name]')!;
+  const API = '/api/leaderboard';
+  let score = 0;
+  let me = '';
+
+  input.value = store.get<string>('ble:nickname', '');
+
+  const draw = (entries: { name: string; score: number }[]) => {
+    list.replaceChildren(
+      ...entries.map((e) =>
+        h('li', { class: me && e.name.toLowerCase() === me.toLowerCase() ? 'me' : undefined }, h('span', {}, e.name), h('b', {}, String(e.score))),
+      ),
+    );
+    empty.hidden = entries.length > 0;
+  };
+  const say = (text: string, err = false) => {
+    msg.hidden = false;
+    msg.textContent = text;
+    msg.classList.toggle('err', err);
+  };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = input.value.trim();
+    const btn = form.querySelector<HTMLButtonElement>('button')!;
+    btn.disabled = true;
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lesson: slug, name, score }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        say(data.error || 'Something went wrong. Please try again.', true);
+        return;
+      }
+      me = name;
+      store.set('ble:nickname', name);
+      draw(data.entries);
+      form.hidden = true;
+      say(data.rank ? `You're number ${data.rank} this week!` : 'Not in the top 10 this time. Try again to climb the board!');
+    } catch {
+      say('Could not reach the leaderboard. Please try again.', true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  return {
+    async show(s: number) {
+      score = s;
+      msg.hidden = true;
+      form.hidden = s < 100;
+      try {
+        const res = await fetch(`${API}?lesson=${encodeURIComponent(slug)}`);
+        if (!res.ok || !(res.headers.get('content-type') || '').includes('json')) throw new Error();
+        const data = await res.json();
+        draw(data.entries);
+        box.hidden = false;
+      } catch {
+        box.hidden = true; // e.g. local preview without Netlify
+      }
+    },
+  };
+}
+
+/* ---------- "Say it": pronunciation check with the browser's speech recognition ---------- */
+
+function setupSayIt(root: HTMLElement, currentWord: () => string) {
+  const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  const btn = root.querySelector<HTMLButtonElement>('[data-speak-check]');
+  const out = root.querySelector<HTMLElement>('[data-speak-result]');
+  if (!SR || !btn || !out) return;
+  btn.hidden = false;
+  const label = btn.querySelector<HTMLElement>('[data-speak-label]')!;
+  let rec: any = null;
+
+  const show = (text: string, kind: '' | 'good' | 'try') => {
+    out.hidden = false;
+    out.className = `speak-result ${kind}`;
+    out.textContent = text;
+  };
+  const stop = () => {
+    btn.setAttribute('aria-pressed', 'false');
+    label.textContent = 'Say it';
+    rec = null;
+  };
+
+  btn.addEventListener('click', () => {
+    if (rec) {
+      rec.stop();
+      return;
+    }
+    const target = currentWord();
+    rec = new SR();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    rec.maxAlternatives = 5;
+    let heard = false;
+    btn.setAttribute('aria-pressed', 'true');
+    label.textContent = 'Listening…';
+    show(`Say “${target}” now.`, '');
+
+    rec.onresult = (e: any) => {
+      heard = true;
+      const alts: string[] = Array.from(e.results[0]).map((a: any) => a.transcript as string);
+      const want = norm(target);
+      const ok = alts.some((a) => {
+        const got = ` ${norm(a)} `;
+        // allow the simple endings learners often add, e.g. "dreams"
+        return got.includes(` ${want} `) || got.includes(` ${want}s `) || got.includes(` ${want}ed `);
+      });
+      if (ok) show(`Great! That sounded like “${target}”.`, 'good');
+      else show(`I heard “${alts[0] || '…'}”. Tap Listen, then try again.`, 'try');
+    };
+    rec.onerror = (e: any) => {
+      heard = true;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') show('Please allow the microphone to use Say it.', 'try');
+      else if (e.error === 'no-speech') show("I didn't hear anything. Try again, a little louder.", 'try');
+      else show('Speech check is not available right now.', 'try');
+    };
+    rec.onend = () => {
+      if (!heard) show("I didn't hear anything. Try again.", 'try');
+      stop();
+    };
+    try {
+      rec.start();
+    } catch {
+      stop();
+    }
+  });
 }
 
 /* ---------- Quiz: the Story Challenge ---------- */
@@ -746,7 +892,10 @@ function setupQuiz(L: LessonData, player: Player, markStep: (s: 'quiz') => void)
     ul.replaceChildren(...missed.map((m) => h('li', {}, `${m.q} → `, h('b', {}, m.a))));
     review.hidden = !missed.length;
     $<HTMLElement>('[data-bar] span').style.width = '100%';
+    leaderboard.show(score);
   }
+
+  const leaderboard = setupLeaderboard(root, L.slug);
 
   $('[data-start]').addEventListener('click', start);
   $('[data-retry]').addEventListener('click', start);

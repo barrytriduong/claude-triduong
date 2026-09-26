@@ -1,6 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import Translate from './Translate.astro';
+import StreakBadge from './StreakBadge.astro';
 import { SITE } from '../lib/site';
 
 const path = Astro.url.pathname;
@@ -21,6 +22,7 @@ const isActive = (href: string) => path.startsWith(href);
       ))}
     </nav>
     <div class="actions">
+      <StreakBadge />
       <Translate />
       <a class="btn btn-sun btn-sm yt" href={SITE.youtubeSubscribe} target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
@@ -132,6 +134,9 @@ const isActive = (href: string) => path.startsWith(href);
   @media (max-width: 560px) {
     .yt {
       display: none;
+    }
+    .actions {
+      gap: 6px;
     }
     .bar :global(.t-btn span) {
       display: none;

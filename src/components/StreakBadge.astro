@@ -1,0 +1,65 @@
+---
+// Shows "3-day streak" in the header once the learner has started.
+---
+<a href="/lessons/" class="streak-badge" data-streak-badge hidden title="Days in a row you've practised. Do a lesson step today to keep it going!">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 5.8 5 11a5 5 0 0 1-10 0c0-2.4 1.1-3.8 2.3-5 .2 1.6.9 2.7 2.2 3.3C11 8 10.8 5 12 2z"></path></svg>
+  <b data-streak-n></b><span class="sb-label">-day streak</span>
+</a>
+
+<style>
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    color: var(--rust);
+    font: 700 14px var(--sans);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  @media (max-width: 560px) {
+    .streak-badge {
+      padding: 0 12px;
+    }
+    .sb-label {
+      display: none;
+    }
+  }
+  .streak-badge.pending {
+    background: var(--sand);
+    color: var(--muted);
+  }
+  .streak-badge.bump {
+    animation: bump 0.5s ease;
+  }
+  @keyframes bump {
+    50% {
+      transform: scale(1.12);
+    }
+  }
+</style>
+
+<script>
+  import { getStreak } from '../scripts/streak';
+  const el = document.querySelector<HTMLElement>('[data-streak-badge]');
+  const render = (bump = false) => {
+    if (!el) return;
+    const { days, today } = getStreak();
+    if (!days) return;
+    el.hidden = false;
+    el.classList.toggle('pending', !today);
+    el.querySelector('[data-streak-n]')!.textContent = String(days);
+    el.setAttribute('aria-label', `${days}-day streak`);
+    el.title = today ? `You've practised ${days} day${days > 1 ? 's' : ''} in a row. Come back tomorrow!` : 'Do a lesson step today to keep your streak going!';
+    if (bump) {
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+    }
+  };
+  render();
+  document.addEventListener('ble:activity', () => render(true));
+</script>

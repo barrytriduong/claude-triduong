@@ -6,6 +6,7 @@ import Transcript from '../../components/lesson/Transcript.astro';
 import Vocabulary from '../../components/lesson/Vocabulary.astro';
 import Quiz from '../../components/lesson/Quiz.astro';
 import LessonCard from '../../components/LessonCard.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
 import { LEVEL_INFO } from '../../lib/levels';
 import { SITE, formatDate } from '../../lib/site';
 
@@ -84,6 +85,18 @@ const steps = [
         {d.duration && <span>· {d.duration} video</span>}
         <span>· {d.vocabulary.length} words · {d.quiz.length} questions</span>
       </p>
+      <div class="tools">
+        {hasVideo && (
+          <a class="btn btn-ghost btn-sm" href={`https://www.youtube.com/watch?v=${d.youtubeId}`} target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
+            Watch on YouTube
+          </a>
+        )}
+        <a class="btn btn-ghost btn-sm" href={`/lessons/${lesson.id}/worksheet/`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"></path><rect x="4" y="9" width="16" height="8" rx="2"></rect><path d="M7 14h10v7H7z"></path></svg>
+          Printable worksheet
+        </a>
+      </div>
     </header>
 
     <div class="wrap l-grid">
@@ -127,6 +140,15 @@ const steps = [
 
     <div class="wrap block">
       <Quiz count={d.quiz.length} />
+    </div>
+
+    <div class="wrap block">
+      <NewsletterForm
+        id="nl-lesson"
+        source={`lesson:${lesson.id}`}
+        title="Enjoyed this story?"
+        sub="Get the next inspiring story, five useful words and a study tip in your inbox every week. Free, and you can leave any time."
+      />
     </div>
 
     <div class="wrap block">
@@ -194,6 +216,11 @@ const steps = [
     gap: 6px;
     font-size: 14px;
     color: var(--muted);
+  }
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   .l-grid {
     display: grid;

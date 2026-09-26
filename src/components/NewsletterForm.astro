@@ -1,0 +1,97 @@
+---
+// Email sign-up. Uses Netlify Forms: every copy shares the name "newsletter" and the
+// same fields, and the hidden "source" field tells you which page the sign-up came from.
+import { LEVELS } from '../lib/levels';
+interface Props {
+  id: string; // unique per page, used for label ids
+  source: string;
+  dark?: boolean;
+  title?: string;
+  sub?: string;
+}
+const {
+  id,
+  source,
+  dark = false,
+  title = 'One new story every week',
+  sub = 'Get the newest lesson, five useful words and a study tip by email. Free, and you can leave any time.',
+} = Astro.props;
+---
+<form class:list={['nl', { dark }]} name="newsletter" method="POST" action="/thanks/" data-netlify="true" netlify-honeypot="company">
+  <input type="hidden" name="form-name" value="newsletter" />
+  <input type="hidden" name="source" value={source} />
+  <p class="visually-hidden"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off" /></label></p>
+  <h2>{title}</h2>
+  <p class="nl-sub">{sub}</p>
+  <div class="nl-row">
+    <label class="visually-hidden" for={`${id}-email`}>Email address</label>
+    <input id={`${id}-email`} type="email" name="email" required placeholder="you@example.com" autocomplete="email" />
+    <label class="visually-hidden" for={`${id}-level`}>Your level</label>
+    <select id={`${id}-level`} name="level">
+      <option value="">My level…</option>
+      {LEVELS.map((l) => <option>{l}</option>)}
+      <option value="unsure">Not sure</option>
+    </select>
+    <button class="btn btn-sun" type="submit">Join free</button>
+  </div>
+  <p class="nl-fine">We only use your email to send the newsletter. <a href="/privacy/">Privacy policy</a>.</p>
+</form>
+
+<style>
+  .nl {
+    display: grid;
+    gap: 10px;
+    padding: clamp(22px, 4vw, 32px);
+    border-radius: var(--radius);
+    background: var(--gold-soft);
+    color: var(--navy);
+  }
+  .nl h2 {
+    font-size: 28px;
+  }
+  .nl-sub {
+    font-size: 15px;
+    max-width: 60ch;
+  }
+  .nl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .nl-row input,
+  .nl-row select {
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--sand-deep);
+    background: var(--white);
+    color: var(--navy);
+    font: 500 16px var(--sans);
+  }
+  .nl-row input {
+    flex: 1 1 220px;
+  }
+  .nl-fine {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .dark {
+    background: var(--navy-soft);
+    color: #d7dce5;
+  }
+  .dark h2 {
+    color: var(--cream);
+  }
+  .dark .nl-row input,
+  .dark .nl-row select {
+    border-color: transparent;
+    background: var(--cream);
+  }
+  .dark .nl-fine {
+    color: #b9c1cf;
+  }
+  .dark .nl-fine a {
+    color: var(--gold);
+  }
+</style>
