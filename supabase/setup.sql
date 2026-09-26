@@ -94,7 +94,7 @@ on conflict do nothing;
 
 -- A family member who can view. Copy this block for each new person.
 insert into public.family (user_id)
-select id from auth.users where email = 'test@email.com'
+select id from auth.users where email = 'test@mail.com'
 on conflict do nothing;
 
 -- Check: lists everyone with access. Every email you added should appear here.
