@@ -4,6 +4,15 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+// Bump together with public.schema_version() in supabase/setup.sql.
+const SCHEMA_VERSION = 2;
+
+/** Throw Supabase errors instead of returning them. */
+function check({ data, error }) {
+  if (error) throw error;
+  return data;
+}
+
 export class SupabaseStore {
   mode = "cloud";
   needsAuth = true;
@@ -31,12 +40,24 @@ export class SupabaseStore {
     await this.#sb.auth.signOut();
   }
 
-  /** What the signed-in user may do: { admin, family }. */
+  /** What the signed-in user may do: { admin, family, setupNeeded }. */
   async getAccess() {
-    const [admin, family] = await Promise.all([this.#sb.rpc("is_admin"), this.#sb.rpc("is_family")]);
-    // A missing function means supabase/setup.sql (latest version) hasn't been run yet.
+    const [admin, family, version] = await Promise.all([
+      this.#sb.rpc("is_admin"), this.#sb.rpc("is_family"), this.#sb.rpc("schema_version"),
+    ]);
+    // Missing access functions: the private-site setup was never run, so nobody gets in.
     const setupNeeded = !!(admin.error || family.error);
-    return { admin: admin.data === true, family: family.data === true, setupNeeded };
+    // Older schema: the timeline still works, the newer features wait for the latest supabase/setup.sql.
+    const outdated = !setupNeeded && !!(version.error || version.data < SCHEMA_VERSION);
+    return { admin: admin.data === true && !setupNeeded, family: family.data === true && !setupNeeded, setupNeeded, outdated };
+  }
+
+  async getMyName() {
+    return (await this.getUser())?.user_metadata?.name || "";
+  }
+
+  async setMyName(name) {
+    check(await this.#sb.auth.updateUser({ data: { name } }));
   }
 
   async getSettings() {
@@ -55,6 +76,7 @@ export class SupabaseStore {
     if (error) throw error;
     for (const ev of data) {
       ev.media = ev.media || [];
+      ev.tags = ev.tags || [];
       ev.updatedAt = ev.updated_at;
     }
 
@@ -102,6 +124,7 @@ export class SupabaseStore {
       description: event.description,
       emoji: event.emoji,
       color: event.color,
+      tags: event.tags || [],
       media,
       updated_at: new Date().toISOString(),
     });
@@ -119,5 +142,78 @@ export class SupabaseStore {
     if (error) throw error;
     const paths = (data?.media || []).map((m) => m.path).filter(Boolean);
     if (paths.length) await this.#sb.storage.from(this.#bucket).remove(paths);
+  }
+
+  // ---------- Growth ----------
+
+  async listMeasurements() {
+    return check(await this.#sb.from("measurements").select("id, date, height_cm, weight_kg, note"));
+  }
+
+  async saveMeasurement(m) {
+    const row = { date: m.date, height_cm: m.height_cm, weight_kg: m.weight_kg, note: m.note || "" };
+    if (m.id) row.id = m.id;
+    check(await this.#sb.from("measurements").upsert(row));
+  }
+
+  async deleteMeasurement(id) {
+    check(await this.#sb.from("measurements").delete().eq("id", id));
+  }
+
+  // ---------- Letters ----------
+
+  /** Readable letters, plus envelopes (no body) for letters still sealed. */
+  async listLetters() {
+    const [open, sealed] = await Promise.all([
+      this.#sb.from("letters").select("id, user_id, author_name, title, body, written_on, unlock_on"),
+      this.#sb.rpc("sealed_letters"),
+    ]);
+    const letters = check(open);
+    const known = new Set(letters.map((l) => l.id));
+    for (const env of check(sealed) || []) if (!known.has(env.id)) letters.push({ ...env, body: null });
+    return letters;
+  }
+
+  async saveLetter(l) {
+    const row = { title: l.title, body: l.body, author_name: l.author_name, unlock_on: l.unlock_on || null };
+    if (l.id) check(await this.#sb.from("letters").update(row).eq("id", l.id));
+    else check(await this.#sb.from("letters").insert({ ...row, written_on: l.written_on }));
+  }
+
+  async deleteLetter(id) {
+    check(await this.#sb.from("letters").delete().eq("id", id));
+  }
+
+  // ---------- Hearts & comments ----------
+
+  async listComments() {
+    return check(await this.#sb.from("comments").select("id, event_id, user_id, author_name, body, created_at"));
+  }
+
+  async addComment({ event_id, body, author_name }) {
+    check(await this.#sb.from("comments").insert({ event_id, body, author_name }));
+  }
+
+  async deleteComment(id) {
+    check(await this.#sb.from("comments").delete().eq("id", id));
+  }
+
+  async listReactions() {
+    return check(await this.#sb.from("reactions").select("event_id, user_id, author_name"));
+  }
+
+  async addReaction(event_id, author_name) {
+    const { error } = await this.#sb.from("reactions").insert({ event_id, author_name });
+    if (error && error.code !== "23505") throw error; // 23505 = already hearted
+  }
+
+  async removeReaction(event_id) {
+    const user = await this.getUser();
+    check(await this.#sb.from("reactions").delete().eq("event_id", event_id).eq("user_id", user.id));
+  }
+
+  /** Admin only: the email address of every family member (for "email the family"). */
+  async familyEmails() {
+    return (check(await this.#sb.rpc("family_emails")) || []).map((r) => r.email);
   }
 }

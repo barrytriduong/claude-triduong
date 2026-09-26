@@ -2,7 +2,9 @@
 // Media files are stored as Blobs, separate from the event records.
 
 const DB_NAME = "little-timeline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+const COLLECTIONS = ["measurements", "letters", "comments", "reactions"];
+const LOCAL_USER = { id: "local", email: "local" };
 
 function promisify(req) {
   return new Promise((resolve, reject) => {
@@ -30,41 +32,50 @@ export class LocalStore {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
-      db.createObjectStore("events", { keyPath: "id" });
-      db.createObjectStore("media");
-      db.createObjectStore("settings");
+      for (const name of ["events", ...COLLECTIONS]) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: "id" });
+      }
+      for (const name of ["media", "settings"]) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
+      }
     };
     this.#db = await promisify(req);
     // Ask the browser not to evict our data under storage pressure.
     navigator.storage?.persist?.().catch(() => {});
   }
 
-  #tx(stores, mode = "readonly") {
-    return this.#db.transaction(stores, mode);
+  #store(name, mode = "readonly") {
+    return this.#db.transaction(name, mode).objectStore(name);
   }
+  #all(name) { return promisify(this.#store(name).getAll()); }
+  #get(name, key) { return promisify(this.#store(name).get(key)); }
+  #put(name, value, key) { return promisify(this.#store(name, "readwrite").put(value, key)); }
+  #del(name, key) { return promisify(this.#store(name, "readwrite").delete(key)); }
 
-  async getUser() { return { email: "local" }; }
+  async getUser() { return LOCAL_USER; }
+  async getAccess() { return { admin: true, family: true }; }
 
-  async getSettings() {
-    return (await promisify(this.#tx("settings").objectStore("settings").get("site"))) || null;
-  }
+  async getMyName() { return (await this.#get("settings", "myName")) || ""; }
+  async setMyName(name) { await this.#put("settings", name, "myName"); }
 
-  async saveSettings(settings) {
-    await promisify(this.#tx("settings", "readwrite").objectStore("settings").put(settings, "site"));
-  }
+  async getSettings() { return (await this.#get("settings", "site")) || null; }
+  async saveSettings(settings) { await this.#put("settings", settings, "site"); }
 
   async #mediaUrl(id) {
     if (this.#urls.has(id)) return this.#urls.get(id);
-    const blob = await promisify(this.#tx("media").objectStore("media").get(id));
+    const blob = await this.#get("media", id);
     if (!blob) return "";
     const url = URL.createObjectURL(blob);
     this.#urls.set(id, url);
     return url;
   }
 
+  // ---------- Memories ----------
+
   async listEvents() {
-    const events = await promisify(this.#tx("events").objectStore("events").getAll());
+    const events = await this.#all("events");
     for (const ev of events) {
+      ev.tags = ev.tags || [];
       for (const m of ev.media || []) {
         if (m.mediaId) m.src = await this.#mediaUrl(m.mediaId);
       }
@@ -75,13 +86,13 @@ export class LocalStore {
   /** `event.media` items are either stored refs ({type, mediaId}), links ({type:'link', url}) or new uploads ({type, file}). */
   async saveEvent(event) {
     const id = event.id || crypto.randomUUID();
-    const previous = event.id ? await promisify(this.#tx("events").objectStore("events").get(id)) : null;
+    const previous = event.id ? await this.#get("events", id) : null;
 
     const media = [];
     for (const m of event.media) {
       if (m.file) {
         const mediaId = crypto.randomUUID();
-        await promisify(this.#tx("media", "readwrite").objectStore("media").put(m.file, mediaId));
+        await this.#put("media", m.file, mediaId);
         media.push({ type: m.type, mediaId, name: m.file.name });
       } else if (m.mediaId) {
         media.push({ type: m.type, mediaId: m.mediaId, name: m.name });
@@ -90,17 +101,17 @@ export class LocalStore {
       }
     }
 
-    const record = {
+    await this.#put("events", {
       id,
       date: event.date,
       title: event.title,
       description: event.description,
       emoji: event.emoji,
       color: event.color,
+      tags: event.tags || [],
       media,
       updatedAt: new Date().toISOString(),
-    };
-    await promisify(this.#tx("events", "readwrite").objectStore("events").put(record));
+    });
 
     const kept = new Set(media.map((m) => m.mediaId).filter(Boolean));
     await this.#deleteMedia((previous?.media || []).filter((m) => m.mediaId && !kept.has(m.mediaId)));
@@ -108,46 +119,84 @@ export class LocalStore {
   }
 
   async deleteEvent(id) {
-    const store = this.#tx("events", "readwrite").objectStore("events");
-    const previous = await promisify(store.get(id));
-    await promisify(this.#tx("events", "readwrite").objectStore("events").delete(id));
+    const previous = await this.#get("events", id);
+    await this.#del("events", id);
     await this.#deleteMedia(previous?.media || []);
+    for (const c of await this.#all("comments")) if (c.event_id === id) await this.#del("comments", c.id);
+    for (const r of await this.#all("reactions")) if (r.event_id === id) await this.#del("reactions", r.id);
   }
 
   async #deleteMedia(items) {
     for (const m of items) {
       if (!m.mediaId) continue;
-      await promisify(this.#tx("media", "readwrite").objectStore("media").delete(m.mediaId));
+      await this.#del("media", m.mediaId);
       const url = this.#urls.get(m.mediaId);
       if (url) URL.revokeObjectURL(url);
       this.#urls.delete(m.mediaId);
     }
   }
 
+  // ---------- Growth ----------
+
+  listMeasurements() { return this.#all("measurements"); }
+  async saveMeasurement(m) { await this.#put("measurements", { ...m, id: m.id || crypto.randomUUID() }); }
+  deleteMeasurement(id) { return this.#del("measurements", id); }
+
+  // ---------- Letters ----------
+
+  listLetters() { return this.#all("letters"); }
+  async saveLetter(l) {
+    const existing = l.id ? await this.#get("letters", l.id) : null;
+    await this.#put("letters", {
+      ...existing,
+      ...l,
+      id: l.id || crypto.randomUUID(),
+      user_id: LOCAL_USER.id,
+      written_on: existing?.written_on || l.written_on,
+    });
+  }
+  deleteLetter(id) { return this.#del("letters", id); }
+
+  // ---------- Hearts & comments ----------
+
+  listComments() { return this.#all("comments"); }
+  async addComment({ event_id, body, author_name }) {
+    await this.#put("comments", { id: crypto.randomUUID(), event_id, body, author_name, user_id: LOCAL_USER.id, created_at: new Date().toISOString() });
+  }
+  deleteComment(id) { return this.#del("comments", id); }
+
+  listReactions() { return this.#all("reactions"); }
+  async addReaction(event_id, author_name) {
+    await this.#put("reactions", { id: `${event_id}:${LOCAL_USER.id}`, event_id, user_id: LOCAL_USER.id, author_name });
+  }
+  removeReaction(event_id) { return this.#del("reactions", `${event_id}:${LOCAL_USER.id}`); }
+
+  async familyEmails() { return []; }
+
   // ---------- Backup ----------
 
   async exportAll() {
-    const events = await promisify(this.#tx("events").objectStore("events").getAll());
+    const events = await this.#all("events");
     const media = {};
     for (const ev of events) {
       for (const m of ev.media || []) {
         if (!m.mediaId) continue;
-        const blob = await promisify(this.#tx("media").objectStore("media").get(m.mediaId));
+        const blob = await this.#get("media", m.mediaId);
         if (blob) media[m.mediaId] = await blobToDataURL(blob);
       }
     }
-    return { app: "little-timeline", version: 1, exportedAt: new Date().toISOString(), settings: await this.getSettings(), events, media };
+    const data = { app: "little-timeline", version: 2, exportedAt: new Date().toISOString(), settings: await this.getSettings(), events, media };
+    for (const name of COLLECTIONS) data[name] = await this.#all(name);
+    return data;
   }
 
   async importAll(data) {
     if (data?.app !== "little-timeline") throw new Error("This doesn't look like a timeline backup file.");
     for (const [id, dataUrl] of Object.entries(data.media || {})) {
-      const blob = await (await fetch(dataUrl)).blob();
-      await promisify(this.#tx("media", "readwrite").objectStore("media").put(blob, id));
+      await this.#put("media", await (await fetch(dataUrl)).blob(), id);
     }
-    for (const ev of data.events || []) {
-      await promisify(this.#tx("events", "readwrite").objectStore("events").put(ev));
-    }
+    for (const ev of data.events || []) await this.#put("events", ev);
+    for (const name of COLLECTIONS) for (const row of data[name] || []) await this.#put(name, row);
     if (data.settings) await this.saveSettings(data.settings);
   }
 }

@@ -8,7 +8,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -21,123 +21,244 @@
 
   <!-- Toolbar -->
   <div class="toolbar">
-    <button class="btn btn-ghost" id="btnSettings" hidden title="Edit name &amp; birthday">⚙️ <span>Settings</span></button>
-    <button class="btn btn-ghost" id="btnBackup" hidden title="Backup / restore">💾 <span>Backup</span></button>
-    <button class="btn btn-ghost" id="btnSignOut" hidden>👋 <span>Sign out</span></button>
-    <button class="btn btn-primary" id="btnEditMode" hidden>✏️ <span>Edit</span></button>
+    <button class="btn btn-ghost" id="btnLang">🌐 <span data-i18n="langToggle"></span></button>
+    <button class="btn btn-ghost" id="btnBulk" hidden>🖼️ <span data-i18n="bulkBtn"></span></button>
+    <button class="btn btn-ghost" id="btnSettings" hidden>⚙️ <span data-i18n="settings"></span></button>
+    <button class="btn btn-ghost" id="btnBackup" hidden>💾 <span data-i18n="backup"></span></button>
+    <button class="btn btn-ghost" id="btnSignOut" hidden>👋 <span data-i18n="signOut"></span></button>
+    <button class="btn btn-primary" id="btnEditMode" hidden></button>
   </div>
 
-  <!-- Shown instead of the timeline to anyone who isn't signed in -->
+  <!-- Shown instead of everything else to anyone who isn't signed in -->
   <section class="gate" id="gate" hidden>
     <div class="gate-card">
       <div class="gate-emoji">🔐</div>
-      <h1>A little private place</h1>
-      <p class="muted" id="gateText">These memories are just for family. Please sign in to see them.</p>
+      <h1 data-i18n="gateTitle"></h1>
+      <p class="muted" id="gateText"></p>
       <div class="gate-actions">
-        <button class="btn btn-primary" id="btnGateLogin">💕 Sign in</button>
-        <button class="btn btn-ghost" id="btnGateSignOut" hidden>Use a different account</button>
+        <button class="btn btn-primary" id="btnGateLogin" data-i18n="gateSignIn"></button>
+        <button class="btn btn-ghost" id="btnGateSignOut" hidden data-i18n="gateOther"></button>
       </div>
     </div>
   </section>
 
-  <header class="hero" id="hero">
-    <div class="hero-emoji" id="heroEmoji">🌷</div>
-    <h1 id="heroName">Our Little Star</h1>
-    <p class="hero-tagline" id="heroTagline">Every little moment, kept forever</p>
-    <p class="hero-age" id="heroAge"></p>
-    <span class="badge-mode" id="modeBadge" hidden></span>
-    <div class="scroll-hint" aria-hidden="true">scroll down <span>↓</span></div>
-  </header>
+  <div id="app" hidden>
+    <header class="hero" id="hero">
+      <div class="hero-emoji" id="heroEmoji">🌷</div>
+      <h1 id="heroName"></h1>
+      <p class="hero-tagline" id="heroTagline"></p>
+      <p class="hero-age" id="heroAge"></p>
+      <span class="badge-mode" id="modeBadge" hidden data-i18n="localBadge"></span>
+      <div class="scroll-hint" aria-hidden="true"><span data-i18n="scrollDown"></span> <b>↓</b></div>
+    </header>
 
-  <main id="main">
-    <div class="timeline" id="timeline">
-      <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
-      <div id="events"></div>
-    </div>
-    <div class="empty" id="emptyState" hidden>
-      <div class="empty-emoji">🐣</div>
-      <h2>No memories yet</h2>
-      <p>Tap <b>Edit</b> at the top, then <b>Add a memory</b> to start the story.</p>
-      <button class="btn btn-ghost" id="btnSample" hidden>✨ Load a few sample memories</button>
-    </div>
-  </main>
+    <nav class="tabs" id="tabs">
+      <a href="#timeline" data-view="timeline" data-i18n="tabTimeline"></a>
+      <a href="#growth" data-view="growth" data-i18n="tabGrowth"></a>
+      <a href="#letters" data-view="letters" data-i18n="tabLetters"></a>
+    </nav>
 
-  <button class="fab" id="fabAdd" hidden title="Add a memory">＋ <span>Add a memory</span></button>
+    <!-- ===== Timeline ===== -->
+    <main class="view" id="viewTimeline">
+      <section class="on-this-day" id="onThisDay" hidden></section>
+      <div class="jumpbar" id="jumpbar" hidden></div>
+      <div class="filters" id="filters" hidden></div>
+      <div class="timeline" id="timeline">
+        <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
+        <div id="events"></div>
+      </div>
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty-emoji">🐣</div>
+        <h2 data-i18n="emptyTitle"></h2>
+        <p id="emptyText"></p>
+        <button class="btn btn-ghost" id="btnSample" hidden data-i18n="sampleBtn"></button>
+      </div>
+    </main>
 
-  <footer class="footer" id="footer">made with <span class="heart">♥</span> for you</footer>
+    <!-- ===== Growth ===== -->
+    <main class="view" id="viewGrowth" hidden>
+      <div class="view-head">
+        <h2 data-i18n="growthTitle"></h2>
+        <button class="btn btn-primary" id="btnAddMeasurement" hidden data-i18n="addMeasurement"></button>
+      </div>
+      <div id="growthBody"></div>
+    </main>
 
-  <!-- Event editor -->
+    <!-- ===== Letters ===== -->
+    <main class="view" id="viewLetters" hidden>
+      <div class="view-head">
+        <h2 data-i18n="lettersTitle"></h2>
+        <button class="btn btn-primary" id="btnWriteLetter" data-i18n="writeLetter"></button>
+      </div>
+      <p class="muted view-intro" data-i18n="lettersIntro"></p>
+      <div class="letters" id="lettersBody"></div>
+    </main>
+
+    <footer class="footer" id="footer"><span data-i18n="footerA"></span> <span class="heart">♥</span> <span data-i18n="footerB"></span></footer>
+  </div>
+
+  <button class="fab" id="fabAdd" hidden>＋ <span data-i18n="addMemory"></span></button>
+
+  <!-- Memory editor -->
   <dialog class="modal" id="eventDialog">
     <form method="dialog" id="eventForm" class="modal-body">
-      <h2 id="eventDialogTitle">New memory</h2>
+      <h2 id="eventDialogTitle"></h2>
       <div class="row">
-        <label class="field grow">Title
-          <input name="title" required maxlength="120" placeholder="First steps!">
+        <label class="field grow"><span data-i18n="fTitle"></span>
+          <input name="title" required maxlength="120" data-i18n-placeholder="fTitlePh">
         </label>
-        <label class="field emoji-field">Emoji
+        <label class="field emoji-field"><span data-i18n="fEmoji"></span>
           <input name="emoji" maxlength="8" placeholder="👣">
         </label>
       </div>
       <div class="row">
-        <label class="field grow">Date
+        <label class="field grow"><span data-i18n="fDate"></span>
           <input name="date" type="date" required>
         </label>
-        <div class="field grow">Color
+        <div class="field grow"><span data-i18n="fColor"></span>
           <div class="swatches" id="colorSwatches"></div>
         </div>
       </div>
-      <label class="field">The story
-        <textarea name="description" rows="5" placeholder="What happened, how it felt, the funny little details…"></textarea>
+      <label class="field"><span data-i18n="fStory"></span>
+        <textarea name="description" rows="5" data-i18n-placeholder="fStoryPh"></textarea>
       </label>
+      <div class="field"><span data-i18n="fTags"></span>
+        <div class="tag-picker" id="tagPicker"></div>
+        <input id="tagCustom" maxlength="30" data-i18n-placeholder="fTagCustomPh">
+      </div>
 
-      <div class="field">Photos &amp; videos
+      <div class="field"><span data-i18n="fMedia"></span>
         <div class="media-edit" id="mediaEdit"></div>
         <div class="media-add">
-          <label class="btn btn-ghost file-btn">📷 Add photos / videos
+          <label class="btn btn-ghost file-btn"><span data-i18n="addMedia"></span>
             <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
           </label>
           <div class="link-add">
-            <input type="url" id="linkInput" placeholder="…or paste a YouTube / Vimeo / video link">
-            <button type="button" class="btn btn-ghost" id="btnAddLink">Add link</button>
+            <input type="url" id="linkInput" data-i18n-placeholder="linkPh">
+            <button type="button" class="btn btn-ghost" id="btnAddLink" data-i18n="addLink"></button>
           </div>
         </div>
       </div>
 
       <p class="form-error" id="eventError" hidden></p>
       <div class="modal-actions">
-        <button type="button" class="btn btn-danger" id="btnDelete" hidden>🗑️ Delete</button>
+        <button type="button" class="btn btn-danger" id="btnDelete" hidden data-i18n="deleteBtn"></button>
         <span class="spacer"></span>
-        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
-        <button type="submit" class="btn btn-primary" id="btnSave">Save memory</button>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" id="btnSave" data-i18n="saveMemory"></button>
       </div>
     </form>
+  </dialog>
+
+  <!-- Bulk upload -->
+  <dialog class="modal" id="bulkDialog">
+    <form method="dialog" id="bulkForm" class="modal-body">
+      <h2 data-i18n="bulkTitle"></h2>
+      <p class="muted" data-i18n="bulkIntro"></p>
+      <label class="btn btn-ghost file-btn"><span data-i18n="bulkPick"></span>
+        <input type="file" id="bulkInput" accept="image/*,video/*" multiple hidden>
+      </label>
+      <div class="segmented" id="bulkMode">
+        <label><input type="radio" name="bulkMode" value="day" checked> <span data-i18n="bulkPerDay"></span></label>
+        <label><input type="radio" name="bulkMode" value="photo"> <span data-i18n="bulkPerPhoto"></span></label>
+      </div>
+      <div class="bulk-groups" id="bulkGroups"></div>
+      <p class="form-error" id="bulkError" hidden></p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" id="btnBulkSave" disabled></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Measurement editor -->
+  <dialog class="modal" id="measureDialog">
+    <form method="dialog" id="measureForm" class="modal-body narrow">
+      <h2 id="measureDialogTitle"></h2>
+      <label class="field"><span data-i18n="fDate"></span> <input name="date" type="date" required></label>
+      <div class="row">
+        <label class="field grow"><span data-i18n="mHeight"></span> <input name="height_cm" type="number" step="0.1" min="20" max="250" inputmode="decimal"></label>
+        <label class="field grow"><span data-i18n="mWeight"></span> <input name="weight_kg" type="number" step="0.01" min="0.5" max="200" inputmode="decimal"></label>
+      </div>
+      <label class="field"><span data-i18n="mNote"></span> <input name="note" maxlength="120" data-i18n-placeholder="mNotePh"></label>
+      <p class="form-error" id="measureError" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="btnDeleteMeasure" hidden data-i18n="deleteBtn"></button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Letter editor -->
+  <dialog class="modal" id="letterDialog">
+    <form method="dialog" id="letterForm" class="modal-body">
+      <h2 id="letterDialogTitle"></h2>
+      <label class="field"><span data-i18n="fTitle"></span> <input name="title" maxlength="120" data-i18n-placeholder="lTitlePh"></label>
+      <label class="field"><span data-i18n="lBody"></span> <textarea name="body" rows="10" required data-i18n-placeholder="lBodyPh"></textarea></label>
+      <div class="row">
+        <label class="field grow"><span data-i18n="lFrom"></span> <input name="author_name" required maxlength="60"></label>
+        <label class="field grow"><span data-i18n="lUnlock"></span> <input name="unlock_on" type="date">
+          <small class="muted" data-i18n="lUnlockHint"></small></label>
+      </div>
+      <p class="form-error" id="letterError" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="btnDeleteLetter" hidden data-i18n="deleteBtn"></button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="saveLetter"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- "What should we call you?" -->
+  <dialog class="modal" id="nameDialog">
+    <form method="dialog" id="nameForm" class="modal-body narrow">
+      <h2 data-i18n="nameTitle"></h2>
+      <p class="muted" data-i18n="nameHint"></p>
+      <label class="field"><span data-i18n="nameLabel"></span> <input name="name" required maxlength="40"></label>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Notify family -->
+  <dialog class="modal" id="notifyDialog">
+    <div class="modal-body narrow">
+      <h2 data-i18n="notifyTitle"></h2>
+      <p class="muted" data-i18n="notifyText"></p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="notifySkip"></button>
+        <a class="btn btn-primary" id="notifyLink" data-i18n="notifyBtn"></a>
+      </div>
+    </div>
   </dialog>
 
   <!-- Settings -->
   <dialog class="modal" id="settingsDialog">
     <form method="dialog" id="settingsForm" class="modal-body">
-      <h2>About her</h2>
+      <h2 data-i18n="aboutHer"></h2>
       <div class="row">
-        <label class="field grow">Name
-          <input name="name" required placeholder="Lily">
+        <label class="field grow"><span data-i18n="sName"></span>
+          <input name="name" required placeholder="Minh Tuệ">
         </label>
-        <label class="field emoji-field">Emoji
+        <label class="field emoji-field"><span data-i18n="fEmoji"></span>
           <input name="emoji" maxlength="8" placeholder="🌷">
         </label>
       </div>
-      <label class="field">Birthday
-        <input name="birthday" type="date">
-      </label>
-      <label class="field">Tagline
-        <input name="tagline" placeholder="Every little moment, kept forever">
-      </label>
-      <label class="field check">
-        <input type="checkbox" name="newestFirst"> Show newest memories first
-      </label>
+      <label class="field"><span data-i18n="sBirthday"></span> <input name="birthday" type="date"></label>
+      <label class="field"><span data-i18n="sTagline"></span> <input name="tagline" data-i18n-placeholder="defaultTagline"></label>
+      <label class="field check"><input type="checkbox" name="newestFirst"> <span data-i18n="sNewestFirst"></span></label>
       <div class="modal-actions">
         <span class="spacer"></span>
-        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
       </div>
     </form>
   </dialog>
@@ -145,33 +266,33 @@
   <!-- Sign in -->
   <dialog class="modal" id="loginDialog">
     <form method="dialog" id="loginForm" class="modal-body narrow">
-      <h2>Welcome, family 💕</h2>
-      <p class="muted">Sign in with the email and password you were given.</p>
-      <label class="field">Email <input name="email" type="email" required autocomplete="username"></label>
-      <label class="field">Password <input name="password" type="password" required autocomplete="current-password"></label>
+      <h2 data-i18n="loginTitle"></h2>
+      <p class="muted" data-i18n="loginText"></p>
+      <label class="field"><span data-i18n="email"></span> <input name="email" type="email" required autocomplete="username"></label>
+      <label class="field"><span data-i18n="password"></span> <input name="password" type="password" required autocomplete="current-password"></label>
       <p class="form-error" id="loginError" hidden></p>
       <div class="modal-actions">
         <span class="spacer"></span>
-        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
-        <button type="submit" class="btn btn-primary" id="btnLoginSubmit">Sign in</button>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" id="btnLoginSubmit" data-i18n="signIn"></button>
       </div>
     </form>
   </dialog>
 
-  <!-- Backup (local mode) -->
+  <!-- Backup -->
   <dialog class="modal" id="backupDialog">
     <div class="modal-body narrow">
-      <h2>Backup &amp; restore</h2>
-      <p class="muted">Memories are saved in <b>this browser only</b>. Download a backup file regularly, or connect cloud storage (see README) to keep them safe and share the site.</p>
+      <h2 data-i18n="backupTitle"></h2>
+      <p class="muted" id="backupText"></p>
       <div class="stack">
-        <button class="btn btn-primary" id="btnExport">⬇️ Download backup</button>
-        <label class="btn btn-ghost file-btn">⬆️ Restore from backup
+        <button class="btn btn-primary" id="btnExport" data-i18n="downloadBackup"></button>
+        <label class="btn btn-ghost file-btn" id="restoreLabel"><span data-i18n="restoreBackup"></span>
           <input type="file" id="importInput" accept="application/json,.json" hidden>
         </label>
       </div>
       <div class="modal-actions">
         <span class="spacer"></span>
-        <button type="button" class="btn btn-ghost" data-close>Close</button>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="close"></button>
       </div>
     </div>
   </dialog>

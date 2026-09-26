@@ -8,6 +8,21 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 - **Her age is added automatically** to every memory ("3 months old", "2nd birthday 🎂", "12 weeks before you arrived") once you set her birthday in ⚙️ Settings.
 - Photos are resized before upload, so they load fast and use less storage.
 
+### Features
+
+| | |
+|---|---|
+| 🏷️ **Tags & filters** | Tag memories (Firsts, Birthdays, Trips… or your own) and filter the timeline by tag. |
+| 🗓️ **On this day** | A banner shows what happened on today's date in earlier years. |
+| 🧭 **Jump bar** | A sticky bar to jump to any year, with her age that year. |
+| ❤️ **Hearts & comments** | Family can heart and comment on memories. People can delete their own comments; you can delete any. |
+| 📏 **Growth** | Height & weight over time: latest values, a chart for each, and a full table. Only you can add measurements. |
+| 💌 **Letters to her** | Anyone in the family can write her a letter, optionally **sealed until a date**. Before then, others only see the envelope. |
+| 🖼️ **Many photos** | Pick a batch of photos; they're grouped by the day they were taken (read from the photo), one memory per day or per photo. |
+| 📧 **Email the family** | After you add memories, one tap opens your email app with a message to every family member. |
+| 💾 **Backup** | Downloads a .zip of everything: memories, photos, videos, letters, comments and measurements. |
+| 🌐 **Tiếng Việt / English** | Switch language with the 🌐 button; everyone's choice is remembered on their device. |
+
 ## Try it locally
 
 ```bash
@@ -50,6 +65,10 @@ The site is **private**:
 - Photos and videos are in a **private** bucket. Signed-in family get temporary links that expire after 12 hours, so a copied link stops working.
 - Search engines are told not to index the site.
 
+### Updating the database after a site update
+
+When a new version needs database changes, the admin sees a reminder on the site. Paste the latest [`supabase/setup.sql`](supabase/setup.sql) into **SQL Editor** and click **Run**. Running it again is safe and never deletes memories.
+
 ### Adding or removing family
 
 - **Add:** create their login in **Authentication → Users → Add user**. Then run this in the SQL Editor:
@@ -84,7 +103,14 @@ Then **Domain management → Add a domain** and follow the DNS instructions for 
 index.html              page layout & dialogs
 css/styles.css          the bright & cute theme
 js/config.js            ← your settings (Supabase keys, upload limits)
-js/app.js               timeline rendering, editor, lightbox
+js/app.js               timeline, filters, jump bar, editor, settings, lightbox
+js/social.js            hearts, comments, "what should we call you?"
+js/growth.js            growth tab: tiles, charts, measurements table
+js/letters.js           letters tab (with sealed letters)
+js/bulk.js              "Many photos" bulk upload
+js/exif.js              reads the date a photo was taken
+js/backup.js            .zip / .json backup
+js/i18n.js              English & Vietnamese text, age wording
 js/store-local.js       local-mode storage (IndexedDB in the browser)
 js/store-supabase.js    cloud-mode storage (Supabase DB + Storage)
 js/media.js             photo resizing, YouTube/Vimeo link parsing

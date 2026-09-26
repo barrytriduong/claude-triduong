@@ -1,82 +1,66 @@
 import config from "./config.js";
 import { LocalStore } from "./store-local.js";
 import { compressImage, parseVideoLink, hydrateLink } from "./media.js";
+import { $, h, openDialog, toast, todayISO } from "./util.js";
+import { t, setLang, lang, applyI18n, fmtDate, ageLabel, ageParts } from "./i18n.js";
+import { state, hooks, COLORS, COLOR_KEYS, PRESET_TAGS } from "./state.js";
+import { renderSocial, loadSocial } from "./social.js";
+import { loadGrowth, renderGrowth } from "./growth.js";
+import { loadLetters, renderLetters } from "./letters.js";
+import { openBulk } from "./bulk.js";
+import { openBackup } from "./backup.js";
 
-const COLORS = {
-  pink: "#ff8fb1", peach: "#ffb38a", lemon: "#ffd66b", mint: "#74d6b8", sky: "#86c5ff", lavender: "#b8a2ff",
-};
-const COLOR_KEYS = Object.keys(COLORS);
+const tagLabel = (tag) => (PRESET_TAGS.includes(tag) ? t(`tag_${tag}`) : `🏷️ ${tag}`);
 
-const $ = (sel) => document.querySelector(sel);
-
-/** Tiny DOM builder: h("div", {class: "x", onclick}, child, "text"). Text is always escaped. */
-function h(tag, attrs = {}, ...children) {
-  const el = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v == null || v === false) continue;
-    if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
-    else if (k in el && typeof v !== "string") el[k] = v;
-    else el.setAttribute(k, v === true ? "" : v);
-  }
-  for (const c of children.flat()) if (c != null && c !== false) el.append(c);
-  return el;
-}
-
-const state = {
-  store: null,
-  settings: { ...config.defaults },
-  events: [],
-  editing: false,
-  user: null,
-  access: { admin: false, family: false },
-};
-
-// ---------- Dates & ages ----------
-
-const parseDate = (s) => new Date(`${s}T00:00:00Z`);
-const fmtDate = (s) => parseDate(s).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
-const todayISO = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
-const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-const ordinal = (n) => n + (["th", "st", "nd", "rd"][(n % 100 - 20) % 10] || ["th", "st", "nd", "rd"][n % 100] || "th");
-
-function ageLabel(birthday, dateStr) {
-  if (!birthday || !dateStr) return "";
-  const b = parseDate(birthday);
-  const d = parseDate(dateStr);
-  const days = Math.round((d - b) / 86400000);
-  if (days < 0) {
-    const weeks = Math.ceil(-days / 7);
-    return weeks <= 42 ? `${plural(weeks, "week")} before you arrived` : "Before you were born";
-  }
-  if (days === 0) return "The day you were born 💕";
-  let months = (d.getUTCFullYear() - b.getUTCFullYear()) * 12 + (d.getUTCMonth() - b.getUTCMonth());
-  if (d.getUTCDate() < b.getUTCDate()) months--;
-  if (months < 1) return days < 14 ? `${plural(days, "day")} old` : `${plural(Math.floor(days / 7), "week")} old`;
-  if (months < 24) return `${plural(months, "month")} old`;
-  const years = Math.floor(months / 12);
-  const rest = months % 12;
-  if (d.getUTCMonth() === b.getUTCMonth() && d.getUTCDate() === b.getUTCDate()) return `${ordinal(years)} birthday 🎂`;
-  return rest ? `${plural(years, "year")}, ${plural(rest, "month")} old` : `${plural(years, "year")} old`;
-}
-
-// ---------- Rendering ----------
+// ---------- Hero ----------
 
 function renderHero() {
   const s = state.settings;
-  $("#heroName").textContent = s.name || config.defaults.name;
+  const name = s.name || t("defaultName");
+  $("#heroName").textContent = name;
   $("#heroEmoji").textContent = s.emoji || config.defaults.emoji;
-  $("#heroTagline").textContent = s.tagline || "";
-  const age = s.birthday ? ageLabel(s.birthday, todayISO()) : "";
-  $("#heroAge").textContent = age ? `🎈 ${age.includes("birthday") ? "Today is her " + age : "Now " + age}` : "";
-  document.title = s.name ? `${s.name}'s Timeline` : "Our Little Star";
+  $("#heroTagline").textContent = s.tagline || t("defaultTagline");
+  let age = "";
+  if (s.birthday && s.birthday <= todayISO()) {
+    const label = ageLabel(s.birthday, todayISO());
+    age = `🎈 ${ageParts(s.birthday, todayISO()).isBirthday ? t("heroBirthday", { age: label }) : t("heroNow", { age: label })}`;
+  }
+  $("#heroAge").textContent = age;
+  document.title = s.name ? t("pageTitle", { name: s.name }) : t("defaultName");
 }
+
+// ---------- Views (tabs) ----------
+
+const VIEWS = ["timeline", "growth", "letters"];
+
+function setView(view) {
+  state.view = VIEWS.includes(view) ? view : "timeline";
+  for (const v of VIEWS) $(`#view${v[0].toUpperCase()}${v.slice(1)}`).hidden = v !== state.view;
+  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("active", a.dataset.view === state.view));
+  $("#fabAdd").hidden = !(state.editing && state.view === "timeline");
+  if (state.view === "growth") renderGrowth();
+  if (state.view === "letters") renderLetters();
+  if (state.view === "timeline") updateLineFill();
+}
+
+window.addEventListener("hashchange", () => {
+  const view = location.hash.slice(1);
+  if (VIEWS.includes(view)) {
+    setView(view);
+    $("#tabs").scrollIntoView({ behavior: "smooth" });
+  }
+});
+
+// ---------- Timeline ----------
 
 function sortedEvents() {
   const dir = state.settings.newestFirst ? -1 : 1;
   return [...state.events].sort((a, b) => dir * (a.date.localeCompare(b.date) || (a.updatedAt || "").localeCompare(b.updatedAt || "")));
+}
+
+function visibleEvents() {
+  const all = sortedEvents();
+  return state.filterTag ? all.filter((ev) => ev.tags?.includes(state.filterTag)) : all;
 }
 
 function renderGallery(ev) {
@@ -102,13 +86,72 @@ function renderGallery(ev) {
   }));
 }
 
-function renderEvents() {
+function renderFilters() {
+  const counts = new Map();
+  for (const ev of state.events) for (const tag of ev.tags || []) counts.set(tag, (counts.get(tag) || 0) + 1);
+  if (state.filterTag && !counts.has(state.filterTag)) state.filterTag = null;
+  const bar = $("#filters");
+  bar.hidden = counts.size === 0;
+  const chip = (tag, label) => h("button", {
+    type: "button", class: `filter-chip${state.filterTag === tag ? " on" : ""}`, "aria-pressed": String(state.filterTag === tag),
+    onclick: () => { state.filterTag = tag; renderTimeline(); },
+  }, label);
+  const ordered = [...counts.keys()].sort((a, b) => (PRESET_TAGS.indexOf(a) + 1 || 99) - (PRESET_TAGS.indexOf(b) + 1 || 99) || a.localeCompare(b));
+  bar.replaceChildren(chip(null, t("filterAll")), ...ordered.map((tag) => chip(tag, `${tagLabel(tag)} · ${counts.get(tag)}`)));
+}
+
+function jumpAgeLabel(date) {
+  const b = state.settings.birthday;
+  if (!b) return "";
+  const { days, months } = ageParts(b, date);
+  if (days < 0) return "🤰";
+  if (months < 12) return "👶";
+  return t("ageShort", { n: Math.floor(months / 12) });
+}
+
+function renderJumpbar(events) {
+  const years = [];
+  for (const ev of events) {
+    const y = ev.date.slice(0, 4);
+    if (!years.some((x) => x.year === y)) years.push({ year: y, date: ev.date });
+  }
+  const bar = $("#jumpbar");
+  bar.hidden = years.length < 2;
+  bar.replaceChildren(h("span", { class: "jump-label" }, t("jumpTo")), ...years.map(({ year, date }) =>
+    h("a", { href: `#y${year}`, class: "jump-pill", onclick: (e) => { e.preventDefault(); scrollToEl($(`#year-${year}`)); } },
+      year, jumpAgeLabel(date) && h("small", {}, jumpAgeLabel(date)))));
+}
+
+function renderOnThisDay() {
+  const today = todayISO();
+  const matches = state.events
+    .filter((ev) => ev.date.slice(5) === today.slice(5) && ev.date < today)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const box = $("#onThisDay");
+  box.hidden = matches.length === 0;
+  box.replaceChildren(
+    h("div", { class: "otd-title" }, "🗓️ ", t("onThisDay")),
+    ...matches.map((ev) => h("button", {
+      type: "button", class: "otd-item",
+      onclick: () => { state.filterTag = null; renderTimeline(); flash(ev.id); },
+    }, h("span", { class: "otd-emoji" }, ev.emoji || "⭐"),
+      h("span", {}, h("b", {}, ev.title), h("small", {}, t("yearsAgo", { n: Number(today.slice(0, 4)) - Number(ev.date.slice(0, 4)) }))))));
+}
+
+function renderTimeline({ keepScroll = false } = {}) {
+  const y = window.scrollY;
+  renderFilters();
+  renderOnThisDay();
+  const events = visibleEvents();
+  renderJumpbar(events);
+
   const container = $("#events");
   container.replaceChildren();
-  const events = sortedEvents();
+  const noneAtAll = state.events.length === 0;
   $("#emptyState").hidden = events.length > 0;
+  $("#emptyText").textContent = noneAtAll ? t("emptyText") : t("emptyFiltered");
   $("#timeline").hidden = events.length === 0;
-  $("#btnSample").hidden = !(state.store?.mode === "local" && state.editing);
+  $("#btnSample").hidden = !(noneAtAll && state.store?.mode === "local" && state.editing);
 
   const perYear = {};
   for (const ev of events) perYear[ev.date.slice(0, 4)] = (perYear[ev.date.slice(0, 4)] || 0) + 1;
@@ -117,25 +160,51 @@ function renderEvents() {
   events.forEach((ev, i) => {
     const year = ev.date.slice(0, 4);
     if (year !== lastYear) {
-      container.append(h("div", { class: "year-marker" },
-        h("span", {}, year, h("small", {}, `${perYear[year]} ${perYear[year] === 1 ? "memory" : "memories"}`))));
+      container.append(h("div", { class: "year-marker", id: `year-${year}` },
+        h("span", {}, year, h("small", {}, t("memoryCount", { n: perYear[year] })))));
       lastYear = year;
     }
     const age = ageLabel(state.settings.birthday, ev.date);
-    container.append(h("article", { class: `event ${i % 2 ? "right" : "left"}`, "data-color": ev.color || COLOR_KEYS[i % COLOR_KEYS.length] },
+    container.append(h("article", {
+      class: `event ${i % 2 ? "right" : "left"}${keepScroll ? " visible" : ""}`, id: `ev-${ev.id}`,
+      "data-color": ev.color || COLOR_KEYS[i % COLOR_KEYS.length],
+    },
       h("div", { class: "event-dot" }, ev.emoji || "⭐"),
       h("div", { class: "card" },
-        h("button", { class: "card-edit", type: "button", onclick: () => openEditor(ev) }, "✏️ Edit"),
+        h("button", { class: "card-edit", type: "button", onclick: () => openEditor(ev) }, t("editCard")),
         h("div", { class: "card-meta" },
           h("span", { class: "chip" }, fmtDate(ev.date)),
           age && h("span", { class: "chip age" }, age)),
         h("h3", {}, ev.title),
         ev.description && h("p", { class: "desc" }, ev.description),
-        renderGallery(ev))));
+        renderGallery(ev),
+        ev.tags?.length > 0 && h("div", { class: "card-tags" }, ev.tags.map((tag) => h("button", {
+          type: "button", class: "tag-chip", onclick: () => { state.filterTag = tag; renderTimeline(); scrollToEl($("#filters")); },
+        }, tagLabel(tag)))),
+        renderSocial(ev))));
   });
 
   observeReveal();
+  if (keepScroll) window.scrollTo(0, y);
   updateLineFill();
+}
+hooks.renderTimeline = renderTimeline;
+hooks.renderGrowth = renderGrowth;
+hooks.renderLetters = renderLetters;
+
+function scrollToEl(el) {
+  if (!el) return;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+}
+
+function flash(id) {
+  const el = $(`#ev-${CSS.escape(id)}`);
+  if (!el) return;
+  el.classList.add("visible");
+  scrollToEl(el);
+  el.classList.remove("flash");
+  void el.offsetWidth;
+  el.classList.add("flash");
 }
 
 // Reveal cards as they scroll into view.
@@ -149,8 +218,7 @@ function observeReveal() {
 
 // The center line fills with color as you scroll.
 function updateLineFill() {
-  const tl = $("#timeline");
-  const rect = tl.getBoundingClientRect();
+  const rect = $("#timeline").getBoundingClientRect();
   const progress = Math.min(Math.max(window.innerHeight * 0.6 - rect.top, 0), rect.height);
   $("#lineFill").style.height = `${progress}px`;
 }
@@ -162,60 +230,77 @@ window.addEventListener("resize", updateLineFill);
 function setEditing(on) {
   state.editing = on;
   document.body.classList.toggle("editing", on);
-  $("#btnEditMode").innerHTML = on ? "✅ <span>Done</span>" : "✏️ <span>Edit</span>";
-  $("#fabAdd").hidden = !on;
+  renderToolbar();
+  setView(state.view);
+  renderTimeline({ keepScroll: true });
+}
+
+function renderToolbar() {
+  const on = state.editing;
+  $("#btnEditMode").replaceChildren(on ? "✅ " : "✏️ ", h("span", {}, t(on ? "done" : "edit")));
   $("#btnSettings").hidden = !on;
-  $("#btnBackup").hidden = !(on && state.store.mode === "local");
-  renderEvents();
+  $("#btnBackup").hidden = !on;
+  $("#btnBulk").hidden = !on;
 }
 
 // Cloud mode is private: signed-out visitors only see the sign-in gate, family
-// members see the timeline, and only admins get the Edit button. The database
+// members see the site, and only admins get the Edit button. The database
 // enforces the same rules, so hiding things here is just for a tidy page.
 async function updateAuthUI() {
-  if (!state.store.needsAuth) return true;
   state.user = await state.store.getUser();
   state.access = state.user ? await state.store.getAccess() : { admin: false, family: false };
   const allowed = state.access.family;
 
   $("#gate").hidden = allowed;
-  $("#hero").hidden = $("#main").hidden = $("#footer").hidden = !allowed;
+  $("#app").hidden = !allowed;
   $("#btnEditMode").hidden = !state.access.admin;
-  $("#btnSignOut").hidden = !allowed;
+  $("#btnSignOut").hidden = !(allowed && state.store.needsAuth);
   $("#btnGateLogin").hidden = !!state.user;
   $("#btnGateSignOut").hidden = !state.user;
   $("#gateText").textContent = !state.user
-    ? "These memories are just for family. Please sign in to see them."
-    : state.access.setupNeeded
-      ? "Almost there! The database setup needs updating: run the latest supabase/setup.sql in the Supabase SQL Editor."
-      : `You're signed in as ${state.user.email}, but this account hasn't been given access yet. Ask the parents to add you.`;
+    ? t("gateText")
+    : state.access.setupNeeded ? t("gateSetup") : t("gateNoAccess", { email: state.user.email });
   if (!state.access.admin && state.editing) setEditing(false);
   return allowed;
 }
 
 async function loadAll() {
-  state.settings = { ...config.defaults, ...((await state.store.getSettings()) || {}) };
+  const [settings, events, myName] = await Promise.all([state.store.getSettings(), state.store.listEvents(), state.store.getMyName()]);
+  state.settings = { ...config.defaults, ...(settings || {}) };
+  state.events = events;
+  state.myName = myName;
+  // Each extra feature loads on its own, so one missing table can't take down the timeline.
+  await Promise.all([loadSocial(), loadGrowth(), loadLetters()].map((p) => p.catch((ex) => console.warn(ex))));
+  renderAll();
+  if (state.access.outdated && state.access.admin) toast(t("gateSetup"), 12000);
+}
+
+function renderAll() {
+  applyI18n();
   renderHero();
-  await reload();
+  renderToolbar();
+  renderTimeline();
+  setView(state.view);
+}
+
+async function reloadEvents() {
+  state.events = await state.store.listEvents();
+  renderTimeline({ keepScroll: true });
 }
 
 $("#btnGateLogin").addEventListener("click", () => openDialog("#loginDialog"));
-
 $("#btnEditMode").addEventListener("click", () => setEditing(!state.editing));
 
 async function signOut() {
   await state.store.signOut();
   setEditing(false);
-  state.events = [];
-  state.settings = { ...config.defaults };
-  renderEvents();
-  renderHero();
+  Object.assign(state, { events: [], comments: [], reactions: [], measurements: [], letters: [], myName: "", settings: { ...config.defaults } });
   await updateAuthUI();
 }
 
 $("#btnSignOut").addEventListener("click", async () => {
   await signOut();
-  toast("Signed out 👋");
+  toast(t("signedOut"));
 });
 $("#btnGateSignOut").addEventListener("click", signOut);
 
@@ -232,36 +317,47 @@ $("#loginForm").addEventListener("submit", async (e) => {
     $("#loginDialog").close();
     if (await updateAuthUI()) {
       await loadAll();
-      toast(state.access.admin ? "Welcome back! Tap Edit to add memories ✏️" : "Welcome! 💕");
+      toast(t(state.access.admin ? "welcomeAdmin" : "welcomeFamily"));
     }
   } catch (ex) {
-    err.textContent = ex.message === "Invalid login credentials" ? "That email or password isn't right." : ex.message || "Could not sign in.";
+    err.textContent = ex.message === "Invalid login credentials" ? t("wrongLogin") : ex.message;
     err.hidden = false;
   } finally {
     btn.disabled = false;
   }
 });
 
-// ---------- Event editor ----------
+// ---------- Language ----------
 
-let draft = null; // { id, media: [...] }
+$("#btnLang").addEventListener("click", () => {
+  setLang(lang === "vi" ? "en" : "vi");
+  if (!$("#app").hidden) renderAll();
+  else updateAuthUI();
+});
+
+// ---------- Memory editor ----------
+
+let draft = null; // { id, color, tags, media }
 
 function openEditor(ev = null) {
   const f = $("#eventForm");
   f.reset();
   $("#eventError").hidden = true;
-  $("#eventDialogTitle").textContent = ev ? "Edit memory" : "New memory";
+  $("#eventDialogTitle").textContent = t(ev ? "editMemory" : "newMemory");
   $("#btnDelete").hidden = !ev;
   f.title.value = ev?.title || "";
   f.emoji.value = ev?.emoji || "";
   f.date.value = ev?.date || todayISO();
   f.description.value = ev?.description || "";
+  $("#tagCustom").value = "";
   draft = {
     id: ev?.id || null,
     color: ev?.color || COLOR_KEYS[Math.floor(Math.random() * COLOR_KEYS.length)],
+    tags: [...(ev?.tags || [])],
     media: (ev?.media || []).map((m) => ({ ...m })),
   };
   renderSwatches();
+  renderTagPicker();
   renderMediaEdit();
   openDialog("#eventDialog");
 }
@@ -275,20 +371,44 @@ function renderSwatches() {
     })));
 }
 
+function renderTagPicker() {
+  const used = new Set(state.events.flatMap((ev) => ev.tags || []));
+  const all = [...new Set([...PRESET_TAGS, ...used, ...draft.tags])];
+  $("#tagPicker").replaceChildren(...all.map((tag) => {
+    const on = draft.tags.includes(tag);
+    return h("button", {
+      type: "button", class: `filter-chip${on ? " on" : ""}`, "aria-pressed": String(on),
+      onclick: () => {
+        draft.tags = on ? draft.tags.filter((x) => x !== tag) : [...draft.tags, tag];
+        renderTagPicker();
+      },
+    }, tagLabel(tag));
+  }));
+}
+
+$("#tagCustom").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const tag = e.target.value.trim().toLowerCase();
+  if (tag && !draft.tags.includes(tag)) draft.tags.push(tag);
+  e.target.value = "";
+  renderTagPicker();
+});
+
 function renderMediaEdit() {
   $("#mediaEdit").replaceChildren(...draft.media.map((m, i) => {
     const src = m.src || m.preview;
     let body;
     if (m.type === "image") body = h("img", { src, alt: "" });
     else if (m.type === "video") body = h("video", { src: `${src}#t=0.1`, muted: true, preload: "metadata" });
-    else body = h("span", {}, "🔗 ", hydrateLink(m).type === "embed" ? "Video link" : "Link");
+    else body = h("span", {}, "🔗 ", hydrateLink(m).type === "embed" ? t("mediaVideoLink") : t("mediaLink"));
     return h("div", { class: "media-thumb" }, body,
-      h("span", { class: "tag" }, m.file ? "new" : m.type === "link" ? "link" : m.type),
-      i > 0 && h("button", { type: "button", class: "move", title: "Move earlier", onclick: () => {
+      h("span", { class: "tag" }, m.file ? t("mediaNew") : m.type === "link" ? t("mediaLink") : m.type),
+      i > 0 && h("button", { type: "button", class: "move", title: t("moveEarlier"), onclick: () => {
         [draft.media[i - 1], draft.media[i]] = [draft.media[i], draft.media[i - 1]];
         renderMediaEdit();
       } }, "◀"),
-      h("button", { type: "button", class: "remove", title: "Remove", onclick: () => {
+      h("button", { type: "button", class: "remove", title: t("remove"), onclick: () => {
         if (m.preview) URL.revokeObjectURL(m.preview);
         draft.media.splice(i, 1);
         renderMediaEdit();
@@ -301,7 +421,7 @@ $("#fileInput").addEventListener("change", (e) => {
     const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
     if (!type) continue;
     if (type === "video" && file.size > config.maxVideoMB * 1024 * 1024) {
-      toast(`"${file.name}" is over ${config.maxVideoMB} MB — upload it to YouTube (unlisted) and paste the link instead.`, 6000);
+      toast(t("videoTooBig", { name: file.name, mb: config.maxVideoMB }), 6000);
       continue;
     }
     draft.media.push({ type, file, preview: URL.createObjectURL(file) });
@@ -314,7 +434,7 @@ function addLink() {
   const input = $("#linkInput");
   if (!input.value.trim()) return;
   const parsed = parseVideoLink(input.value);
-  if (!parsed) return toast("That doesn't look like a link 🤔");
+  if (!parsed) return toast(t("notALink"));
   draft.media.push({ type: "link", url: parsed.url });
   input.value = "";
   renderMediaEdit();
@@ -329,43 +449,51 @@ $("#eventForm").addEventListener("submit", async (e) => {
   const err = $("#eventError");
   err.hidden = true;
   btn.disabled = true;
-  btn.textContent = "Saving…";
+  btn.textContent = t("saving");
+  const isNew = !draft.id;
   try {
     const media = [];
     for (const m of draft.media) {
       if (m.file && m.type === "image") media.push({ ...m, file: await compressImage(m.file, config.maxImageSize) });
       else media.push(m);
     }
-    await state.store.saveEvent({
+    const ev = {
       id: draft.id,
       title: f.title.value.trim(),
       emoji: f.emoji.value.trim(),
       date: f.date.value,
       description: f.description.value.trim(),
       color: draft.color,
+      tags: draft.tags,
       media,
-    });
+    };
+    await state.store.saveEvent(ev);
     draft.media.forEach((m) => m.preview && URL.revokeObjectURL(m.preview));
     $("#eventDialog").close();
-    await reload();
-    toast(draft.id ? "Memory updated ✨" : "Memory added 🎉");
+    if (isNew) {
+      toast(t("memoryAdded"));
+      await hooks.memoriesAdded([ev]);
+    } else {
+      toast(t("memoryUpdated"));
+      await reloadEvents();
+    }
   } catch (ex) {
     console.error(ex);
-    err.textContent = ex.message || "Something went wrong while saving.";
+    err.textContent = ex.message;
     err.hidden = false;
   } finally {
     btn.disabled = false;
-    btn.textContent = "Save memory";
+    btn.textContent = t("saveMemory");
   }
 });
 
 $("#btnDelete").addEventListener("click", async () => {
-  if (!draft?.id || !confirm("Delete this memory and its photos/videos? This can't be undone.")) return;
+  if (!draft?.id || !confirm(t("confirmDeleteMemory"))) return;
   try {
     await state.store.deleteEvent(draft.id);
     $("#eventDialog").close();
-    await reload();
-    toast("Memory deleted");
+    await reloadEvents();
+    toast(t("memoryDeleted"));
   } catch (ex) {
     $("#eventError").textContent = ex.message;
     $("#eventError").hidden = false;
@@ -373,6 +501,28 @@ $("#btnDelete").addEventListener("click", async () => {
 });
 
 $("#fabAdd").addEventListener("click", () => openEditor());
+$("#btnBulk").addEventListener("click", openBulk);
+$("#btnBackup").addEventListener("click", openBackup);
+
+// ---------- "Email the family" after adding memories ----------
+
+hooks.memoriesAdded = async (added, { quiet = false } = {}) => {
+  await reloadEvents();
+  if (quiet || state.store.mode !== "cloud" || !added.length) return;
+  let emails = [];
+  try { emails = await state.store.familyEmails(); } catch (ex) { console.warn(ex); }
+  if (!emails.length) return;
+  const name = state.settings.name || t("defaultName");
+  const url = location.origin + location.pathname;
+  const one = added.length === 1 ? added[0] : null;
+  const subject = one ? t("notifySubject", { title: one.title }) : t("notifySubjectMany", { n: added.length });
+  const body = one
+    ? t("notifyBody", { name, title: one.title, date: fmtDate(one.date), url })
+    : t("notifyBodyMany", { name, n: added.length, url });
+  $("#notifyLink").href = `mailto:?bcc=${emails.map(encodeURIComponent).join(",")}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  openDialog("#notifyDialog");
+};
+$("#notifyLink").addEventListener("click", () => setTimeout(() => $("#notifyDialog").close(), 300));
 
 // ---------- Settings ----------
 
@@ -401,41 +551,14 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     await state.store.saveSettings(settings);
     state.settings = { ...config.defaults, ...settings };
     $("#settingsDialog").close();
-    renderHero();
-    renderEvents();
-    toast("Saved 💾");
+    renderAll();
+    toast(t("saved"));
   } catch (ex) {
-    toast(ex.message || "Could not save settings");
+    toast(ex.message);
   }
 });
 
-// ---------- Backup (local mode) ----------
-
-$("#btnBackup").addEventListener("click", () => openDialog("#backupDialog"));
-
-$("#btnExport").addEventListener("click", async () => {
-  const data = await state.store.exportAll();
-  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-  const a = h("a", { href: URL.createObjectURL(blob), download: `timeline-backup-${todayISO()}.json` });
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-});
-
-$("#importInput").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  e.target.value = "";
-  if (!file) return;
-  try {
-    await state.store.importAll(JSON.parse(await file.text()));
-    await reload();
-    $("#backupDialog").close();
-    toast("Backup restored 🎉");
-  } catch (ex) {
-    toast(ex.message || "Could not read that backup file");
-  }
-});
-
-// ---------- Sample data ----------
+// ---------- Sample data (local mode) ----------
 
 $("#btnSample").addEventListener("click", async () => {
   const birth = new Date();
@@ -447,17 +570,18 @@ $("#btnSample").addEventListener("click", async () => {
     await state.store.saveSettings(state.settings);
   }
   const samples = [
-    { date: plus(-120), emoji: "🤰", color: "lavender", title: "We found out about you!", description: "Two little lines and our whole world changed." },
-    { date: plus(0), emoji: "👶", color: "pink", title: "Hello, world!", description: "You arrived at 3:42 am, tiny and perfect, with a full head of hair." },
-    { date: plus(45), emoji: "😊", color: "lemon", title: "First real smile", description: "Right after bath time. We melted." },
-    { date: plus(190), emoji: "🥕", color: "peach", title: "First solid food", description: "Carrot purée. Most of it ended up on your face." },
-    { date: plus(365), emoji: "🎂", color: "mint", title: "First birthday party", description: "Strawberry cake, lots of balloons, and a very sleepy girl by 7pm." },
-    { date: plus(400), emoji: "👣", color: "sky", title: "First steps", description: "Three wobbly steps from the sofa to Daddy's arms!" },
+    { date: plus(-120), emoji: "🤰", color: "lavender", tags: ["family"], title: "We found out about you!", description: "Two little lines and our whole world changed." },
+    { date: plus(0), emoji: "👶", color: "pink", tags: ["firsts", "family"], title: "Hello, world!", description: "You arrived at 3:42 am, tiny and perfect, with a full head of hair." },
+    { date: plus(45), emoji: "😊", color: "lemon", tags: ["firsts"], title: "First real smile", description: "Right after bath time. We melted." },
+    { date: plus(190), emoji: "🥕", color: "peach", tags: ["firsts", "funny"], title: "First solid food", description: "Carrot purée. Most of it ended up on your face." },
+    { date: plus(365), emoji: "🎂", color: "mint", tags: ["birthday"], title: "First birthday party", description: "Strawberry cake, lots of balloons, and a very sleepy girl by 7pm." },
+    { date: plus(400), emoji: "👣", color: "sky", tags: ["firsts"], title: "First steps", description: "Three wobbly steps from the sofa to Daddy's arms!" },
   ];
   for (const s of samples) await state.store.saveEvent({ ...s, media: [] });
-  await reload();
-  renderHero();
-  toast("Sample memories added — edit or delete them anytime");
+  const growth = [[0, 49.5, 3.2], [60, 58, 5.4], [180, 66.5, 7.6], [365, 75, 9.4], [540, 81, 10.6], [730, 86.5, 12.1]];
+  for (const [d, height_cm, weight_kg] of growth) await state.store.saveMeasurement({ date: plus(d), height_cm, weight_kg, note: "" });
+  await loadAll();
+  toast(t("sampleAdded"));
 });
 
 // ---------- Lightbox ----------
@@ -479,8 +603,8 @@ function showLightboxItem() {
     : h("img", { src: m.src, alt: "" });
   $("#lbStage").replaceChildren(el);
   const multi = lb.items.length > 1;
-  document.querySelector(".lb-prev").hidden = !multi;
-  document.querySelector(".lb-next").hidden = !multi;
+  $(".lb-prev").hidden = !multi;
+  $(".lb-next").hidden = !multi;
 }
 
 function closeLightbox() {
@@ -506,40 +630,20 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") stepLightbox(1);
 });
 
-// ---------- Utilities ----------
-
-function openDialog(sel) {
-  $(sel).showModal();
-}
 document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
-
-let toastTimer;
-function toast(msg, ms = 2600) {
-  const t = $("#toast");
-  t.textContent = msg;
-  t.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, ms);
-}
-
-async function reload() {
-  state.events = await state.store.listEvents();
-  renderEvents();
-}
 
 // ---------- Boot ----------
 
 async function boot() {
+  setLang(lang);
+  state.view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "timeline";
   const cloud = config.supabase.url && config.supabase.anonKey;
   if (cloud) {
     const { SupabaseStore } = await import("./store-supabase.js");
     state.store = new SupabaseStore(config.supabase);
   } else {
     state.store = new LocalStore();
-    $("#btnEditMode").hidden = false;
-    const badge = $("#modeBadge");
-    badge.textContent = "💻 saved in this browser only";
-    badge.hidden = false;
+    $("#modeBadge").hidden = false;
   }
   await state.store.init();
   if (await updateAuthUI()) await loadAll();
