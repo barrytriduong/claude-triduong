@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Our Little Star</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Floating decorations -->
+  <div class="sky" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+    <span class="sparkle s1">✦</span><span class="sparkle s2">✧</span><span class="sparkle s3">✦</span>
+    <span class="sparkle s4">♡</span><span class="sparkle s5">✧</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn btn-ghost" id="btnSettings" hidden title="Edit name &amp; birthday">⚙️ <span>Settings</span></button>
+    <button class="btn btn-ghost" id="btnBackup" hidden title="Backup / restore">💾 <span>Backup</span></button>
+    <button class="btn btn-ghost" id="btnSignOut" hidden>👋 <span>Sign out</span></button>
+    <button class="btn btn-primary" id="btnEditMode">✏️ <span>Edit</span></button>
+  </div>
+
+  <header class="hero">
+    <div class="hero-emoji" id="heroEmoji">🌷</div>
+    <h1 id="heroName">Our Little Star</h1>
+    <p class="hero-tagline" id="heroTagline">Every little moment, kept forever</p>
+    <p class="hero-age" id="heroAge"></p>
+    <span class="badge-mode" id="modeBadge" hidden></span>
+    <div class="scroll-hint" aria-hidden="true">scroll down <span>↓</span></div>
+  </header>
+
+  <main>
+    <div class="timeline" id="timeline">
+      <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
+      <div id="events"></div>
+    </div>
+    <div class="empty" id="emptyState" hidden>
+      <div class="empty-emoji">🐣</div>
+      <h2>No memories yet</h2>
+      <p>Tap <b>Edit</b> at the top, then <b>Add a memory</b> to start the story.</p>
+      <button class="btn btn-ghost" id="btnSample" hidden>✨ Load a few sample memories</button>
+    </div>
+  </main>
+
+  <button class="fab" id="fabAdd" hidden title="Add a memory">＋ <span>Add a memory</span></button>
+
+  <footer class="footer">made with <span class="heart">♥</span> for you</footer>
+
+  <!-- Event editor -->
+  <dialog class="modal" id="eventDialog">
+    <form method="dialog" id="eventForm" class="modal-body">
+      <h2 id="eventDialogTitle">New memory</h2>
+      <div class="row">
+        <label class="field grow">Title
+          <input name="title" required maxlength="120" placeholder="First steps!">
+        </label>
+        <label class="field emoji-field">Emoji
+          <input name="emoji" maxlength="8" placeholder="👣">
+        </label>
+      </div>
+      <div class="row">
+        <label class="field grow">Date
+          <input name="date" type="date" required>
+        </label>
+        <div class="field grow">Color
+          <div class="swatches" id="colorSwatches"></div>
+        </div>
+      </div>
+      <label class="field">The story
+        <textarea name="description" rows="5" placeholder="What happened, how it felt, the funny little details…"></textarea>
+      </label>
+
+      <div class="field">Photos &amp; videos
+        <div class="media-edit" id="mediaEdit"></div>
+        <div class="media-add">
+          <label class="btn btn-ghost file-btn">📷 Add photos / videos
+            <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
+          </label>
+          <div class="link-add">
+            <input type="url" id="linkInput" placeholder="…or paste a YouTube / Vimeo / video link">
+            <button type="button" class="btn btn-ghost" id="btnAddLink">Add link</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="form-error" id="eventError" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="btnDelete" hidden>🗑️ Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btnSave">Save memory</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Settings -->
+  <dialog class="modal" id="settingsDialog">
+    <form method="dialog" id="settingsForm" class="modal-body">
+      <h2>About her</h2>
+      <div class="row">
+        <label class="field grow">Name
+          <input name="name" required placeholder="Lily">
+        </label>
+        <label class="field emoji-field">Emoji
+          <input name="emoji" maxlength="8" placeholder="🌷">
+        </label>
+      </div>
+      <label class="field">Birthday
+        <input name="birthday" type="date">
+      </label>
+      <label class="field">Tagline
+        <input name="tagline" placeholder="Every little moment, kept forever">
+      </label>
+      <label class="field check">
+        <input type="checkbox" name="newestFirst"> Show newest memories first
+      </label>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Sign in -->
+  <dialog class="modal" id="loginDialog">
+    <form method="dialog" id="loginForm" class="modal-body narrow">
+      <h2>Parents only 🔐</h2>
+      <p class="muted">Sign in to add and edit memories.</p>
+      <label class="field">Email <input name="email" type="email" required autocomplete="username"></label>
+      <label class="field">Password <input name="password" type="password" required autocomplete="current-password"></label>
+      <p class="form-error" id="loginError" hidden></p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Backup (local mode) -->
+  <dialog class="modal" id="backupDialog">
+    <div class="modal-body narrow">
+      <h2>Backup &amp; restore</h2>
+      <p class="muted">Memories are saved in <b>this browser only</b>. Download a backup file regularly, or connect cloud storage (see README) to keep them safe and share the site.</p>
+      <div class="stack">
+        <button class="btn btn-primary" id="btnExport">⬇️ Download backup</button>
+        <label class="btn btn-ghost file-btn">⬆️ Restore from backup
+          <input type="file" id="importInput" accept="application/json,.json" hidden>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lb-close" aria-label="Close">✕</button>
+    <button class="lb-nav lb-prev" aria-label="Previous">‹</button>
+    <div class="lb-stage" id="lbStage"></div>
+    <button class="lb-nav lb-next" aria-label="Next">›</button>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
