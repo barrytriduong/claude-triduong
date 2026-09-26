@@ -6,6 +6,7 @@ import BlogCard from '../components/BlogCard.astro';
 import LogoMark from '../components/LogoMark.astro';
 import { LEVELS, LEVEL_INFO } from '../lib/levels';
 import { SITE } from '../lib/site';
+import { highlight, fmtTime } from '../lib/highlight';
 
 const byDate = (a: any, b: any) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf();
 const lessons = (await getCollection('lessons', (l) => !l.data.draft)).sort(byDate);
@@ -14,6 +15,8 @@ const featured = lessons[0];
 const f = featured?.data;
 const fImg = f && (f.youtubeId ? `https://i.ytimg.com/vi/${f.youtubeId}/hqdefault.jpg` : f.cover);
 const fWord = f?.vocabulary[0];
+// A transcript line that contains the featured word, for the floating "follow along" chip
+const fLine = f && (f.transcript.find((l, i) => i > 2 && fWord && highlight(l.text, [fWord]).some((x) => x.word !== undefined)) ?? f.transcript[0]);
 
 const steps = [
   { t: 'Watch', d: 'A short, true story about a real person. Slow it down or repeat any sentence.', icon: 'play' },
@@ -48,8 +51,8 @@ const steps = [
             <span class="art-play"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"></path></svg></span>
           </a>
           <div class="float f-line">
-            <span class="f-time">0:29</span>
-            <span>{f.transcript[5]?.text.split(' ').slice(0, 5).join(' ')}…</span>
+            <span class="f-time">{fmtTime(fLine.t)}</span>
+            <span>{fLine.text.split(' ').slice(0, 6).join(' ')}{fLine.text.split(' ').length > 6 ? '…' : ''}</span>
           </div>
           {fWord && (
             <div class="float f-word">

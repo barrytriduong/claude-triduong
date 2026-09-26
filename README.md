@@ -96,8 +96,8 @@ npm run build    # production build into dist/
 ## Before launch
 
 - [ ] Add real YouTube IDs and transcripts
-- [ ] In `src/lib/site.ts`, replace `[YOUR EMAIL]` and `[YOUR NAME]` (used on the About, Privacy and Disclosure pages)
-- [ ] Write your story on `/about/` (replace `[ADD YOUR STORY HERE]`)
-- [ ] Set `SITE_URL` and `robots.txt` to your domain
+- [x] Contact email and owner name in `src/lib/site.ts`
+- [x] Your story on `/about/`
+- [x] Domain `brightlivesenglish.com` (already the default in `astro.config.mjs` and `robots.txt`)
 - [ ] Read the privacy policy and affiliate disclosure and adjust them to your situation. They are a plain-language starting point, not legal advice.
 - [ ] Paste each lesson's `/youtube/<slug>.txt` into its YouTube description
