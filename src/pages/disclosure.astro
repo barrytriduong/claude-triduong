@@ -17,5 +17,5 @@ import { SITE } from '../lib/site';
   </ul>
 
   <h2>Questions?</h2>
-  <p>Email us at {SITE.email}. You can read how we handle your information in our <a href="/privacy/">privacy policy</a>.</p>
+  <p>Email us at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. You can read how we handle your information in our <a href="/privacy/">privacy policy</a>.</p>
 </Page>

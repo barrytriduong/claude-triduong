@@ -3,7 +3,7 @@ import Page from '../layouts/Page.astro';
 import { SITE } from '../lib/site';
 ---
 <Page title="Privacy policy" description="How Bright Lives English handles your information: what we collect, why, and your choices." updated="26 September 2026">
-  <p>Bright Lives English ("we", "us") is run by {SITE.owner}. We keep things simple: you can use every lesson without an account, and we collect as little information as possible. If you have any questions, email us at {SITE.email}.</p>
+  <p>{SITE.owner} ("we", "us") is a free English-learning website run by two English teachers. We keep things simple: you can use every lesson without an account, and we collect as little information as possible. If you have any questions, email us at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
 
   <h2>Information you give us</h2>
   <ul>
@@ -30,7 +30,7 @@ import { SITE } from '../lib/site';
   <p>Our lessons are suitable for all ages. If you are under 16, please ask a parent or guardian before signing up for the newsletter or adding your name to a leaderboard.</p>
 
   <h2>Your rights</h2>
-  <p>You can ask us to show, correct or delete the information we hold about you. Email {SITE.email} and we'll reply within 30 days.</p>
+  <p>You can ask us to show, correct or delete the information we hold about you. Email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> and we'll reply within 30 days.</p>
 
   <h2>Changes</h2>
   <p>If we change this policy, we'll update the date at the top of this page.</p>
