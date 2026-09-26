@@ -31,17 +31,22 @@ To keep memories safe and let family view the site from any device, connect **[S
 Setup takes about 5 minutes:
 
 1. Create a free account and a new project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor → New query**, paste the contents of [`supabase/setup.sql`](supabase/setup.sql) and click **Run**.
-3. **Authentication → Users → Add user**: create a login for yourself (and your partner) with email and password. Tick "Auto confirm".
-4. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up", so nobody else can create an account and edit.
+2. **Authentication → Users → Add user**: create *your* login (email + password, tick "Auto confirm").
+3. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up".
+4. **SQL Editor → New query**: paste [`supabase/setup.sql`](supabase/setup.sql), replace `YOUR_EMAIL_HERE` at the bottom with the email from step 2, and click **Run**. The last result row should show your email: you are now the only admin.
 5. **Project Settings → API**: copy the *Project URL* and the *anon public* key into [`js/config.js`](js/config.js):
    ```js
    supabase: {
      url: "https://YOUR-PROJECT.supabase.co",
      anonKey: "eyJhbGciOi...",
    ```
-   The anon key is meant to be public. The database rules only let signed-in users make changes.
-6. Reload the site, tap **Edit**, sign in, and start adding memories.
+   The anon key is meant to be public. The database only accepts changes from accounts in the `admins` table.
+
+### Who can do what (cloud mode)
+
+- **Viewers** see the timeline only. There is no Edit button for them.
+- **You (admin):** click the faint **🔒** at the very bottom of the page and sign in. The Edit button appears.
+- The permission is enforced by the database, not just by hiding buttons. Even someone who got a login couldn't change anything unless their account is in `admins`.
 
 **Moving from local mode:** memories you added in local mode stay in that browser. Re-add them after switching, or ask me to add a "move backup to cloud" button.
 
@@ -57,8 +62,11 @@ Setup takes about 5 minutes:
 
 ## Put it online
 
+**Netlify** (recommended, free, HTTPS included): connect the repo; there is no build command, and the publish directory is `/`.
+Then **Domain management → Add a domain** and follow the DNS instructions for your registrar.
+
 **GitHub Pages:** repo **Settings → Pages → Deploy from a branch →** pick your branch and `/ (root)`.
-**Netlify / Cloudflare Pages:** connect the repo; there's no build command, and the publish directory is `/`.
+**Cloudflare Pages:** same as Netlify: no build command, output directory `/`.
 
 ## Files
 

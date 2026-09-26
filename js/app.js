@@ -169,6 +169,16 @@ function setEditing(on) {
   renderEvents();
 }
 
+// In cloud mode viewers never see the Edit button — only a faint 🔒 in the footer.
+async function updateAuthUI() {
+  if (!state.store.needsAuth) return;
+  const signedIn = !!(await state.store.getUser());
+  $("#btnEditMode").hidden = !signedIn;
+  $("#btnLogin").hidden = signedIn;
+}
+
+$("#btnLogin").addEventListener("click", () => openDialog("#loginDialog"));
+
 $("#btnEditMode").addEventListener("click", async () => {
   if (state.editing) return setEditing(false);
   if (state.store.needsAuth && !(await state.store.getUser())) return openDialog("#loginDialog");
@@ -178,6 +188,7 @@ $("#btnEditMode").addEventListener("click", async () => {
 $("#btnSignOut").addEventListener("click", async () => {
   await state.store.signOut();
   setEditing(false);
+  await updateAuthUI();
   toast("Signed out 👋");
 });
 
@@ -190,6 +201,7 @@ $("#loginForm").addEventListener("submit", async (e) => {
     await state.store.signIn(f.email.value.trim(), f.password.value);
     f.reset();
     $("#loginDialog").close();
+    await updateAuthUI();
     setEditing(true);
     toast("Welcome back! 💕");
   } catch (ex) {
@@ -492,11 +504,13 @@ async function boot() {
     state.store = new SupabaseStore(config.supabase);
   } else {
     state.store = new LocalStore();
+    $("#btnEditMode").hidden = false;
     const badge = $("#modeBadge");
     badge.textContent = "💻 saved in this browser only";
     badge.hidden = false;
   }
   await state.store.init();
+  await updateAuthUI();
   state.settings = { ...config.defaults, ...((await state.store.getSettings()) || {}) };
   renderHero();
   await reload();
