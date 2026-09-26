@@ -1,0 +1,316 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Video from '../../components/lesson/Video.astro';
+import Transcript from '../../components/lesson/Transcript.astro';
+import Vocabulary from '../../components/lesson/Vocabulary.astro';
+import Quiz from '../../components/lesson/Quiz.astro';
+import LessonCard from '../../components/LessonCard.astro';
+import { LEVEL_INFO } from '../../lib/levels';
+import { SITE, formatDate } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const lessons = (await getCollection('lessons', (l) => !l.data.draft)).sort(
+    (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+  );
+  return lessons.map((lesson) => ({
+    params: { slug: lesson.id },
+    props: { lesson, more: lessons.filter((l) => l.id !== lesson.id).slice(0, 3) },
+  }));
+}
+
+const { lesson, more } = Astro.props;
+const d = lesson.data;
+const { Content } = await render(lesson);
+const hasVideo = !!d.youtubeId;
+
+// Data for the interactive parts. "<" is escaped so the JSON can't close the script tag.
+const lessonData = JSON.stringify({
+  slug: lesson.id,
+  title: d.title,
+  person: d.person,
+  youtubeId: d.youtubeId,
+  transcript: d.transcript,
+  vocabulary: d.vocabulary,
+  quiz: d.quiz,
+}).replace(/</g, '\\u003c');
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LearningResource',
+  name: d.title,
+  description: d.summary,
+  educationalLevel: `CEFR ${d.level}`,
+  inLanguage: 'en',
+  learningResourceType: 'Video lesson',
+  datePublished: d.publishDate.toISOString(),
+  provider: { '@type': 'Organization', name: SITE.name, sameAs: [SITE.youtube] },
+  ...(hasVideo && {
+    video: {
+      '@type': 'VideoObject',
+      name: d.title,
+      description: d.summary,
+      thumbnailUrl: `https://i.ytimg.com/vi/${d.youtubeId}/hqdefault.jpg`,
+      uploadDate: d.publishDate.toISOString(),
+      embedUrl: `https://www.youtube-nocookie.com/embed/${d.youtubeId}`,
+      transcript: d.transcript.map((l) => l.text).join(' '),
+    },
+  }),
+};
+
+const steps = [
+  { id: 'watch', n: 1, label: hasVideo ? 'Watch the story' : 'Listen to the story', href: '#watch' },
+  { id: 'read', n: 2, label: 'Read the transcript', href: '#transcript' },
+  { id: 'words', n: 3, label: 'Learn the words', href: '#words' },
+  { id: 'quiz', n: 4, label: 'Play the Story Challenge', href: '#quiz' },
+];
+---
+<Base title={d.title} description={d.summary} image={d.cover?.replace('.svg', '.png')} type="article" jsonLd={jsonLd}>
+  <article class="lesson">
+    <header class="wrap l-hero">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/lessons/">Lessons</a>
+        <span aria-hidden="true">/</span>
+        <a href={`/lessons/?level=${d.level}`}>{d.level}</a>
+      </nav>
+      <div class="meta">
+        <span class="level"><b>{d.level}</b> {LEVEL_INFO[d.level].name}</span>
+        {d.topics.map((t) => <span class="tag">{t}</span>)}
+      </div>
+      <h1>{d.title}</h1>
+      <p class="lede">{d.summary}</p>
+      <p class="byline">
+        <span>{formatDate(d.publishDate)}</span>
+        {d.duration && <span>· {d.duration} video</span>}
+        <span>· {d.vocabulary.length} words · {d.quiz.length} questions</span>
+      </p>
+    </header>
+
+    <div class="wrap l-grid">
+      <div class="l-main">
+        <div id="watch">
+          <Video youtubeId={d.youtubeId} title={d.title} cover={d.cover} />
+        </div>
+        <div id="transcript">
+          <Transcript lines={d.transcript} vocab={d.vocabulary} hasVideo={hasVideo} />
+        </div>
+      </div>
+
+      <aside class="l-side" aria-label="Lesson steps">
+        <div class="steps card">
+          <p class="steps-title"><span data-steps-count>0</span> of 4 steps done</p>
+          <ol>
+            {steps.map((s) => (
+              <li data-step={s.id}>
+                <a href={s.href} data-open-transcript={s.id === 'read' ? '' : undefined}>
+                  <span class="dot" aria-hidden="true">
+                    <span class="num">{s.n}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                  </span>
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+          <p class="steps-note">Your progress is saved on this device.</p>
+        </div>
+        <div class="sub card">
+          <p><strong>New story every week.</strong> Subscribe on YouTube so you don't miss the next one.</p>
+          <a class="btn btn-sun btn-sm" href={SITE.youtubeSubscribe} target="_blank" rel="noopener">Subscribe</a>
+        </div>
+      </aside>
+    </div>
+
+    <div class="wrap block">
+      <Vocabulary words={d.vocabulary} hasVideo={hasVideo} />
+    </div>
+
+    <div class="wrap block">
+      <Quiz count={d.quiz.length} />
+    </div>
+
+    <div class="wrap block">
+      <div class="further card">
+        <p class="eyebrow">Take it further</p>
+        <div class="prose"><Content /></div>
+      </div>
+    </div>
+  </article>
+
+  {more.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep going</p>
+          <h2>More inspiring stories</h2>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="/lessons/">All lessons</a>
+      </div>
+      <div class="grid-cards">
+        {more.map((l) => <LessonCard lesson={l} />)}
+      </div>
+    </section>
+  )}
+
+  <script id="lesson-data" type="application/json" set:html={lessonData} />
+  <script>
+    import '../../scripts/lesson.ts';
+  </script>
+</Base>
+
+<style>
+  .l-hero {
+    display: grid;
+    gap: 16px;
+    padding-block: 40px 32px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .crumbs a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    color: var(--rust);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+  }
+  .l-hero h1 {
+    font-size: clamp(34px, 5.2vw, 58px);
+    max-width: 20ch;
+  }
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .l-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 32px;
+    align-items: start;
+  }
+  .l-main {
+    display: grid;
+    gap: 24px;
+  }
+  .l-side {
+    position: sticky;
+    top: 96px;
+    display: grid;
+    gap: 16px;
+  }
+  .steps {
+    padding: 22px;
+  }
+  .steps-title {
+    font: 600 19px var(--serif);
+    margin-bottom: 10px;
+  }
+  .steps ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .steps a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+  }
+  .steps a:hover {
+    background: var(--sand);
+  }
+  .dot {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid var(--sand-deep);
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .dot svg {
+    display: none;
+  }
+  li:global(.done) .dot {
+    background: var(--ok);
+    border-color: var(--ok);
+    color: var(--white);
+  }
+  li:global(.done) .dot svg {
+    display: block;
+  }
+  li:global(.done) .num {
+    display: none;
+  }
+  .steps-note {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .sub {
+    padding: 20px 22px;
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+    font-size: 15px;
+    background: var(--gold-soft);
+    box-shadow: none;
+  }
+  .block {
+    margin-top: clamp(48px, 7vw, 80px);
+  }
+  .further {
+    padding: clamp(24px, 4vw, 40px);
+    display: grid;
+    gap: 12px;
+  }
+  @media (max-width: 1000px) {
+    .l-grid {
+      grid-template-columns: 1fr;
+    }
+    .l-side {
+      position: static;
+      grid-row: 1;
+      grid-template-columns: 1fr;
+    }
+    .steps ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sub {
+      display: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .steps ol {
+      grid-template-columns: 1fr 1fr;
+    }
+    .steps a {
+      font-size: 14px;
+      gap: 8px;
+    }
+  }
+</style>

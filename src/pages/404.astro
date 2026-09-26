@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import LogoMark from '../components/LogoMark.astro';
+---
+<Base title="Page not found">
+  <section class="wrap section box">
+    <LogoMark size={96} />
+    <h1>Oops, this page took a different road.</h1>
+    <p class="lede">The page you're looking for doesn't exist. Maybe a story will cheer you up?</p>
+    <div class="row">
+      <a class="btn btn-primary" href="/lessons/">Browse lessons</a>
+      <a class="btn btn-ghost" href="/">Go home</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .box {
+    display: grid;
+    gap: 20px;
+    justify-items: center;
+    text-align: center;
+  }
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+</style>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#FBF6EC"/>
+  <path d="M0 520 Q300 460 600 500 T1200 470 V675 H0Z" fill="#F1E9DA"/>
+  <circle cx="1000" cy="170" r="110" fill="#F4B63F"/>
+  <g stroke="#E8772E" stroke-width="12" stroke-linecap="round"><line x1="1000" y1="30" x2="1000" y2="5"/><line x1="1105" y1="75" x2="1125" y2="55"/><line x1="895" y1="75" x2="875" y2="55"/><line x1="1140" y1="170" x2="1170" y2="170"/></g>
+  <g>
+    <g transform="translate(110 400)"><ellipse cx="60" cy="70" rx="80" ry="20" fill="#E6DAC4"/><rect x="0" y="0" width="120" height="70" rx="14" fill="#1B2A41"/><text x="60" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" fill="#FBF6EC">Day 1</text></g>
+    <g transform="translate(330 340)"><ellipse cx="60" cy="70" rx="80" ry="20" fill="#E6DAC4"/><rect x="0" y="0" width="120" height="70" rx="14" fill="#1B2A41"/><text x="60" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" fill="#FBF6EC">Day 3</text></g>
+    <g transform="translate(550 270)"><ellipse cx="60" cy="70" rx="80" ry="20" fill="#E6DAC4"/><rect x="0" y="0" width="120" height="70" rx="14" fill="#1B2A41"/><text x="60" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" fill="#FBF6EC">Day 7</text></g>
+    <g transform="translate(770 190)"><ellipse cx="70" cy="70" rx="90" ry="20" fill="#E6DAC4"/><rect x="0" y="0" width="140" height="70" rx="14" fill="#E8772E"/><text x="70" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" fill="#1B2A41">Day 30</text></g>
+  </g>
+  <path d="M230 420 C280 380 300 380 330 375 M450 360 C500 320 520 310 550 305 M670 290 C720 250 740 235 770 225" stroke="#A84A14" stroke-width="6" stroke-dasharray="4 14" stroke-linecap="round" fill="none"/>
+  <g transform="translate(120 110) rotate(-8)">
+    <rect x="0" y="0" width="260" height="170" rx="20" fill="#FFFFFF" stroke="#1B2A41" stroke-width="6"/>
+    <text x="130" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="46" font-weight="700" fill="#1B2A41">remember</text>
+    <rect x="70" y="110" width="120" height="12" rx="6" fill="#E8772E"/>
+  </g>
+  <g transform="translate(430 80) rotate(6)">
+    <rect x="0" y="0" width="200" height="130" rx="18" fill="#1B2A41"/>
+    <text x="100" y="78" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-style="italic" fill="#F4B63F">review</text>
+  </g>
+</svg>

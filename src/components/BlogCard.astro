@@ -1,0 +1,72 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/site';
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+const { post } = Astro.props;
+const d = post.data;
+const lv = d.levels.length > 2 ? `${d.levels[0]}–${d.levels[d.levels.length - 1]}` : d.levels.join(', ');
+---
+<article class="bcard card">
+  <a href={`/blog/${post.id}/`} class="media">
+    <img src={d.cover} alt={d.coverAlt} loading="lazy" width="1200" height="675" />
+  </a>
+  <div class="body">
+    <div class="meta">
+      <span class="level">{lv}</span>
+      <span class="tag">{d.tags.join(' · ')}</span>
+    </div>
+    <h3><a href={`/blog/${post.id}/`}>{d.title}</a></h3>
+    <p>{d.description}</p>
+    <p class="date">{formatDate(d.publishDate)}{d.readingTime && ` · ${d.readingTime}`}</p>
+  </div>
+</article>
+
+<style>
+  .bcard {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  .bcard:hover {
+    transform: translateY(-3px);
+  }
+  .media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: var(--sand);
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .body {
+    display: grid;
+    gap: 10px;
+    padding: 20px 22px 24px;
+  }
+  .meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  h3 a {
+    color: var(--navy);
+    text-decoration: none;
+  }
+  h3 a:hover {
+    color: var(--rust);
+  }
+  p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .date {
+    font-size: 13px;
+  }
+</style>

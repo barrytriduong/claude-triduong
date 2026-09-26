@@ -1,0 +1,235 @@
+---
+import { highlight, fmtTime } from '../../lib/highlight';
+
+interface Props {
+  lines: { t: number; text: string }[];
+  vocab: { word: string; forms: string[] }[];
+  hasVideo: boolean;
+}
+const { lines, vocab, hasVideo } = Astro.props;
+---
+<section class="transcript" data-transcript aria-labelledby="ts-title">
+  <div class="ts-head">
+    <div>
+      <h2 id="ts-title">Transcript</h2>
+      <p class="ts-help">
+        {hasVideo
+          ? 'Tap a time to jump to that moment. Highlighted words have a meaning: tap them.'
+          : 'Tap the speaker to hear a line. Highlighted words have a meaning: tap them.'}
+      </p>
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" data-ts-toggle aria-expanded="false" aria-controls="ts-body">
+      <span data-ts-label>Show transcript</span>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+    </button>
+  </div>
+
+  <div id="ts-body" class="ts-body" data-ts-body hidden>
+    {hasVideo && (
+      <label class="follow">
+        <input type="checkbox" data-follow checked />
+        Follow along with the video
+      </label>
+    )}
+    <ol class="lines" translate="no">
+      {lines.map((l, i) => (
+        <li data-line={i} data-t={l.t}>
+          <button type="button" class="time" data-seek={l.t} aria-label={hasVideo ? `Play from ${fmtTime(l.t)}` : 'Listen to this line'}>
+            {hasVideo ? (
+              fmtTime(l.t)
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+            )}
+          </button>
+          <p class="text">
+            {highlight(l.text, vocab).map((s) =>
+              s.word === undefined ? s.text : (
+                <button type="button" class="w" data-word={s.word}>{s.text}</button>
+              )
+            )}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <div class="pop" data-pop role="dialog" aria-label="Word meaning" hidden>
+    <div class="pop-top">
+      <strong data-pop-word translate="no"></strong>
+      <em data-pop-pos></em>
+    </div>
+    <p data-pop-meaning></p>
+    <div class="pop-actions">
+      <button type="button" class="ctl-sm" data-pop-say>Listen</button>
+      <button type="button" class="ctl-sm" data-pop-card>See the card</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .transcript {
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+  }
+  .ts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ts-head h2 {
+    font-size: 26px;
+  }
+  .ts-help {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .chev {
+    transition: transform 0.2s ease;
+  }
+  [aria-expanded='true'] .chev {
+    transform: rotate(180deg);
+  }
+  .ts-body {
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .follow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    min-height: 40px;
+    cursor: pointer;
+  }
+  .follow input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--navy);
+  }
+  .lines {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    max-height: 460px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+  }
+  .lines li {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 8px;
+    align-items: start;
+    padding: 8px 8px;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+  }
+  .lines li.now {
+    background: var(--gold-soft);
+  }
+  .time {
+    min-height: 36px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sand);
+    color: var(--navy);
+    font: 700 13px var(--sans);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .time:hover {
+    background: var(--navy);
+    color: var(--cream);
+  }
+  .text {
+    font-size: 18px;
+    line-height: 1.6;
+    padding-top: 4px;
+  }
+  .w {
+    display: inline;
+    padding: 0 2px;
+    margin: 0 -2px;
+    border: 0;
+    border-bottom: 2px solid var(--orange);
+    border-radius: 3px;
+    background: rgb(232 119 46 / 0.1);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .w:hover {
+    background: rgb(232 119 46 / 0.22);
+  }
+  .pop {
+    position: absolute;
+    z-index: 30;
+    width: min(300px, calc(100% - 32px));
+    padding: 14px 16px;
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.45);
+    display: grid;
+    gap: 6px;
+  }
+  .pop-top {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .pop-top strong {
+    font: 600 20px var(--serif);
+    color: var(--gold);
+  }
+  .pop-top em {
+    font-size: 13px;
+    color: #b9c1cf;
+  }
+  .pop p {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .pop-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .ctl-sm {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid #4a5d7a;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font: 600 13px var(--sans);
+    cursor: pointer;
+  }
+  .ctl-sm:hover {
+    background: var(--navy-soft);
+  }
+  @media (max-width: 560px) {
+    .transcript {
+      padding: 18px 16px;
+    }
+    .lines li {
+      grid-template-columns: 52px 1fr;
+      padding-inline: 4px;
+    }
+    .text {
+      font-size: 17px;
+    }
+  }
+</style>

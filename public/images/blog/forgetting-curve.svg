@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-label="Illustration: without review, memory of a new word falls quickly. With a review on day 1, 3, 7 and 30, memory falls more slowly each time.">
+  <rect width="900" height="420" rx="24" fill="#FFFFFF"/>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#5B6475">
+    <text x="60" y="48" font-weight="700" fill="#1B2A41" font-size="20">How much you remember</text>
+    <text x="820" y="385" text-anchor="end">time →</text>
+    <text x="130" y="385">day 1</text><text x="250" y="385">day 3</text><text x="410" y="385">day 7</text><text x="700" y="385">day 30</text>
+  </g>
+  <line x1="60" y1="360" x2="840" y2="360" stroke="#E2D8C6" stroke-width="2"/>
+  <line x1="60" y1="70" x2="60" y2="360" stroke="#E2D8C6" stroke-width="2"/>
+  <path d="M60 80 C110 250 180 310 840 340" stroke="#B23A48" stroke-width="5" fill="none" stroke-dasharray="10 8"/>
+  <path d="M60 80 C90 170 120 200 150 210 L150 80 C190 150 230 170 270 175 L270 80 C330 120 380 135 430 140 L430 80 C530 105 620 115 720 118 L720 80 C770 90 810 95 840 97" stroke="#2F7D5B" stroke-width="5" fill="none" stroke-linejoin="round"/>
+  <g fill="#E8772E"><circle cx="150" cy="80" r="9"/><circle cx="270" cy="80" r="9"/><circle cx="430" cy="80" r="9"/><circle cx="720" cy="80" r="9"/></g>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700">
+    <text x="520" y="300" fill="#B23A48">No review</text>
+    <text x="520" y="150" fill="#2F7D5B">With reviews</text>
+    <text x="760" y="60" fill="#A84A14" text-anchor="middle">● = review</text>
+  </g>
+</svg>

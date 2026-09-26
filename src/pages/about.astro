@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import LogoMark from '../components/LogoMark.astro';
+import { SITE } from '../lib/site';
+---
+<Base title="About" description="Bright Lives English teaches English through short, inspiring videos about real people. Here's why, and how it works.">
+  <section class="wrap section about">
+    <div class="intro">
+      <LogoMark size={96} />
+      <p class="eyebrow">About Bright Lives English</p>
+      <h1>We believe the best way to learn a language is through the lives of real people.</h1>
+    </div>
+    <div class="prose">
+      <p>Textbook dialogues are quickly forgotten. But a story about a young man who ran across a country on one leg, or a woman who planted millions of trees, stays with you. And when a story stays with you, so does the English.</p>
+      <p>That's the idea behind Bright Lives English. Every week we tell a short, true story about someone who did something brave, kind or surprising, and we turn it into a complete English lesson:</p>
+      <ul>
+        <li><strong>A video</strong> you can slow down, and replay one sentence at a time.</li>
+        <li><strong>A transcript</strong> that follows the video, with the key words explained.</li>
+        <li><strong>Flashcards</strong> to learn and remember the most useful words.</li>
+        <li><strong>The Story Challenge</strong>, a quick game to check what you understood.</li>
+      </ul>
+      <p>Everything is free, and you don't need an account. Your progress is saved on your own device.</p>
+
+      <h2>Who is behind it?</h2>
+      <p>[ADD YOUR STORY HERE: who you are, why you started Bright Lives English, and your experience teaching or learning English. A photo and a few personal sentences build a lot of trust.]</p>
+
+      <h2>Say hello</h2>
+      <p>Have an idea for a story, or a person who inspires you? We'd love to hear it. Leave a comment on our <a href={SITE.youtube} target="_blank" rel="noopener">YouTube channel</a> or email us at [YOUR EMAIL].</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    gap: 40px;
+  }
+  .intro {
+    display: grid;
+    gap: 16px;
+    max-width: 820px;
+  }
+  .intro h1 {
+    font-size: clamp(32px, 4.8vw, 52px);
+  }
+</style>

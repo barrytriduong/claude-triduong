@@ -1,0 +1,122 @@
+---
+import Logo from './Logo.astro';
+import { SITE } from '../lib/site';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap top">
+    <div class="brand">
+      <Logo dark />
+      <p>{SITE.tagline} Short, inspiring videos about real people, turned into English lessons you can actually enjoy.</p>
+    </div>
+
+    <form class="newsletter" name="newsletter" method="POST" action="/thanks/" data-netlify="true" netlify-honeypot="company">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p class="visually-hidden"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off" /></label></p>
+      <h2>One new story every week</h2>
+      <p class="nl-sub">Get the newest lesson, five useful words and a study tip by email. Free, and you can leave any time.</p>
+      <div class="nl-row">
+        <label class="visually-hidden" for="nl-email">Email address</label>
+        <input id="nl-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email" />
+        <label class="visually-hidden" for="nl-level">Your level</label>
+        <select id="nl-level" name="level">
+          <option value="">My level…</option>
+          <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+          <option value="unsure">Not sure</option>
+        </select>
+        <button class="btn btn-sun" type="submit">Join free</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="wrap bottom">
+    <nav aria-label="Footer">
+      <a href="/lessons/">Lessons</a>
+      <a href="/blog/">Blog</a>
+      <a href="/levels/">Find your level</a>
+      <a href="/about/">About</a>
+      <a href={SITE.youtube} target="_blank" rel="noopener">YouTube</a>
+    </nav>
+    <p>© {year} Bright Lives English</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy);
+    color: #d7dce5;
+    margin-top: 40px;
+  }
+  .top {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 48px;
+    padding-block: 64px 48px;
+  }
+  .brand {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+    max-width: 38ch;
+  }
+  .newsletter {
+    display: grid;
+    gap: 10px;
+    padding: 28px;
+    background: var(--navy-soft);
+    border-radius: var(--radius);
+  }
+  .newsletter h2 {
+    color: var(--cream);
+    font-size: 28px;
+  }
+  .nl-sub {
+    font-size: 15px;
+  }
+  .nl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .nl-row input,
+  .nl-row select {
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1.5px solid transparent;
+    background: var(--cream);
+    color: var(--navy);
+    font: 500 16px var(--sans);
+  }
+  .nl-row input {
+    flex: 1 1 220px;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 24px 32px;
+    border-top: 1px solid #34465f;
+    font-size: 14px;
+  }
+  .bottom nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+  .bottom a {
+    color: #d7dce5;
+    text-decoration: none;
+    padding-block: 10px;
+  }
+  .bottom a:hover {
+    color: var(--gold);
+  }
+  @media (max-width: 860px) {
+    .top {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
