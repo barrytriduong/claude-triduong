@@ -7,7 +7,7 @@
 // but other people can't see it and clearing browser data erases it —
 // use the Backup button often.
 //
-// Fill in your Supabase project URL and anon key to use "cloud mode":
+// With the Supabase project URL and publishable key filled in ("cloud mode"),
 // memories are stored online, anyone with the link can view the timeline,
 // and only signed-in parents can edit. See README.md for the 5-minute setup.
 export default {
@@ -15,7 +15,7 @@ export default {
     url: "https://yfhecewvbuakbofvhtac.supabase.co",
     // Project Settings → API Keys → "Publishable key" (sb_publishable_…) or the
     // legacy "anon public" key. Both are safe to publish. NEVER put the secret key here.
-    anonKey: "",
+    anonKey: "sb_publishable_yqYBl0R9uGe79CwIk_aicg_RZaDg6Bz",
     bucket: "timeline-media",
   },
 
