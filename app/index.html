@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Goals</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div class="title-row">
+        <h1>Project Goals</h1>
+        <button id="new-project" class="btn primary" type="button">+ New project</button>
+      </div>
+      <section class="stats" id="stats" aria-label="Summary"></section>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search projects…" aria-label="Search projects">
+      <div class="chips" id="status-filter" role="group" aria-label="Filter by status"></div>
+      <label class="sort">Sort
+        <select id="sort">
+          <option value="updated">Recently updated</option>
+          <option value="priority">Priority</option>
+          <option value="target">Target date</option>
+          <option value="progress">Progress</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="list" class="grid" aria-live="polite"></div>
+    <p id="empty" class="empty" hidden></p>
+  </main>
+
+  <footer class="wrap foot">
+    <span>Saved in this browser.</span>
+    <button id="export" class="btn link" type="button">Export JSON</button>
+    <label class="btn link">Import JSON<input id="import" type="file" accept="application/json,.json" hidden></label>
+  </footer>
+
+  <dialog id="editor">
+    <form id="editor-form" method="dialog">
+      <h2 id="editor-title">New project</h2>
+      <label>Title<input name="title" required maxlength="120"></label>
+      <label>Description<textarea name="description" rows="2" maxlength="500"></textarea></label>
+      <div class="row">
+        <label>Status<select name="status"></select></label>
+        <label>Priority<select name="priority"></select></label>
+        <label>Target date<input name="targetDate" type="date"></label>
+      </div>
+
+      <fieldset class="milestones">
+        <legend>Milestones <span id="ms-progress"></span></legend>
+        <ul id="ms-list"></ul>
+        <div class="ms-add">
+          <input id="ms-input" placeholder="Add a milestone and press Enter" maxlength="200">
+          <button id="ms-add" class="btn" type="button">Add</button>
+        </div>
+      </fieldset>
+
+      <label>Notes<textarea name="notes" rows="4"></textarea></label>
+      <p id="editor-error" class="error" role="alert"></p>
+
+      <div class="actions">
+        <button id="delete" class="btn danger" type="button">Delete</button>
+        <span class="spacer"></span>
+        <button value="cancel" class="btn" type="button" id="cancel">Cancel</button>
+        <button value="save" class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="goals.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
