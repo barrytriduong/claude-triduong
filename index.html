@@ -22,6 +22,9 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <button class="btn btn-ghost" id="btnLang">🌐 <span data-i18n="langToggle"></span></button>
+    <button class="btn btn-primary" id="btnReview" hidden></button>
+    <button class="btn btn-ghost" id="btnShare" hidden>📷 <span data-i18n="shareBtn"></span></button>
+    <button class="btn btn-ghost" id="btnFamily" hidden>👨‍👩‍👧 <span data-i18n="familyBtn"></span></button>
     <button class="btn btn-ghost" id="btnBulk" hidden>🖼️ <span data-i18n="bulkBtn"></span></button>
     <button class="btn btn-ghost" id="btnSettings" hidden>⚙️ <span data-i18n="settings"></span></button>
     <button class="btn btn-ghost" id="btnBackup" hidden>💾 <span data-i18n="backup"></span></button>
@@ -62,6 +65,7 @@
     <main class="view" id="viewTimeline">
       <section class="on-this-day" id="onThisDay" hidden></section>
       <div class="jumpbar" id="jumpbar" hidden></div>
+      <div class="timeline-tools"><button class="btn btn-ghost" id="btnSlideshow" hidden>▶️ <span data-i18n="slideshow"></span></button></div>
       <div class="filters" id="filters" hidden></div>
       <div class="timeline" id="timeline">
         <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
@@ -115,14 +119,14 @@
         <label class="field grow"><span data-i18n="fDate"></span>
           <input name="date" type="date" required>
         </label>
-        <div class="field grow"><span data-i18n="fColor"></span>
+        <div class="field grow" id="colorField"><span data-i18n="fColor"></span>
           <div class="swatches" id="colorSwatches"></div>
         </div>
       </div>
       <label class="field"><span data-i18n="fStory"></span>
         <textarea name="description" rows="5" data-i18n-placeholder="fStoryPh"></textarea>
       </label>
-      <div class="field"><span data-i18n="fTags"></span>
+      <div class="field" id="tagField"><span data-i18n="fTags"></span>
         <div class="tag-picker" id="tagPicker"></div>
         <input id="tagCustom" maxlength="30" data-i18n-placeholder="fTagCustomPh">
       </div>
@@ -140,6 +144,7 @@
         </div>
       </div>
 
+      <label class="field check" id="visibleRow"><input type="checkbox" name="published"> <span data-i18n="fVisible"></span></label>
       <p class="form-error" id="eventError" hidden></p>
       <div class="modal-actions">
         <button type="button" class="btn btn-danger" id="btnDelete" hidden data-i18n="deleteBtn"></button>
@@ -155,19 +160,80 @@
     <form method="dialog" id="bulkForm" class="modal-body">
       <h2 data-i18n="bulkTitle"></h2>
       <p class="muted" data-i18n="bulkIntro"></p>
-      <label class="btn btn-ghost file-btn"><span data-i18n="bulkPick"></span>
-        <input type="file" id="bulkInput" accept="image/*,video/*" multiple hidden>
-      </label>
+      <div class="row">
+        <label class="btn btn-ghost file-btn"><span data-i18n="bulkPick"></span>
+          <input type="file" id="bulkInput" accept="image/*,video/*,.heic,.heif" multiple hidden>
+        </label>
+        <label class="btn btn-ghost file-btn" id="bulkFolderBtn"><span data-i18n="bulkFolder"></span>
+          <input type="file" id="bulkFolder" webkitdirectory multiple hidden>
+        </label>
+      </div>
       <div class="segmented" id="bulkMode">
         <label><input type="radio" name="bulkMode" value="day" checked> <span data-i18n="bulkPerDay"></span></label>
         <label><input type="radio" name="bulkMode" value="photo"> <span data-i18n="bulkPerPhoto"></span></label>
       </div>
+      <label class="field check"><input type="checkbox" name="asDraft" checked> <span data-i18n="bulkAsDraft"></span></label>
       <div class="bulk-groups" id="bulkGroups"></div>
       <p class="form-error" id="bulkError" hidden></p>
       <div class="modal-actions">
         <span class="spacer"></span>
         <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
         <button type="submit" class="btn btn-primary" id="btnBulkSave" disabled></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Slideshow -->
+  <dialog class="modal" id="slideDialog">
+    <form method="dialog" id="slideForm" class="modal-body narrow">
+      <h2 data-i18n="slideTitle"></h2>
+      <p class="muted" data-i18n="slideIntro"></p>
+      <div class="row">
+        <label class="field grow"><span data-i18n="slideFrom"></span> <input name="from" type="date"></label>
+        <label class="field grow"><span data-i18n="slideTo"></span> <input name="to" type="date"></label>
+      </div>
+      <div class="field"><span data-i18n="slideSpeed"></span>
+        <div class="segmented">
+          <label><input type="radio" name="speed" value="slow"> <span data-i18n="speed_slow"></span></label>
+          <label><input type="radio" name="speed" value="normal" checked> <span data-i18n="speed_normal"></span></label>
+          <label><input type="radio" name="speed" value="fast"> <span data-i18n="speed_fast"></span></label>
+        </div>
+      </div>
+      <label class="field check"><input type="checkbox" name="loop"> <span data-i18n="slideLoop"></span></label>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="slideStart"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Family (admin) -->
+  <dialog class="modal" id="familyDialog">
+    <div class="modal-body">
+      <h2 data-i18n="familyTitle"></h2>
+      <div id="familyBody"></div>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="close"></button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Sign up from an invite link -->
+  <dialog class="modal" id="signupDialog">
+    <form method="dialog" id="signupForm" class="modal-body narrow">
+      <h2 id="signupHello"></h2>
+      <p class="muted" data-i18n="inviteIntro"></p>
+      <label class="field"><span data-i18n="nameLabel"></span> <input name="name" required maxlength="40"></label>
+      <label class="field"><span data-i18n="email"></span> <input name="email" type="email" required autocomplete="username"></label>
+      <label class="field"><span data-i18n="newPassword"></span> <input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+      <label class="field"><span data-i18n="newPassword2"></span> <input name="password2" type="password" required minlength="8" autocomplete="new-password"></label>
+      <p class="form-error" id="signupError" hidden></p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" data-close data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="inviteJoin"></button>
       </div>
     </form>
   </dialog>

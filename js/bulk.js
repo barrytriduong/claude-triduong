@@ -5,7 +5,7 @@ import config from "./config.js";
 import { state, hooks, COLOR_KEYS } from "./state.js";
 import { $, h, openDialog, toast } from "./util.js";
 import { t, fmtDate } from "./i18n.js";
-import { compressImage } from "./media.js";
+import { compressImage, mediaKind } from "./media.js";
 import { photoDate } from "./exif.js";
 
 let items = []; // { file, type, date, preview }
@@ -25,20 +25,27 @@ function releasePreviews() {
   items.forEach((it) => URL.revokeObjectURL(it.preview));
 }
 
-$("#bulkInput").addEventListener("change", async (e) => {
-  const files = [...e.target.files];
+// Folder picking needs a desktop browser; phones only offer single files.
+$("#bulkFolderBtn").hidden = !("webkitdirectory" in document.createElement("input")) || /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+async function addFiles(e) {
+  const files = [...e.target.files].filter((f) => !f.name.startsWith("."));
   e.target.value = "";
   const skipped = [];
-  $("#bulkGroups").replaceChildren(h("p", { class: "muted" }, t("bulkReading")));
+  const status = $("#bulkGroups");
+  let read = 0;
   for (const file of files) {
-    const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
+    status.replaceChildren(h("p", { class: "muted" }, `${t("bulkReading")} ${++read}/${files.length}`));
+    const type = mediaKind(file);
     if (!type) continue;
     if (type === "video" && file.size > config.maxVideoMB * 1024 * 1024) { skipped.push(file.name); continue; }
     items.push({ file, type, date: await photoDate(file), preview: URL.createObjectURL(file) });
   }
-  for (const name of skipped) toast(t("videoTooBig", { name, mb: config.maxVideoMB }), 6000);
+  if (skipped.length) toast(t("bulkSkipped", { n: skipped.length, mb: config.maxVideoMB }), 8000);
   regroup();
-});
+}
+$("#bulkInput").addEventListener("change", addFiles);
+$("#bulkFolder").addEventListener("change", addFiles);
 
 $("#bulkMode").addEventListener("change", regroup);
 
@@ -62,7 +69,7 @@ function renderGroups() {
   $("#bulkGroups").replaceChildren(...groups.map((g) => h("div", { class: "bulk-group" },
     h("div", { class: "bulk-thumbs" },
       g.items.slice(0, 4).map((it) => it.type === "image"
-        ? h("img", { src: it.preview, alt: "" })
+        ? h("img", { src: it.preview, alt: "", onerror: (e) => e.target.replaceWith(h("span", { class: "thumb-ph" }, "🖼️")) })
         : h("video", { src: `${it.preview}#t=0.1`, muted: true, preload: "metadata" })),
       g.items.length > 4 && h("span", { class: "more" }, `+${g.items.length - 4}`)),
     h("div", { class: "bulk-fields" },
@@ -82,6 +89,7 @@ $("#bulkForm").addEventListener("submit", async (e) => {
   btn.disabled = true;
   let done = 0;
   const added = [];
+  const asDraft = e.target.asDraft.checked;
   try {
     for (const g of groups) {
       btn.textContent = t("bulkProgress", { done, total: groups.length });
@@ -97,6 +105,7 @@ $("#bulkForm").addEventListener("submit", async (e) => {
         description: "",
         tags: [],
         media,
+        status: asDraft ? "draft" : "published",
       };
       await state.store.saveEvent(ev);
       added.push(ev);
@@ -106,7 +115,8 @@ $("#bulkForm").addEventListener("submit", async (e) => {
     releasePreviews();
     items = [];
     groups = [];
-    toast(t("bulkDone", { n: done }));
+    toast(t(asDraft ? "bulkDoneDrafts" : "bulkDone", { n: done }), 6000);
+    if (asDraft && state.access.admin) state.filterTag = "__draft";
     await hooks.memoriesAdded(added);
   } catch (ex) {
     console.error(ex);

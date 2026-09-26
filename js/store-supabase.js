@@ -5,7 +5,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 // Bump together with public.schema_version() in supabase/setup.sql.
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 /** Throw Supabase errors instead of returning them. */
 function check({ data, error }) {
@@ -38,6 +38,19 @@ export class SupabaseStore {
 
   async signOut() {
     await this.#sb.auth.signOut();
+  }
+
+  // ---------- Invites ----------
+
+  /** { name, role } for a valid, unused invite code; otherwise null. */
+  async checkInvite(code) {
+    return check(await this.#sb.rpc("check_invite", { invite_code: code }))?.[0] || null;
+  }
+
+  /** Creates the account; the database trigger turns the invite into access. Returns true when signed in right away. */
+  async signUpWithInvite({ email, password, name, code }) {
+    const data = check(await this.#sb.auth.signUp({ email, password, options: { data: { name, invite_code: code } } }));
+    return !!data.session;
   }
 
   /** What the signed-in user may do: { admin, family, setupNeeded }. */
@@ -91,19 +104,13 @@ export class SupabaseStore {
     return data;
   }
 
-  async saveEvent(event) {
-    const id = event.id || crypto.randomUUID();
-    let previous = null;
-    if (event.id) {
-      const { data } = await this.#sb.from("events").select("media").eq("id", id).maybeSingle();
-      previous = data;
-    }
-
+  /** Uploads new files; keeps existing ones. `prefix` puts family submissions under submissions/. */
+  async #uploadMedia(id, items, prefix = "") {
     const media = [];
-    for (const m of event.media) {
+    for (const m of items) {
       if (m.file) {
         const ext = (m.file.name.match(/\.(\w+)$/)?.[1] || (m.type === "image" ? "jpg" : "mp4")).toLowerCase();
-        const path = `${id}/${crypto.randomUUID()}.${ext}`;
+        const path = `${prefix}${id}/${crypto.randomUUID()}.${ext}`;
         const { error } = await this.#sb.storage.from(this.#bucket).upload(path, m.file, {
           contentType: m.file.type || undefined,
           cacheControl: "31536000",
@@ -116,8 +123,11 @@ export class SupabaseStore {
         media.push({ type: "link", url: m.url });
       }
     }
+    return media;
+  }
 
-    const { error } = await this.#sb.from("events").upsert({
+  #row(id, event, media) {
+    return {
       id,
       date: event.date,
       title: event.title,
@@ -127,13 +137,40 @@ export class SupabaseStore {
       tags: event.tags || [],
       media,
       updated_at: new Date().toISOString(),
-    });
+    };
+  }
+
+  async saveEvent(event) {
+    const id = event.id || crypto.randomUUID();
+    let previous = null;
+    if (event.id) {
+      const { data } = await this.#sb.from("events").select("media").eq("id", id).maybeSingle();
+      previous = data;
+    }
+
+    const media = await this.#uploadMedia(id, event.media);
+    const { error } = await this.#sb.from("events").upsert({ ...this.#row(id, event, media), status: event.status || "published" });
     if (error) throw error;
 
     const kept = new Set(media.map((m) => m.path).filter(Boolean));
     const orphans = (previous?.media || []).map((m) => m.path).filter((p) => p && !kept.has(p));
     if (orphans.length) await this.#sb.storage.from(this.#bucket).remove(orphans);
     return id;
+  }
+
+  /** A family member shares a memory; it waits for an admin to approve it. */
+  async submitEvent(event, submittedName) {
+    const id = crypto.randomUUID();
+    const user = await this.getUser();
+    const media = await this.#uploadMedia(id, event.media, "submissions/");
+    check(await this.#sb.from("events").insert({
+      ...this.#row(id, event, media), status: "pending", submitted_by: user.id, submitted_name: submittedName || "",
+    }));
+    return id;
+  }
+
+  async setEventStatus(id, status) {
+    check(await this.#sb.from("events").update({ status }).eq("id", id));
   }
 
   async deleteEvent(id) {
@@ -216,4 +253,14 @@ export class SupabaseStore {
   async familyEmails() {
     return (check(await this.#sb.rpc("family_emails")) || []).map((r) => r.email);
   }
+
+  // ---------- Family panel (admin only; the database checks) ----------
+
+  async listMembers() { return check(await this.#sb.rpc("admin_list_members")) || []; }
+  async listInvites() { return check(await this.#sb.rpc("admin_list_invites")) || []; }
+  async createInvite(name, role) { return check(await this.#sb.rpc("admin_create_invite", { invite_name: name, invite_role: role })); }
+  async deleteInvite(code) { check(await this.#sb.rpc("admin_delete_invite", { invite_code: code })); }
+  async setMemberRole(userId, role) { check(await this.#sb.rpc("admin_set_role", { target: userId, new_role: role })); }
+  async setMemberPassword(userId, password) { check(await this.#sb.rpc("admin_set_password", { target: userId, new_password: password })); }
+  async removeMember(userId) { check(await this.#sb.rpc("admin_remove_member", { target: userId })); }
 }

@@ -9,6 +9,10 @@ import { loadGrowth, renderGrowth } from "./growth.js";
 import { loadLetters, renderLetters } from "./letters.js";
 import { openBulk } from "./bulk.js";
 import { openBackup } from "./backup.js";
+import { attachEmojiInsert, attachEmojiSelect } from "./emoji.js";
+import { openSlideshow } from "./slideshow.js";
+import { openFamily, handleInviteLink } from "./family.js";
+import { ensureName } from "./social.js";
 
 const tagLabel = (tag) => (PRESET_TAGS.includes(tag) ? t(`tag_${tag}`) : `🏷️ ${tag}`);
 
@@ -44,6 +48,7 @@ function setView(view) {
 }
 
 window.addEventListener("hashchange", () => {
+  if (location.hash.startsWith("#invite=")) return openInvite();
   const view = location.hash.slice(1);
   if (VIEWS.includes(view)) {
     setView(view);
@@ -58,10 +63,20 @@ function sortedEvents() {
   return [...state.events].sort((a, b) => dir * (a.date.localeCompare(b.date) || (a.updatedAt || "").localeCompare(b.updatedAt || "")));
 }
 
+const statusOf = (ev) => ev.status || "published";
+
 function visibleEvents() {
-  const all = sortedEvents();
-  return state.filterTag ? all.filter((ev) => ev.tags?.includes(state.filterTag)) : all;
+  let list = sortedEvents();
+  if (state.range) {
+    const { from, to } = state.range;
+    list = list.filter((ev) => statusOf(ev) === "published" && (!from || ev.date >= from) && (!to || ev.date <= to));
+  }
+  if (state.filterTag === "__draft") return list.filter((ev) => statusOf(ev) === "draft");
+  if (state.filterTag === "__pending") return list.filter((ev) => statusOf(ev) === "pending");
+  return state.filterTag ? list.filter((ev) => ev.tags?.includes(state.filterTag)) : list;
 }
+
+const countStatus = (status) => state.events.filter((ev) => statusOf(ev) === status).length;
 
 function renderGallery(ev) {
   const media = (ev.media || []).map((m) => (m.type === "link" ? hydrateLink(m) : m));
@@ -89,15 +104,21 @@ function renderGallery(ev) {
 function renderFilters() {
   const counts = new Map();
   for (const ev of state.events) for (const tag of ev.tags || []) counts.set(tag, (counts.get(tag) || 0) + 1);
-  if (state.filterTag && !counts.has(state.filterTag)) state.filterTag = null;
+  const drafts = state.access.admin ? countStatus("draft") : 0;
+  const pending = state.access.admin ? countStatus("pending") : 0;
+  const special = { __draft: drafts, __pending: pending };
+  if (state.filterTag && !counts.has(state.filterTag) && !special[state.filterTag]) state.filterTag = null;
   const bar = $("#filters");
-  bar.hidden = counts.size === 0;
+  bar.hidden = counts.size === 0 && !drafts && !pending;
   const chip = (tag, label) => h("button", {
     type: "button", class: `filter-chip${state.filterTag === tag ? " on" : ""}`, "aria-pressed": String(state.filterTag === tag),
     onclick: () => { state.filterTag = tag; renderTimeline(); },
   }, label);
   const ordered = [...counts.keys()].sort((a, b) => (PRESET_TAGS.indexOf(a) + 1 || 99) - (PRESET_TAGS.indexOf(b) + 1 || 99) || a.localeCompare(b));
-  bar.replaceChildren(chip(null, t("filterAll")), ...ordered.map((tag) => chip(tag, `${tagLabel(tag)} · ${counts.get(tag)}`)));
+  bar.replaceChildren(...[chip(null, t("filterAll")),
+    pending > 0 && chip("__pending", `📬 ${t("filterPending")} · ${pending}`),
+    drafts > 0 && chip("__draft", `📝 ${t("filterDrafts")} · ${drafts}`),
+    ...ordered.map((tag) => chip(tag, `${tagLabel(tag)} · ${counts.get(tag)}`))].filter(Boolean));
 }
 
 function jumpAgeLabel(date) {
@@ -172,6 +193,7 @@ function renderTimeline({ keepScroll = false } = {}) {
       h("div", { class: "event-dot" }, ev.emoji || "⭐"),
       h("div", { class: "card" },
         h("button", { class: "card-edit", type: "button", onclick: () => openEditor(ev) }, t("editCard")),
+        statusBar(ev),
         h("div", { class: "card-meta" },
           h("span", { class: "chip" }, fmtDate(ev.date)),
           age && h("span", { class: "chip age" }, age)),
@@ -181,7 +203,7 @@ function renderTimeline({ keepScroll = false } = {}) {
         ev.tags?.length > 0 && h("div", { class: "card-tags" }, ev.tags.map((tag) => h("button", {
           type: "button", class: "tag-chip", onclick: () => { state.filterTag = tag; renderTimeline(); scrollToEl($("#filters")); },
         }, tagLabel(tag)))),
-        renderSocial(ev))));
+        statusOf(ev) === "published" && renderSocial(ev))));
   });
 
   observeReveal();
@@ -189,6 +211,43 @@ function renderTimeline({ keepScroll = false } = {}) {
   updateLineFill();
 }
 hooks.renderTimeline = renderTimeline;
+
+/** Draft / waiting-for-approval banner on a card, with the admin's publish/approve buttons. */
+function statusBar(ev) {
+  const status = statusOf(ev);
+  if (status === "published") return null;
+  const admin = state.access.admin;
+  const label = status === "draft" ? t("draftBadge")
+    : admin ? t("pendingFrom", { name: ev.submitted_name || "💕" }) : t("pendingBadge");
+  return h("div", { class: `status-bar ${status}` },
+    h("span", {}, label),
+    admin && h("span", { class: "status-actions" },
+      h("button", { type: "button", class: "btn btn-primary small-btn", onclick: () => publish(ev) },
+        status === "draft" ? t("publishBtn") : t("approveBtn")),
+      status === "pending" && h("button", { type: "button", class: "btn btn-ghost small-btn", onclick: () => openEditor(ev) }, t("editCard")),
+      status === "pending" && h("button", { type: "button", class: "btn btn-danger small-btn", onclick: () => reject(ev) }, t("rejectBtn"))));
+}
+
+async function publish(ev) {
+  try {
+    await state.store.setEventStatus(ev.id, "published");
+    toast(t(statusOf(ev) === "draft" ? "published" : "approved"));
+    await hooks.memoriesAdded([{ ...ev, status: "published" }]);
+  } catch (ex) {
+    toast(ex.message, 5000);
+  }
+}
+
+async function reject(ev) {
+  if (!confirm(t("rejectConfirm"))) return;
+  try {
+    await state.store.deleteEvent(ev.id);
+    await reloadEvents();
+    toast(t("rejected"));
+  } catch (ex) {
+    toast(ex.message, 5000);
+  }
+}
 hooks.renderGrowth = renderGrowth;
 hooks.renderLetters = renderLetters;
 
@@ -241,6 +300,13 @@ function renderToolbar() {
   $("#btnSettings").hidden = !on;
   $("#btnBackup").hidden = !on;
   $("#btnBulk").hidden = !on;
+  const cloud = state.store.mode === "cloud";
+  $("#btnFamily").hidden = !(on && cloud && state.access.admin);
+  $("#btnShare").hidden = !(cloud && state.access.family && !state.access.admin);
+  const pending = state.access.admin ? countStatus("pending") : 0;
+  $("#btnReview").hidden = !pending;
+  $("#btnReview").replaceChildren("📬 ", h("span", {}, t("reviewBtn", { n: pending })));
+  $("#btnSlideshow").hidden = state.events.filter((ev) => statusOf(ev) === "published").length < 2;
 }
 
 // Cloud mode is private: signed-out visitors only see the sign-in gate, family
@@ -285,6 +351,7 @@ function renderAll() {
 
 async function reloadEvents() {
   state.events = await state.store.listEvents();
+  renderToolbar();
   renderTimeline({ keepScroll: true });
 }
 
@@ -337,14 +404,19 @@ $("#btnLang").addEventListener("click", () => {
 
 // ---------- Memory editor ----------
 
-let draft = null; // { id, color, tags, media }
+let draft = null; // { id, color, tags, media, status, submit }
 
-function openEditor(ev = null) {
+/** `submit: true` is the family "Share a memory" form: it goes to the admin for approval. */
+function openEditor(ev = null, { submit = false } = {}) {
   const f = $("#eventForm");
   f.reset();
   $("#eventError").hidden = true;
-  $("#eventDialogTitle").textContent = t(ev ? "editMemory" : "newMemory");
-  $("#btnDelete").hidden = !ev;
+  $("#eventDialogTitle").textContent = t(submit ? "shareTitle" : ev ? "editMemory" : "newMemory");
+  $("#btnDelete").hidden = !ev || submit;
+  $("#tagField").hidden = submit;
+  $("#visibleRow").hidden = submit;
+  $("#btnSave").textContent = t(submit ? "shareSend" : "saveMemory");
+  f.published.checked = !ev || statusOf(ev) === "published";
   f.title.value = ev?.title || "";
   f.emoji.value = ev?.emoji || "";
   f.date.value = ev?.date || todayISO();
@@ -355,6 +427,8 @@ function openEditor(ev = null) {
     color: ev?.color || COLOR_KEYS[Math.floor(Math.random() * COLOR_KEYS.length)],
     tags: [...(ev?.tags || [])],
     media: (ev?.media || []).map((m) => ({ ...m })),
+    status: ev ? statusOf(ev) : "published",
+    submit,
   };
   renderSwatches();
   renderTagPicker();
@@ -451,6 +525,9 @@ $("#eventForm").addEventListener("submit", async (e) => {
   btn.disabled = true;
   btn.textContent = t("saving");
   const isNew = !draft.id;
+  const submit = draft.submit;
+  const name = submit ? await ensureName() : null;
+  if (submit && !name) { btn.disabled = false; btn.textContent = t("shareSend"); return; }
   try {
     const media = [];
     for (const m of draft.media) {
@@ -466,11 +543,17 @@ $("#eventForm").addEventListener("submit", async (e) => {
       color: draft.color,
       tags: draft.tags,
       media,
+      // Unticking "visible to family" makes a draft; a submission keeps waiting until approved.
+      status: f.published.checked ? "published" : draft.status === "pending" ? "pending" : "draft",
     };
-    await state.store.saveEvent(ev);
+    if (submit) await state.store.submitEvent(ev, name);
+    else await state.store.saveEvent(ev);
     draft.media.forEach((m) => m.preview && URL.revokeObjectURL(m.preview));
     $("#eventDialog").close();
-    if (isNew) {
+    if (submit) {
+      toast(t("shareSent"), 5000);
+      await reloadEvents();
+    } else if (isNew || (draft.status !== "published" && ev.status === "published")) {
       toast(t("memoryAdded"));
       await hooks.memoriesAdded([ev]);
     } else {
@@ -483,7 +566,7 @@ $("#eventForm").addEventListener("submit", async (e) => {
     err.hidden = false;
   } finally {
     btn.disabled = false;
-    btn.textContent = t("saveMemory");
+    btn.textContent = t(draft.submit ? "shareSend" : "saveMemory");
   }
 });
 
@@ -503,11 +586,29 @@ $("#btnDelete").addEventListener("click", async () => {
 $("#fabAdd").addEventListener("click", () => openEditor());
 $("#btnBulk").addEventListener("click", openBulk);
 $("#btnBackup").addEventListener("click", openBackup);
+$("#btnFamily").addEventListener("click", openFamily);
+$("#btnSlideshow").addEventListener("click", openSlideshow);
+$("#btnShare").addEventListener("click", () => openEditor(null, { submit: true }));
+$("#btnReview").addEventListener("click", () => {
+  state.filterTag = "__pending";
+  if (state.view !== "timeline") location.hash = "#timeline";
+  renderTimeline();
+  scrollToEl($("#filters"));
+});
+
+// Emoji buttons on the text fields; the bubble emoji becomes a dropdown.
+attachEmojiInsert($("#eventForm").title);
+attachEmojiInsert($("#eventForm").description);
+attachEmojiInsert($("#letterForm").title);
+attachEmojiInsert($("#letterForm").body);
+attachEmojiSelect($("#eventForm").emoji, "⭐");
+attachEmojiSelect($("#settingsForm").emoji, "🌷");
 
 // ---------- "Email the family" after adding memories ----------
 
-hooks.memoriesAdded = async (added, { quiet = false } = {}) => {
+hooks.memoriesAdded = async (all, { quiet = false } = {}) => {
   await reloadEvents();
+  const added = all.filter((ev) => statusOf(ev) === "published");
   if (quiet || state.store.mode !== "cloud" || !added.length) return;
   let emails = [];
   try { emails = await state.store.familyEmails(); } catch (ex) { console.warn(ex); }
@@ -634,6 +735,16 @@ document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("cli
 
 // ---------- Boot ----------
 
+/** Opened from an invite link: show the sign-up form, then load the site once they're in. */
+function openInvite() {
+  return handleInviteLink(async () => {
+    if (await updateAuthUI()) {
+      await loadAll();
+      toast(t("welcomeFamily"));
+    }
+  });
+}
+
 async function boot() {
   setLang(lang);
   state.view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "timeline";
@@ -647,6 +758,7 @@ async function boot() {
   }
   await state.store.init();
   if (await updateAuthUI()) await loadAll();
+  await openInvite();
 }
 
 boot().catch((ex) => {

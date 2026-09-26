@@ -22,6 +22,11 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 | 📧 **Email the family** | After you add memories, one tap opens your email app with a message to every family member. |
 | 💾 **Backup** | Downloads a .zip of everything: memories, photos, videos, letters, comments and measurements. |
 | 🌐 **Tiếng Việt / English** | Switch language with the 🌐 button; everyone's choice is remembered on their device. |
+| 😊 **Emoji picker** | A 😊 button next to titles, stories, letters and comments; the memory's bubble emoji is a dropdown. |
+| ▶️ **Slideshow** | Pick a date range and a speed; the timeline scrolls by itself (tap to pause). Great on a TV. |
+| 📁 **Folder upload & drafts** | On a computer, pick a whole folder (e.g. 100 photos and videos). They're sorted by the date taken and saved as drafts that only you see; add stories, then Publish. |
+| 📬 **Family sharing** | Family members can share a memory with photos; it waits for your approval (📬 button) before it appears. |
+| 👨‍👩‍👧 **Family panel** | Invite people with a link, change who can edit or view, set a new password, or remove someone — all from the site. |
 
 ## Try it locally
 
@@ -71,12 +76,14 @@ When a new version needs database changes, the admin sees a reminder on the site
 
 ### Adding or removing family
 
-- **Add:** create their login in **Authentication → Users → Add user**. Then run this in the SQL Editor:
-  ```sql
-  insert into public.family (user_id) select id from auth.users where email = 'their@email.com';
-  ```
-- **Remove:** delete the user in **Authentication → Users**. Their access ends immediately.
-- **Change a password:** open the user in **Authentication → Users** and use the menu there.
+Use **Edit → 👨‍👩‍👧 Family** on the site:
+
+- **Invite:** type their name, choose *Family (can view)* or *Admin (can edit)*, and send them the link (Zalo, Messenger, email…). They open it and choose their own email and password. Links work once and expire after 14 days.
+- **Change access, set a new password, or remove someone** from the same panel.
+
+One-time Supabase setting for invite links, in **Authentication → Sign In / Providers**: turn **"Allow new users to sign up" ON** and **"Confirm email" OFF**. Anyone can technically create an account then, but it has no access unless it came from your invite link.
+
+You can still add people by hand: create them in **Authentication → Users → Add user**, then give them access in the Family panel (they appear with "No access").
 
 **Moving from local mode:** memories you added in local mode stay in that browser. Re-add them after switching, or ask me to add a "move backup to cloud" button.
 
@@ -86,6 +93,8 @@ When a new version needs database changes, the admin sees a reminder on the site
 - For longer videos, upload to **YouTube as "Unlisted"** (or Vimeo) and paste the link. It will be embedded in the card. This also saves your storage.
 
 ### Good to know
+
+- **Costs.** Netlify only serves the site's code (a few hundred KB per visit). Photos and videos come straight from Supabase, so viewers use Supabase bandwidth, not Netlify's. The free plans include about 1 GB of photo/video storage and 10 GB of downloads per month on Supabase, and 300 credits a month on Netlify (each live update of the site uses 15). Photos are resized to roughly 300–600 KB, so viewing photos is cheap. Videos are what add up: for anything longer than a short clip, use a YouTube (unlisted) or Google Drive link.
 
 - **Supabase pauses free projects after 7 days without any visits.** Your data is kept and you can resume the project from the dashboard with one click. Regular visits prevent this.
 

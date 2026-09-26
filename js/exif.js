@@ -1,17 +1,53 @@
-// Reads the "date taken" from a photo, so bulk uploads land on the right day.
-// Supports JPEG EXIF (most phone and camera photos). Falls back to the file's
-// modified date for anything else (HEIC, PNG, videos).
+// Reads the "date taken" from a photo or video, so bulk uploads land on the right day.
+// JPEG and HEIC photos: EXIF DateTimeOriginal. MP4/MOV videos: the recording time in
+// the "mvhd" header. Anything else falls back to the file's modified date.
 
 import { isoOf } from "./util.js";
+import { mediaKind } from "./media.js";
+
+const CHUNK = 512 * 1024;
 
 export async function photoDate(file) {
   try {
-    if (file.type === "image/jpeg" || /\.jpe?g$/i.test(file.name)) {
-      const taken = readExifDate(await file.slice(0, 256 * 1024).arrayBuffer());
+    const head = await file.slice(0, CHUNK).arrayBuffer();
+    if (mediaKind(file) === "image") {
+      const taken = readExifDate(head) || findExif(head);
+      if (taken) return taken;
+    } else if (mediaKind(file) === "video") {
+      // The header can sit at the start or the end of the file.
+      const taken = readMvhd(head) || (file.size > CHUNK && readMvhd(await file.slice(-CHUNK).arrayBuffer()));
       if (taken) return taken;
     }
   } catch { /* fall through */ }
   return isoOf(new Date(file.lastModified || Date.now()));
+}
+
+/** HEIC and friends: find the "Exif\0\0" marker anywhere in the header and read the TIFF after it. */
+function findExif(buffer) {
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.length - 10; i++) {
+    if (bytes[i] === 0x45 && bytes[i + 1] === 0x78 && bytes[i + 2] === 0x69 && bytes[i + 3] === 0x66 && bytes[i + 4] === 0 && bytes[i + 5] === 0) {
+      const d = readTiff(new DataView(buffer), i + 6);
+      if (d) return d;
+    }
+  }
+  return null;
+}
+
+/** QuickTime/MP4 creation time: seconds since 1904-01-01 in the movie header. */
+function readMvhd(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  for (let i = 4; i < bytes.length - 20; i++) {
+    if (bytes[i] === 0x6d && bytes[i + 1] === 0x76 && bytes[i + 2] === 0x68 && bytes[i + 3] === 0x64) { // "mvhd"
+      const version = bytes[i + 4];
+      const secs = version === 1 ? Number(view.getBigUint64(i + 8)) : view.getUint32(i + 8);
+      const ms = (secs - 2082844800) * 1000; // 1904 → 1970
+      if (secs > 2082844800 && ms < Date.now() + 86400000) return isoOf(new Date(ms));
+      return null;
+    }
+  }
+  return null;
 }
 
 /** Returns "YYYY-MM-DD" from DateTimeOriginal (or DateTime), or null. */
@@ -32,6 +68,7 @@ export function readExifDate(buffer) {
 }
 
 function readTiff(view, start) {
+  if (start + 8 > view.byteLength) return null;
   const little = view.getUint16(start) === 0x4949;
   const u16 = (o) => view.getUint16(start + o, little);
   const u32 = (o) => view.getUint32(start + o, little);

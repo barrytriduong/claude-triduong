@@ -109,6 +109,8 @@ export class LocalStore {
       emoji: event.emoji,
       color: event.color,
       tags: event.tags || [],
+      status: event.status || "published",
+      submitted_name: previous?.submitted_name || "",
       media,
       updatedAt: new Date().toISOString(),
     });
@@ -116,6 +118,18 @@ export class LocalStore {
     const kept = new Set(media.map((m) => m.mediaId).filter(Boolean));
     await this.#deleteMedia((previous?.media || []).filter((m) => m.mediaId && !kept.has(m.mediaId)));
     return id;
+  }
+
+  async submitEvent(event, submittedName) {
+    const id = await this.saveEvent({ ...event, status: "pending" });
+    const rec = await this.#get("events", id);
+    await this.#put("events", { ...rec, submitted_name: submittedName || "", submitted_by: LOCAL_USER.id });
+    return id;
+  }
+
+  async setEventStatus(id, status) {
+    const rec = await this.#get("events", id);
+    if (rec) await this.#put("events", { ...rec, status });
   }
 
   async deleteEvent(id) {

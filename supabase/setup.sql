@@ -9,7 +9,10 @@
 -- BEFORE RUNNING:
 --   1. Create the logins first: Authentication → Users → Add user (tick "Auto confirm").
 --   2. Replace YOUR_EMAIL_HERE and FAMILY_EMAIL_HERE at the bottom.
---   3. Make sure Authentication → Sign In / Providers → "Allow new users to sign up" is OFF.
+--   3. To use invite links from the Family panel, in Authentication → Sign In / Providers:
+--      turn "Allow new users to sign up" ON and turn "Confirm email" OFF.
+--      This is safe: a new account only gets access through a valid invite code.
+--      (Without invite links, keep "Allow new users to sign up" OFF.)
 
 -- ---------- Tables ----------
 create table if not exists public.events (
@@ -89,7 +92,7 @@ create policy "parents delete media" on storage.objects
 -- ---------- Features added in version 2 ----------
 
 -- Lets the website know this script is up to date. Bump together with SCHEMA_VERSION in js/store-supabase.js.
-create or replace function public.schema_version() returns int language sql immutable as $$ select 2 $$;
+create or replace function public.schema_version() returns int language sql immutable as $$ select 3 $$;
 
 -- Tags on memories ("firsts", "birthday", or your own).
 alter table public.events add column if not exists tags text[] not null default '{}';
@@ -187,6 +190,144 @@ as $$
 $$;
 revoke execute on function public.family_emails() from public, anon;
 grant execute on function public.family_emails() to authenticated;
+
+-- ---------- Features added in version 3 ----------
+
+-- Drafts (only admins see them) and family submissions waiting for approval.
+alter table public.events add column if not exists status text not null default 'published';
+alter table public.events add column if not exists submitted_by uuid references auth.users (id) on delete set null;
+alter table public.events add column if not exists submitted_name text not null default '';
+alter table public.events drop constraint if exists events_status_check;
+alter table public.events add constraint events_status_check check (status in ('published', 'draft', 'pending'));
+
+drop policy if exists "family read events" on public.events;
+drop policy if exists "family submit events" on public.events;
+create policy "family read events" on public.events for select to authenticated using (
+  public.is_admin() or (public.is_family() and (status = 'published' or (status = 'pending' and submitted_by = auth.uid()))));
+create policy "family submit events" on public.events for insert to authenticated
+  with check (public.is_family() and status = 'pending' and submitted_by = auth.uid());
+
+-- Family members may upload photos for their submissions (only under submissions/).
+drop policy if exists "family upload submissions" on storage.objects;
+create policy "family upload submissions" on storage.objects for insert to authenticated
+  with check (bucket_id = 'timeline-media' and name like 'submissions/%' and public.is_family());
+
+-- Invite links: the admin creates one, the person opens it and picks their own email & password.
+create table if not exists public.invites (
+  code       text primary key default encode(extensions.gen_random_bytes(12), 'hex'),
+  name       text not null default '',
+  role       text not null default 'family' check (role in ('family', 'admin')),
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null default now() + interval '14 days',
+  used_by    uuid references auth.users (id) on delete set null,
+  used_at    timestamptz
+);
+alter table public.invites enable row level security; -- no policies: only the functions below touch it
+
+-- Anyone holding a code may check it (used by the sign-up screen).
+create or replace function public.check_invite(invite_code text)
+returns table (name text, role text)
+language sql stable security definer set search_path = public
+as $$ select i.name, i.role from public.invites i
+      where i.code = invite_code and i.used_by is null and i.expires_at > now() $$;
+grant execute on function public.check_invite(text) to anon, authenticated;
+
+-- When someone signs up with an invite code, give them access. A wrong or used code blocks the sign-up.
+-- Sign-ups without a code (e.g. users you add in the dashboard) are allowed but get no access.
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public
+as $$
+declare
+  c text := new.raw_user_meta_data ->> 'invite_code';
+  inv public.invites;
+begin
+  if c is null or c = '' then return new; end if;
+  select * into inv from public.invites where code = c and used_by is null and expires_at > now() for update;
+  if not found then raise exception 'This invite link is invalid, expired or already used.'; end if;
+  if inv.role = 'admin' then insert into public.admins (user_id) values (new.id) on conflict do nothing;
+  else insert into public.family (user_id) values (new.id) on conflict do nothing; end if;
+  update public.invites set used_by = new.id, used_at = now() where code = c;
+  return new;
+end $$;
+drop trigger if exists on_auth_user_created_invite on auth.users;
+create trigger on_auth_user_created_invite after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- ----- Admin-only helpers for the Family panel -----
+create or replace function public.require_admin() returns void language plpgsql stable security definer set search_path = public
+as $$ begin if not public.is_admin() then raise exception 'Only admins can do this.'; end if; end $$;
+
+create or replace function public.admin_list_members()
+returns table (user_id uuid, email text, name text, role text, last_sign_in_at timestamptz, created_at timestamptz)
+language plpgsql stable security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  return query
+    select u.id, u.email::text, coalesce(u.raw_user_meta_data ->> 'name', ''),
+           case when a.user_id is not null then 'admin' when f.user_id is not null then 'family' else 'none' end,
+           u.last_sign_in_at, u.created_at
+    from auth.users u
+    left join public.admins a on a.user_id = u.id
+    left join public.family f on f.user_id = u.id
+    order by u.created_at;
+end $$;
+
+create or replace function public.admin_create_invite(invite_name text, invite_role text default 'family')
+returns text language plpgsql security definer set search_path = public
+as $$
+declare c text;
+begin
+  perform public.require_admin();
+  insert into public.invites (name, role) values (coalesce(invite_name, ''), invite_role) returning code into c;
+  return c;
+end $$;
+
+create or replace function public.admin_list_invites()
+returns table (code text, name text, role text, created_at timestamptz, expires_at timestamptz)
+language plpgsql stable security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  return query select i.code, i.name, i.role, i.created_at, i.expires_at from public.invites i
+    where i.used_by is null and i.expires_at > now() order by i.created_at desc;
+end $$;
+
+create or replace function public.admin_delete_invite(invite_code text)
+returns void language plpgsql security definer set search_path = public
+as $$ begin perform public.require_admin(); delete from public.invites where code = invite_code; end $$;
+
+-- Role: 'admin', 'family' or 'none' (no access, account kept).
+create or replace function public.admin_set_role(target uuid, new_role text)
+returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  if target = auth.uid() then raise exception 'You cannot change your own role.'; end if;
+  delete from public.admins where user_id = target;
+  delete from public.family where user_id = target;
+  if new_role = 'admin' then insert into public.admins (user_id) values (target);
+  elsif new_role = 'family' then insert into public.family (user_id) values (target); end if;
+end $$;
+
+create or replace function public.admin_set_password(target uuid, new_password text)
+returns void language plpgsql security definer set search_path = public, extensions
+as $$
+begin
+  perform public.require_admin();
+  if length(new_password) < 8 then raise exception 'The password must be at least 8 characters.'; end if;
+  update auth.users set encrypted_password = extensions.crypt(new_password, extensions.gen_salt('bf')), updated_at = now()
+  where id = target;
+end $$;
+
+create or replace function public.admin_remove_member(target uuid)
+returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  if target = auth.uid() then raise exception 'You cannot remove yourself.'; end if;
+  delete from auth.users where id = target;
+end $$;
 
 -- ---------- People ----------
 -- You (admin):

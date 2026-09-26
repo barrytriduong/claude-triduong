@@ -3,6 +3,7 @@
 import { state, hooks } from "./state.js";
 import { $, h, openDialog, toast } from "./util.js";
 import { t, fmtDate } from "./i18n.js";
+import { attachEmojiInsert } from "./emoji.js";
 
 // ---------- Your display name ----------
 
@@ -77,11 +78,17 @@ export function renderSocial(ev) {
             type: "button", class: "link-btn", onclick: () => removeComment(c),
           }, t("deleteComment"))),
         h("p", {}, c.body))),
-      h("form", { class: "comment-form", onsubmit: (e) => submitComment(e, ev) },
-        h("input", { name: "body", maxlength: "2000", placeholder: t("commentPh"), required: true, autocomplete: "off" }),
-        h("button", { class: "btn btn-primary", type: "submit" }, t("send")))));
+      commentForm(ev)));
   }
   return wrap;
+}
+
+function commentForm(ev) {
+  const input = h("input", { name: "body", maxlength: "2000", placeholder: t("commentPh"), required: true, autocomplete: "off" });
+  const form = h("form", { class: "comment-form", onsubmit: (e) => submitComment(e, ev) },
+    input, h("button", { class: "btn btn-primary", type: "submit" }, t("send")));
+  attachEmojiInsert(input);
+  return form;
 }
 
 function shortNames(names) {
@@ -106,19 +113,18 @@ async function toggleHeart(ev, btn) {
 
 async function submitComment(e, ev) {
   e.preventDefault();
-  const input = e.target.body;
-  const body = input.value.trim();
+  const body = e.target.body.value.trim();
   if (!body) return;
   const name = await ensureName();
   if (!name) return;
-  e.target.querySelector("button").disabled = true;
+  e.target.querySelector("button[type=submit]").disabled = true;
   try {
     await state.store.addComment({ event_id: ev.id, body, author_name: name });
     await loadSocial();
     hooks.renderTimeline({ keepScroll: true });
   } catch (ex) {
     toast(ex.message);
-    e.target.querySelector("button").disabled = false;
+    e.target.querySelector("button[type=submit]").disabled = false;
   }
 }
 

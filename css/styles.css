@@ -532,3 +532,81 @@ body.editing .card-edit { display: inline-flex; }
   .measure-table { padding: 12px; }
   .measure-table th, .measure-table td { padding: 7px 5px; font-size: 14px; }
 }
+
+/* =====================================================================
+   v3: emoji picker, slideshow, drafts & approvals, family panel
+   ===================================================================== */
+
+/* ---------- Emoji picker ---------- */
+.emoji-wrap { position: relative; display: flex; align-items: flex-start; gap: 6px; }
+.emoji-wrap > input, .emoji-wrap > textarea { flex: 1; min-width: 0; }
+.emoji-trigger {
+  flex: none; width: 40px; height: 40px; border-radius: 12px; border: 2px solid #f3e3ec; background: #fffbfd;
+  font-size: 20px; cursor: pointer; display: grid; place-items: center; padding: 0; transition: border-color .15s, transform .15s;
+}
+.emoji-trigger:hover { border-color: var(--pink); transform: scale(1.05); }
+.emoji-select { width: 100%; height: 46px; font-size: 26px; }
+.emoji-field { position: relative; }
+.emoji-pop {
+  position: absolute; z-index: 30; top: calc(100% + 6px); right: 0; width: min(330px, 86vw);
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 8px;
+  background: #fff; border-radius: 18px; box-shadow: 0 14px 40px rgba(90, 70, 96, .25);
+  max-height: 260px; overflow: auto; animation: pop .2s ease;
+}
+.emoji-opt { border: 0; background: none; font-size: 22px; padding: 4px 0; border-radius: 10px; cursor: pointer; }
+.emoji-opt:hover { background: #fff0f5; transform: scale(1.15); }
+.comment-form .emoji-wrap { flex: 1; min-width: 0; align-items: center; }
+.comment-form .emoji-wrap input { border: 2px solid #f3e3ec; border-radius: 99px; padding: 8px 14px; background: #fff; outline: none; }
+.comment-form .emoji-trigger { width: 36px; height: 36px; border-radius: 50%; font-size: 18px; }
+.comment-form .emoji-pop { top: auto; bottom: calc(100% + 6px); }
+
+/* ---------- Slideshow ---------- */
+.timeline-tools { display: flex; justify-content: center; margin: 0 auto 14px; }
+.slide-bar {
+  position: fixed; left: 50%; bottom: 20px; translate: -50% 0; z-index: 40;
+  display: flex; gap: 6px; align-items: center; padding: 8px; border-radius: 99px;
+  background: rgba(255, 255, 255, .95); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(90, 70, 96, .25);
+  animation: pop .3s ease;
+}
+.slide-bar button {
+  border: 0; border-radius: 99px; padding: 8px 12px; cursor: pointer; background: #fff0f5;
+  font-family: var(--font-head); font-weight: 600; font-size: 14px; white-space: nowrap;
+}
+.slide-bar .slide-play { font-size: 18px; padding: 6px 12px; }
+.slide-bar .slide-speed.on { background: var(--pink); color: #fff; }
+body.slideshow .toolbar, body.slideshow .fab, body.slideshow .tabs, body.slideshow .filters,
+body.slideshow .jumpbar, body.slideshow .timeline-tools, body.slideshow .on-this-day,
+body.slideshow .social { display: none !important; }
+body.slideshow { cursor: none; }
+body.slideshow .slide-bar { cursor: default; }
+
+/* ---------- Drafts & approvals ---------- */
+.status-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  margin: -6px 0 12px; padding: 8px 12px; border-radius: 14px; font-size: 14px; font-weight: 700;
+}
+.status-bar.draft { background: #f3f0ff; color: #5b4a9e; }
+.status-bar.pending { background: #fff4d6; color: #8a6510; }
+.status-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+body.editing .status-bar { margin-top: 28px; }
+.small-btn { padding: 5px 12px !important; font-size: 14px !important; }
+.event:has(.status-bar.draft) .card { border-top-style: dashed; opacity: .92; }
+.link-btn.danger { color: var(--danger); }
+.thumb-ph { width: 44px; height: 44px; border-radius: 10px; background: #fff0f5; display: grid; place-items: center; }
+
+/* ---------- Family panel ---------- */
+#familyBody h3 { font-size: 20px; margin-bottom: 6px; }
+.invite-form { background: #fffafc; border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.invite-form input, .invite-form select, .role-select {
+  border: 2px solid #f3e3ec; border-radius: 12px; padding: 8px 10px; background: #fff; font-size: 15px;
+}
+.invite-form .row { align-items: center; }
+.invite-form .grow { flex: 1 1 160px; }
+.invite-link { margin-top: 10px; background: #ebfbf5; border-radius: 18px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.invite-link p { margin: 0; font-weight: 700; }
+.invite-link input { width: 100%; border: 2px solid #c9efe2; border-radius: 12px; padding: 8px 10px; font-size: 14px; background: #fff; }
+.fam-section { margin-top: 18px; }
+.fam-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid #f5ecf1; }
+.fam-who { min-width: 0; }
+.fam-who .chip { margin-left: 6px; background: #fff0f5; }
+.fam-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
