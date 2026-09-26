@@ -184,9 +184,11 @@ async function updateAuthUI() {
   $("#btnSignOut").hidden = !allowed;
   $("#btnGateLogin").hidden = !!state.user;
   $("#btnGateSignOut").hidden = !state.user;
-  $("#gateText").textContent = state.user
-    ? `You're signed in as ${state.user.email}, but this account hasn't been given access yet. Ask the parents to add you.`
-    : "These memories are just for family. Please sign in to see them.";
+  $("#gateText").textContent = !state.user
+    ? "These memories are just for family. Please sign in to see them."
+    : state.access.setupNeeded
+      ? "Almost there! The database setup needs updating: run the latest supabase/setup.sql in the Supabase SQL Editor."
+      : `You're signed in as ${state.user.email}, but this account hasn't been given access yet. Ask the parents to add you.`;
   if (!state.access.admin && state.editing) setEditing(false);
   return allowed;
 }

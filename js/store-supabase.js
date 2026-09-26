@@ -34,7 +34,9 @@ export class SupabaseStore {
   /** What the signed-in user may do: { admin, family }. */
   async getAccess() {
     const [admin, family] = await Promise.all([this.#sb.rpc("is_admin"), this.#sb.rpc("is_family")]);
-    return { admin: admin.data === true, family: family.data === true };
+    // A missing function means supabase/setup.sql (latest version) hasn't been run yet.
+    const setupNeeded = !!(admin.error || family.error);
+    return { admin: admin.data === true, family: family.data === true, setupNeeded };
   }
 
   async getSettings() {
