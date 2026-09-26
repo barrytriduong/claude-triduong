@@ -50,6 +50,20 @@ If a required field is missing or wrong, the build stops with a clear error.
 
 **The two sample lessons** (Terry Fox, Wangari Maathai) are original scripts written for this site. They have no `youtubeId` yet, so they show "Video coming soon". Record them as videos, or replace them with your own.
 
+### Set exact transcript times from YouTube captions
+
+Write the transcript lines with rough times (or all `t: 0`), then download the video's captions in **YouTube Studio → Subtitles → the video → ⋮ → Download** (.sbv, .srt or .vtt; auto-captions are fine) and run:
+
+```sh
+node scripts/sync-captions.mjs src/content/lessons/<lesson>.md captions.sbv
+```
+
+It matches each transcript line to the captions and updates all the times, including the vocabulary and quiz "watch that part" times.
+
+### What to say at the end of each video
+
+Point viewers to what the lesson page really has, for example: *"Want more practice? Go to brightlivesenglish.com for the transcript, flashcards, a printable worksheet and the Story Challenge quiz."*
+
 ### Link the YouTube video to the lesson
 
 After publishing a lesson, open `https://yourdomain.com/youtube/<slug>.txt`. It's a ready-made YouTube description with the lesson link, the words from the story and hashtags. Paste it into the video's description, and pin a comment with the lesson link too. Every video then sends viewers to the site.
@@ -95,7 +109,7 @@ npm run build    # production build into dist/
 
 ## Before launch
 
-- [ ] Add real YouTube IDs and transcripts
+- [x] First real lesson (Wilma Rudolph)
 - [x] Contact email and owner name in `src/lib/site.ts`
 - [x] Your story on `/about/`
 - [x] Domain `brightlivesenglish.com` (already the default in `astro.config.mjs` and `robots.txt`)
