@@ -8,8 +8,8 @@
 // use the Backup button often.
 //
 // With the Supabase project URL and publishable key filled in ("cloud mode"),
-// memories are stored online, anyone with the link can view the timeline,
-// and only signed-in parents can edit. See README.md for the 5-minute setup.
+// memories are stored online and the site is private: only invited family can
+// sign in and view, and only admins can edit. See README.md for the setup.
 export default {
   supabase: {
     url: "https://yfhecewvbuakbofvhtac.supabase.co",

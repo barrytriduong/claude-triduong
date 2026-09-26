@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
   <title>Our Little Star</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +27,20 @@
     <button class="btn btn-primary" id="btnEditMode" hidden>✏️ <span>Edit</span></button>
   </div>
 
-  <header class="hero">
+  <!-- Shown instead of the timeline to anyone who isn't signed in -->
+  <section class="gate" id="gate" hidden>
+    <div class="gate-card">
+      <div class="gate-emoji">🔐</div>
+      <h1>A little private place</h1>
+      <p class="muted" id="gateText">These memories are just for family. Please sign in to see them.</p>
+      <div class="gate-actions">
+        <button class="btn btn-primary" id="btnGateLogin">💕 Sign in</button>
+        <button class="btn btn-ghost" id="btnGateSignOut" hidden>Use a different account</button>
+      </div>
+    </div>
+  </section>
+
+  <header class="hero" id="hero">
     <div class="hero-emoji" id="heroEmoji">🌷</div>
     <h1 id="heroName">Our Little Star</h1>
     <p class="hero-tagline" id="heroTagline">Every little moment, kept forever</p>
@@ -35,7 +49,7 @@
     <div class="scroll-hint" aria-hidden="true">scroll down <span>↓</span></div>
   </header>
 
-  <main>
+  <main id="main">
     <div class="timeline" id="timeline">
       <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
       <div id="events"></div>
@@ -50,7 +64,7 @@
 
   <button class="fab" id="fabAdd" hidden title="Add a memory">＋ <span>Add a memory</span></button>
 
-  <footer class="footer">made with <span class="heart">♥</span> for you <button class="lock" id="btnLogin" hidden title="Parent login">🔒</button></footer>
+  <footer class="footer" id="footer">made with <span class="heart">♥</span> for you</footer>
 
   <!-- Event editor -->
   <dialog class="modal" id="eventDialog">
@@ -131,15 +145,15 @@
   <!-- Sign in -->
   <dialog class="modal" id="loginDialog">
     <form method="dialog" id="loginForm" class="modal-body narrow">
-      <h2>Parents only 🔐</h2>
-      <p class="muted">Sign in to add and edit memories.</p>
+      <h2>Welcome, family 💕</h2>
+      <p class="muted">Sign in with the email and password you were given.</p>
       <label class="field">Email <input name="email" type="email" required autocomplete="username"></label>
       <label class="field">Password <input name="password" type="password" required autocomplete="current-password"></label>
       <p class="form-error" id="loginError" hidden></p>
       <div class="modal-actions">
         <span class="spacer"></span>
         <button type="button" class="btn btn-ghost" data-close>Cancel</button>
-        <button type="submit" class="btn btn-primary">Sign in</button>
+        <button type="submit" class="btn btn-primary" id="btnLoginSubmit">Sign in</button>
       </div>
     </form>
   </dialog>

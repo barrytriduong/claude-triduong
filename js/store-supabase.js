@@ -1,6 +1,6 @@
-// "Cloud mode": events in a Supabase Postgres table, photos/videos in Supabase Storage.
-// Anyone can view; only signed-in users can add, edit or delete (enforced by the
-// row-level-security policies in supabase/setup.sql).
+// "Cloud mode": events in a Supabase Postgres table, photos/videos in a private
+// Supabase Storage bucket. Only invited family can view and only admins can edit —
+// enforced by the row-level-security policies in supabase/setup.sql, not by this file.
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -31,6 +31,12 @@ export class SupabaseStore {
     await this.#sb.auth.signOut();
   }
 
+  /** What the signed-in user may do: { admin, family }. */
+  async getAccess() {
+    const [admin, family] = await Promise.all([this.#sb.rpc("is_admin"), this.#sb.rpc("is_family")]);
+    return { admin: admin.data === true, family: family.data === true };
+  }
+
   async getSettings() {
     const { data, error } = await this.#sb.from("settings").select("data").eq("id", 1).maybeSingle();
     if (error) throw error;
@@ -42,17 +48,21 @@ export class SupabaseStore {
     if (error) throw error;
   }
 
-  #publicUrl(path) {
-    return this.#sb.storage.from(this.#bucket).getPublicUrl(path).data.publicUrl;
-  }
-
   async listEvents() {
     const { data, error } = await this.#sb.from("events").select("*");
     if (error) throw error;
     for (const ev of data) {
       ev.media = ev.media || [];
       ev.updatedAt = ev.updated_at;
-      for (const m of ev.media) if (m.path) m.src = this.#publicUrl(m.path);
+    }
+
+    // The bucket is private: ask for temporary links (valid 12 hours) in one request.
+    const paths = data.flatMap((ev) => ev.media.map((m) => m.path).filter(Boolean));
+    if (paths.length) {
+      const { data: signed, error: signError } = await this.#sb.storage.from(this.#bucket).createSignedUrls(paths, 60 * 60 * 12);
+      if (signError) throw signError;
+      const urls = new Map(signed.map((s) => [s.path, s.signedUrl]));
+      for (const ev of data) for (const m of ev.media) if (m.path) m.src = urls.get(m.path) || "";
     }
     return data;
   }

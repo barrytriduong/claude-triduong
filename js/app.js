@@ -28,6 +28,7 @@ const state = {
   events: [],
   editing: false,
   user: null,
+  access: { admin: false, family: false },
 };
 
 // ---------- Dates & ages ----------
@@ -165,48 +166,77 @@ function setEditing(on) {
   $("#fabAdd").hidden = !on;
   $("#btnSettings").hidden = !on;
   $("#btnBackup").hidden = !(on && state.store.mode === "local");
-  $("#btnSignOut").hidden = !(on && state.store.needsAuth);
   renderEvents();
 }
 
-// In cloud mode viewers never see the Edit button — only a faint 🔒 in the footer.
+// Cloud mode is private: signed-out visitors only see the sign-in gate, family
+// members see the timeline, and only admins get the Edit button. The database
+// enforces the same rules, so hiding things here is just for a tidy page.
 async function updateAuthUI() {
-  if (!state.store.needsAuth) return;
-  const signedIn = !!(await state.store.getUser());
-  $("#btnEditMode").hidden = !signedIn;
-  $("#btnLogin").hidden = signedIn;
+  if (!state.store.needsAuth) return true;
+  state.user = await state.store.getUser();
+  state.access = state.user ? await state.store.getAccess() : { admin: false, family: false };
+  const allowed = state.access.family;
+
+  $("#gate").hidden = allowed;
+  $("#hero").hidden = $("#main").hidden = $("#footer").hidden = !allowed;
+  $("#btnEditMode").hidden = !state.access.admin;
+  $("#btnSignOut").hidden = !allowed;
+  $("#btnGateLogin").hidden = !!state.user;
+  $("#btnGateSignOut").hidden = !state.user;
+  $("#gateText").textContent = state.user
+    ? `You're signed in as ${state.user.email}, but this account hasn't been given access yet. Ask the parents to add you.`
+    : "These memories are just for family. Please sign in to see them.";
+  if (!state.access.admin && state.editing) setEditing(false);
+  return allowed;
 }
 
-$("#btnLogin").addEventListener("click", () => openDialog("#loginDialog"));
+async function loadAll() {
+  state.settings = { ...config.defaults, ...((await state.store.getSettings()) || {}) };
+  renderHero();
+  await reload();
+}
 
-$("#btnEditMode").addEventListener("click", async () => {
-  if (state.editing) return setEditing(false);
-  if (state.store.needsAuth && !(await state.store.getUser())) return openDialog("#loginDialog");
-  setEditing(true);
-});
+$("#btnGateLogin").addEventListener("click", () => openDialog("#loginDialog"));
 
-$("#btnSignOut").addEventListener("click", async () => {
+$("#btnEditMode").addEventListener("click", () => setEditing(!state.editing));
+
+async function signOut() {
   await state.store.signOut();
   setEditing(false);
+  state.events = [];
+  state.settings = { ...config.defaults };
+  renderEvents();
+  renderHero();
   await updateAuthUI();
+}
+
+$("#btnSignOut").addEventListener("click", async () => {
+  await signOut();
   toast("Signed out 👋");
 });
+$("#btnGateSignOut").addEventListener("click", signOut);
 
 $("#loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target;
   const err = $("#loginError");
+  const btn = $("#btnLoginSubmit");
   err.hidden = true;
+  btn.disabled = true;
   try {
     await state.store.signIn(f.email.value.trim(), f.password.value);
     f.reset();
     $("#loginDialog").close();
-    await updateAuthUI();
-    setEditing(true);
-    toast("Welcome back! 💕");
+    if (await updateAuthUI()) {
+      await loadAll();
+      toast(state.access.admin ? "Welcome back! Tap Edit to add memories ✏️" : "Welcome! 💕");
+    }
   } catch (ex) {
-    err.textContent = ex.message || "Could not sign in.";
+    err.textContent = ex.message === "Invalid login credentials" ? "That email or password isn't right." : ex.message || "Could not sign in.";
     err.hidden = false;
+  } finally {
+    btn.disabled = false;
   }
 });
 
@@ -510,10 +540,7 @@ async function boot() {
     badge.hidden = false;
   }
   await state.store.init();
-  await updateAuthUI();
-  state.settings = { ...config.defaults, ...((await state.store.getSettings()) || {}) };
-  renderHero();
-  await reload();
+  if (await updateAuthUI()) await loadAll();
 }
 
 boot().catch((ex) => {

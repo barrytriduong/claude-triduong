@@ -1,10 +1,15 @@
--- Run this once in your Supabase project: Dashboard → SQL Editor → New query → paste → Run.
--- It creates the tables, the photo/video bucket, and the security rules:
---   * anyone with the site link can VIEW memories
---   * only accounts listed in the `admins` table (you) can ADD / EDIT / DELETE
+-- Run this in your Supabase project: Dashboard → SQL Editor → New query → paste → Run.
+-- Safe to run again at any time (e.g. after updating the site) — it never deletes memories.
 --
--- BEFORE RUNNING: create your login first (Authentication → Users → Add user),
--- then replace YOUR_EMAIL_HERE at the very bottom with that email.
+-- Who can do what:
+--   * ADMINS (you)        can view, add, edit and delete memories
+--   * FAMILY (invited)    can view memories
+--   * everyone else       sees nothing — not the stories, not the photos
+--
+-- BEFORE RUNNING:
+--   1. Create the logins first: Authentication → Users → Add user (tick "Auto confirm").
+--   2. Replace YOUR_EMAIL_HERE and FAMILY_EMAIL_HERE at the bottom.
+--   3. Make sure Authentication → Sign In / Providers → "Allow new users to sign up" is OFF.
 
 -- ---------- Tables ----------
 create table if not exists public.events (
@@ -29,36 +34,51 @@ create table if not exists public.admins (
   user_id uuid primary key references auth.users (id) on delete cascade
 );
 
+-- Who may view (admins can always view too).
+create table if not exists public.family (
+  user_id uuid primary key references auth.users (id) on delete cascade
+);
+
 create or replace function public.is_admin() returns boolean
 language sql stable security definer set search_path = public
 as $$ select exists (select 1 from public.admins where user_id = auth.uid()) $$;
 
-alter table public.admins   enable row level security; -- no policies: nobody can read/change it via the API
+create or replace function public.is_family() returns boolean
+language sql stable security definer set search_path = public
+as $$ select public.is_admin() or exists (select 1 from public.family where user_id = auth.uid()) $$;
+
+-- RLS on with no policies = nobody can read or change these lists through the website.
+alter table public.admins   enable row level security;
+alter table public.family   enable row level security;
 alter table public.events   enable row level security;
 alter table public.settings enable row level security;
 
-drop policy if exists "public read events"   on public.events;
-drop policy if exists "parents write events" on public.events;
+drop policy if exists "public read events"     on public.events;
+drop policy if exists "family read events"     on public.events;
+drop policy if exists "parents write events"   on public.events;
 drop policy if exists "public read settings"   on public.settings;
+drop policy if exists "family read settings"   on public.settings;
 drop policy if exists "parents write settings" on public.settings;
 
-create policy "public read events"   on public.events   for select using (true);
-create policy "parents write events" on public.events   for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "public read settings"   on public.settings for select using (true);
-create policy "parents write settings" on public.settings for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "family read events"     on public.events   for select to authenticated using (public.is_family());
+create policy "parents write events"   on public.events   for all    to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "family read settings"   on public.settings for select to authenticated using (public.is_family());
+create policy "parents write settings" on public.settings for all    to authenticated using (public.is_admin()) with check (public.is_admin());
 
--- ---------- Storage bucket for photos & videos ----------
+-- ---------- Private storage bucket for photos & videos ----------
+-- Files are only reachable through short-lived signed links handed to signed-in family.
 insert into storage.buckets (id, name, public)
-values ('timeline-media', 'timeline-media', true)
-on conflict (id) do nothing;
+values ('timeline-media', 'timeline-media', false)
+on conflict (id) do update set public = false;
 
-drop policy if exists "parents list media" on storage.objects;
+drop policy if exists "parents list media"   on storage.objects;
+drop policy if exists "family read media"    on storage.objects;
 drop policy if exists "parents upload media" on storage.objects;
 drop policy if exists "parents update media" on storage.objects;
 drop policy if exists "parents delete media" on storage.objects;
 
-create policy "parents list media" on storage.objects
-  for select to authenticated using (bucket_id = 'timeline-media' and public.is_admin());
+create policy "family read media" on storage.objects
+  for select to authenticated using (bucket_id = 'timeline-media' and public.is_family());
 create policy "parents upload media" on storage.objects
   for insert to authenticated with check (bucket_id = 'timeline-media' and public.is_admin());
 create policy "parents update media" on storage.objects
@@ -66,10 +86,18 @@ create policy "parents update media" on storage.objects
 create policy "parents delete media" on storage.objects
   for delete to authenticated using (bucket_id = 'timeline-media' and public.is_admin());
 
--- ---------- Make yourself the admin ----------
+-- ---------- People ----------
+-- You (admin):
 insert into public.admins (user_id)
 select id from auth.users where email = 'YOUR_EMAIL_HERE'
 on conflict do nothing;
 
--- Should return exactly one row with your email. If it's empty, check the email and run the insert again.
-select u.email from public.admins a join auth.users u on u.id = a.user_id;
+-- A family member who can view. Copy this block for each new person.
+insert into public.family (user_id)
+select id from auth.users where email = 'FAMILY_EMAIL_HERE'
+on conflict do nothing;
+
+-- Check: lists everyone with access. Every email you added should appear here.
+select u.email, 'admin' as role from public.admins a join auth.users u on u.id = a.user_id
+union all
+select u.email, 'family' from public.family f join auth.users u on u.id = f.user_id;
