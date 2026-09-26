@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import LevelFilter from '../../components/LevelFilter.astro';
+
+const posts = (await getCollection('blog', (p) => !p.data.draft)).sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+const counts: Record<string, number> = {};
+posts.forEach((p) => p.data.levels.forEach((l) => (counts[l] = (counts[l] || 0) + 1)));
+---
+<Base title="Blog: tips for learning English" description="Simple, practical advice for learning English: listening, vocabulary, speaking and study habits. Filter articles by your level, A1 to C2.">
+  <section class="wrap section">
+    <div class="head">
+      <p class="eyebrow">Blog</p>
+      <h1>Tips for learning English</h1>
+      <p class="lede">Practical ideas you can use today to listen better, remember more words and speak with confidence.</p>
+    </div>
+    <LevelFilter counts={counts} noun="articles" />
+    <div class="grid-cards">
+      {posts.map((p) => (
+        <div data-filter-item data-levels={p.data.levels.join(' ')}>
+          <BlogCard post={p} />
+        </div>
+      ))}
+    </div>
+    <p class="empty-note" data-filter-empty hidden>No articles for this level yet. More are on the way.</p>
+  </section>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .grid-cards > div {
+    display: grid;
+  }
+</style>

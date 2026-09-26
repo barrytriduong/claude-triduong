@@ -1,0 +1,145 @@
+---
+import Logo from './Logo.astro';
+import Translate from './Translate.astro';
+import StreakBadge from './StreakBadge.astro';
+import { SITE } from '../lib/site';
+
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/lessons/', label: 'Lessons' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/levels/', label: 'Levels' },
+  { href: '/about/', label: 'About' },
+];
+const isActive = (href: string) => path.startsWith(href);
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <Logo />
+    <nav aria-label="Main" class="nav-desktop">
+      {nav.map((n) => (
+        <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>{n.label}</a>
+      ))}
+    </nav>
+    <div class="actions">
+      <StreakBadge />
+      <Translate />
+      <a class="btn btn-sun btn-sm yt" href={SITE.youtubeSubscribe} target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
+        <span>Subscribe</span>
+      </a>
+      <details class="nav-mobile">
+        <summary aria-label="Open menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="8" x2="20" y2="8"></line><line x1="4" y1="16" x2="20" y2="16"></line></svg>
+        </summary>
+        <nav aria-label="Mobile">
+          {nav.map((n) => (
+            <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>{n.label}</a>
+          ))}
+          <a href={SITE.youtubeSubscribe} target="_blank" rel="noopener">Subscribe on YouTube</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgb(251 246 236 / 0.92);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 76px;
+  }
+  .nav-desktop {
+    display: flex;
+    gap: 6px;
+  }
+  .nav-desktop a {
+    padding: 10px 14px;
+    border-radius: 999px;
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+  }
+  .nav-desktop a:hover {
+    background: var(--sand);
+  }
+  .nav-desktop a[aria-current='page'] {
+    background: var(--navy);
+    color: var(--cream);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-mobile {
+    display: none;
+    position: relative;
+  }
+  .nav-mobile summary {
+    list-style: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid var(--navy);
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--navy);
+  }
+  .nav-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+  .nav-mobile nav {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 240px;
+    padding: 8px;
+    display: grid;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  }
+  .nav-mobile nav a {
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: var(--navy);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nav-mobile nav a:hover,
+  .nav-mobile nav a[aria-current='page'] {
+    background: var(--sand);
+  }
+  @media (max-width: 900px) {
+    .nav-desktop {
+      display: none;
+    }
+    .nav-mobile {
+      display: block;
+    }
+  }
+  @media (max-width: 560px) {
+    .yt {
+      display: none;
+    }
+    .actions {
+      gap: 6px;
+    }
+    .bar :global(.t-btn span) {
+      display: none;
+    }
+  }
+</style>

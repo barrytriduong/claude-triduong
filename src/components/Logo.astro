@@ -1,0 +1,44 @@
+---
+import LogoMark from './LogoMark.astro';
+interface Props {
+  dark?: boolean;
+}
+const { dark = false } = Astro.props;
+---
+<a href="/" class:list={['logo', { dark }]} aria-label="Bright Lives English, home">
+  <LogoMark size={46} sun={dark ? '#F4B63F' : '#E8772E'} book={dark ? '#FBF6EC' : '#1B2A41'} />
+  <span class="words">
+    <span class="name">Bright Lives</span>
+    <span class="sub">ENGLISH</span>
+  </span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--navy);
+  }
+  .words {
+    display: grid;
+    gap: 2px;
+  }
+  .name {
+    font: 600 24px/1 var(--serif);
+    letter-spacing: -0.02em;
+  }
+  .sub {
+    font: 700 10px/1 var(--sans);
+    letter-spacing: 0.52em;
+    color: var(--rust);
+    padding-left: 1px;
+  }
+  .dark {
+    color: var(--cream);
+  }
+  .dark .sub {
+    color: var(--gold);
+  }
+</style>

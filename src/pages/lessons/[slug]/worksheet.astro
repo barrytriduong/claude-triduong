@@ -1,0 +1,325 @@
+---
+// Printable worksheet for a lesson, with an answer key on the last page.
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import LogoMark from '../../../components/LogoMark.astro';
+import { highlight } from '../../../lib/highlight';
+import { LEVEL_INFO } from '../../../lib/levels';
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('lessons', (l) => !l.data.draft);
+  return lessons.map((lesson) => ({ params: { slug: lesson.id }, props: { lesson } }));
+}
+
+const { lesson } = Astro.props;
+const d = lesson.data;
+const url = new URL(`/lessons/${lesson.id}/`, Astro.site).href;
+
+// Same "random" order every build, so the worksheet and its answer key never change unexpectedly.
+let seed = [...lesson.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+const shuffle = <T,>(a: T[]) => {
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+};
+
+const letters = 'abcdefghijklmnop';
+// A: match words to meanings
+const meanings = shuffle(d.vocabulary.map((w, i) => ({ meaning: w.meaning, i })));
+const matchKey = d.vocabulary.map((_, i) => letters[meanings.findIndex((m) => m.i === i)]);
+
+// B: complete the sentences from the video with a word from the box
+const gaps = d.vocabulary
+  .map((w, i) => {
+    const segs = highlight(w.example, [d.vocabulary[i]]);
+    const hit = segs.findIndex((s) => s.word !== undefined);
+    if (hit < 0) return null;
+    return { before: segs.slice(0, hit).map((s) => s.text).join(''), answer: segs[hit].text, after: segs.slice(hit + 1).map((s) => s.text).join('') };
+  })
+  .filter((g): g is NonNullable<typeof g> => !!g);
+const gapOrder = shuffle(gaps);
+
+// C: comprehension (choice + true/false from the quiz)
+const questions = d.quiz.filter((q) => q.type === 'choice' || q.type === 'truefalse');
+// D: word order
+const orders = d.quiz.filter((q) => q.type === 'order').map((q) => {
+  const words = q.sentence.split(/\s+/);
+  let mixed = shuffle(words);
+  if (mixed.join(' ') === words.join(' ')) mixed = mixed.reverse();
+  return { mixed, sentence: q.sentence };
+});
+---
+<Base title={`Worksheet: ${d.title}`} description={`Printable English worksheet for the lesson “${d.title}” (${d.level}).`}>
+  <div class="wrap bar no-print">
+    <a href={`/lessons/${lesson.id}/`}>← Back to the lesson</a>
+    <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">Print or save as PDF</button>
+  </div>
+
+  <article class="sheet" translate="no">
+    <header class="sh-head">
+      <div class="brand">
+        <LogoMark size={40} />
+        <span>Bright Lives English</span>
+      </div>
+      <div class="fields">
+        <span>Name: <i></i></span>
+        <span>Date: <i></i></span>
+      </div>
+    </header>
+    <h1>{d.title}</h1>
+    <p class="sub">Level {d.level} ({LEVEL_INFO[d.level].name}) · Watch the video and do the online quiz at <strong>{url}</strong></p>
+
+    <section>
+      <h2><span>A</span> Match the words to their meanings</h2>
+      <div class="match">
+        <ol class="words">
+          {d.vocabulary.map((w) => <li><strong>{w.word}</strong> <em>({w.pos})</em> <span class="line short"></span></li>)}
+        </ol>
+        <ol class="meanings" type="a">
+          {meanings.map((m) => <li>{m.meaning}</li>)}
+        </ol>
+      </div>
+    </section>
+
+    {gapOrder.length > 0 && (
+      <section>
+        <h2><span>B</span> Complete the sentences from the story</h2>
+        <p class="box">{shuffle(gaps.map((g) => g.answer)).join('   ·   ')}</p>
+        <ol>
+          {gapOrder.map((g) => <li>{g.before}<span class="line"></span>{g.after}</li>)}
+        </ol>
+      </section>
+    )}
+
+    {questions.length > 0 && (
+      <section>
+        <h2><span>C</span> Did you understand?</h2>
+        <ol>
+          {questions.map((q) => (
+            <li>
+              {q.prompt}
+              {q.type === 'choice' ? (
+                <ol class="opts" type="a">{q.options.map((o) => <li>{o}</li>)}</ol>
+              ) : (
+                <span class="tf">True / False</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    {orders.length > 0 && (
+      <section>
+        <h2><span>D</span> Put the words in order</h2>
+        <ol>
+          {orders.map((o) => (
+            <li>
+              <span class="mixed">{o.mixed.join(' / ')}</span>
+              <span class="line full"></span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    <section>
+      <h2><span>E</span> Your turn</h2>
+      <p>Retell {d.person}'s story in 5–6 sentences. Use at least three words from exercise A.</p>
+      <div class="write">{[...Array(6)].map(() => <span class="line full"></span>)}</div>
+    </section>
+
+    <section class="page-break">
+      <h2>Transcript</h2>
+      <div class="transcript">
+        {d.transcript.map((l) => <p>{l.text}</p>)}
+      </div>
+    </section>
+
+    <section class="page-break key">
+      <h2>Answer key</h2>
+      <p><strong>A.</strong> {matchKey.map((k, i) => `${i + 1}${k}`).join('  ')}</p>
+      {gapOrder.length > 0 && <p><strong>B.</strong> {gapOrder.map((g, i) => `${i + 1} ${g.answer}`).join(' · ')}</p>}
+      {questions.length > 0 && (
+        <p>
+          <strong>C.</strong>{' '}
+          {questions
+            .map((q, i) => `${i + 1} ${q.type === 'choice' ? letters[q.answer] : q.answer ? 'True' : 'False'}`)
+            .join(' · ')}
+        </p>
+      )}
+      {orders.length > 0 && <p><strong>D.</strong> {orders.map((o, i) => `${i + 1} ${o.sentence}.`).join('  ')}</p>}
+    </section>
+  </article>
+</Base>
+
+<style>
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-block: 24px;
+  }
+  .bar a {
+    font-weight: 600;
+  }
+  .sheet {
+    width: min(100% - 2 * var(--gutter), 800px);
+    margin: 0 auto 40px;
+    padding: clamp(24px, 5vw, 56px);
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    font-size: 16px;
+    line-height: 1.55;
+    color: #111;
+  }
+  .sh-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--navy);
+    margin-bottom: 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font: 600 18px var(--serif);
+  }
+  .fields {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+  }
+  .fields i {
+    display: inline-block;
+    width: 140px;
+    border-bottom: 1px solid #555;
+  }
+  .sheet h1 {
+    font-size: 30px;
+  }
+  .sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #444;
+    word-break: break-word;
+  }
+  section {
+    margin-top: 28px;
+  }
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  h2 span {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--cream);
+    font: 700 15px var(--sans);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  ol {
+    margin: 0;
+    padding-left: 24px;
+    display: grid;
+    gap: 10px;
+  }
+  .match {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 24px;
+  }
+  .words em {
+    font-size: 13px;
+    color: #555;
+  }
+  .meanings {
+    gap: 8px;
+    font-size: 15px;
+  }
+  .line {
+    display: inline-block;
+    width: 120px;
+    margin: 0 4px;
+    border-bottom: 1px solid #333;
+    vertical-align: bottom;
+    height: 1.2em;
+  }
+  .line.short {
+    width: 36px;
+  }
+  .line.full {
+    display: block;
+    width: 100%;
+    height: 32px;
+    margin: 0;
+  }
+  .box {
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border: 1.5px dashed #555;
+    border-radius: 8px;
+    font-weight: 600;
+    white-space: pre-wrap;
+  }
+  .opts {
+    margin-top: 4px;
+    gap: 2px;
+    grid-template-columns: 1fr 1fr;
+    font-size: 15px;
+  }
+  .tf {
+    margin-left: 10px;
+    font-weight: 600;
+    color: #444;
+  }
+  .mixed {
+    font-style: italic;
+  }
+  .transcript p + p {
+    margin-top: 6px;
+  }
+  .key p {
+    margin-top: 8px;
+  }
+  @media (max-width: 640px) {
+    .match,
+    .opts {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media print {
+    .sheet {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      font-size: 11.5pt;
+    }
+    .page-break {
+      break-before: page;
+    }
+    section,
+    li {
+      break-inside: avoid;
+    }
+  }
+</style>

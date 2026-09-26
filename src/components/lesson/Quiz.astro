@@ -1,0 +1,615 @@
+---
+interface Props {
+  count: number;
+}
+const { count } = Astro.props;
+const minutes = Math.max(2, Math.round(count * 0.4));
+---
+<section class="quiz" id="quiz" data-quiz aria-labelledby="quiz-title">
+  <div class="q-card" translate="no">
+    <!-- Start -->
+    <div class="q-screen start" data-screen="start">
+      <div class="burst" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="96" height="96">
+          <g stroke="#F4B63F" stroke-width="7" stroke-linecap="round">
+            <line x1="60" y1="32" x2="60" y2="20"></line><line x1="76" y1="36.3" x2="82" y2="25.9"></line><line x1="87.7" y1="48" x2="98.1" y2="42"></line><line x1="44" y1="36.3" x2="38" y2="25.9"></line><line x1="32.3" y1="48" x2="21.9" y2="42"></line>
+          </g>
+          <path d="M32 66 A28 28 0 0 1 88 66 Z" fill="#F4B63F"></path>
+          <path d="M10 74 Q35 66 58 76 L58 106 Q35 96 10 104 Z" fill="#FBF6EC"></path>
+          <path d="M110 74 Q85 66 62 76 L62 106 Q85 96 110 104 Z" fill="#FBF6EC"></path>
+        </svg>
+      </div>
+      <p class="eyebrow light">Step 4</p>
+      <h2 id="quiz-title">Story Challenge</h2>
+      <p class="q-lead">{count} quick rounds: choose, fill the gap, build the sentence and match the words. Answer in a row to build a streak and earn bonus points.</p>
+      <ul class="q-meta">
+        <li>{count} questions</li>
+        <li>About {minutes} minutes</li>
+        <li data-best-wrap hidden>Your best: <strong data-best>0</strong></li>
+      </ul>
+      <button type="button" class="btn btn-sun" data-start>Start the challenge</button>
+    </div>
+
+    <!-- Question -->
+    <div class="q-screen play" data-screen="play" hidden>
+      <div class="q-top">
+        <div class="bar" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax={count} aria-valuenow="0" data-bar><span></span></div>
+        <div class="hud">
+          <span class="qnum">Question <b data-qnum>1</b> of {count}</span>
+          <span class="streak" data-streak hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 5.8 5 11a5 5 0 0 1-10 0c0-2.4 1.1-3.8 2.3-5 .2 1.6.9 2.7 2.2 3.3C11 8 10.8 5 12 2z"></path></svg>
+            <b data-streak-n>0</b> in a row
+          </span>
+          <span class="score"><b data-score>0</b> pts</span>
+        </div>
+      </div>
+      <div class="q-body" data-body aria-live="polite"></div>
+      <div class="feedback" data-feedback hidden>
+        <div class="fb-text">
+          <strong data-fb-title></strong>
+          <p data-fb-explain></p>
+        </div>
+        <div class="fb-actions">
+          <button type="button" class="btn btn-ghost btn-sm light" data-rewatch hidden>Watch that part</button>
+          <button type="button" class="btn btn-sun" data-next>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="q-screen result" data-screen="result" hidden>
+      <div class="stars" data-stars aria-hidden="true">
+        {[0, 1, 2].map(() => (
+          <svg viewBox="0 0 24 24" width="52" height="52"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z"></path></svg>
+        ))}
+      </div>
+      <h2 data-r-title>Well done!</h2>
+      <p class="q-lead" data-r-line></p>
+      <div class="r-stats">
+        <div><b data-r-score>0</b><span>points</span></div>
+        <div><b data-r-correct>0</b><span>correct</span></div>
+        <div><b data-r-streak>0</b><span>best streak</span></div>
+      </div>
+      <div class="review" data-review hidden>
+        <h3>Look at these again</h3>
+        <ul data-review-list></ul>
+      </div>
+      <div class="lb" data-lb hidden>
+        <div class="lb-head">
+          <h3>This week's top 10</h3>
+          <span>Resets every Monday</span>
+        </div>
+        <ol class="lb-list" data-lb-list></ol>
+        <p class="lb-empty" data-lb-empty hidden>No scores yet this week. Be the first!</p>
+        <form class="lb-form" data-lb-form>
+          <label for="lb-name">Add your score as</label>
+          <div class="lb-row">
+            <input id="lb-name" name="name" required minlength="2" maxlength="20" placeholder="Nickname" autocomplete="nickname" />
+            <button type="submit" class="btn btn-sun btn-sm">Add my score</button>
+          </div>
+          <p class="lb-note">Shown publicly for this week. Please don't use your full name.</p>
+        </form>
+        <p class="lb-msg" data-lb-msg aria-live="polite" hidden></p>
+      </div>
+      <div class="r-actions">
+        <button type="button" class="btn btn-sun" data-retry>Try again</button>
+        <button type="button" class="btn btn-ghost light" data-share>Share my score</button>
+      </div>
+      <p class="share-note" data-share-note hidden>Link copied. Challenge a friend!</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .q-card {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(24px, 5vw, 48px);
+    border-radius: 28px;
+    background: var(--navy);
+    color: var(--cream);
+    box-shadow: 0 30px 60px -30px rgb(27 42 65 / 0.7);
+    background-image: radial-gradient(circle at 100% 0%, rgb(232 119 46 / 0.22), transparent 45%);
+  }
+  .q-screen {
+    display: grid;
+    gap: 18px;
+  }
+  .q-screen[hidden] {
+    display: none;
+  }
+  .start,
+  .result {
+    justify-items: center;
+    text-align: center;
+    padding-block: 12px;
+  }
+  .burst svg {
+    animation: rise 3s ease-in-out infinite alternate;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(4px);
+    }
+    to {
+      transform: translateY(-4px);
+    }
+  }
+  .eyebrow.light {
+    color: var(--gold);
+  }
+  .q-card h2 {
+    color: var(--cream);
+  }
+  .q-lead {
+    max-width: 52ch;
+    color: #d7dce5;
+    font-size: 18px;
+  }
+  .q-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .q-meta li {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--navy-soft);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .q-meta strong {
+    color: var(--gold);
+  }
+  .q-top {
+    display: grid;
+    gap: 12px;
+  }
+  .bar {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--navy-soft);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    transition: width 0.4s ease;
+  }
+  .hud {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #b9c1cf;
+  }
+  .qnum {
+    flex: 1;
+  }
+  .hud b {
+    color: var(--cream);
+  }
+  .streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgb(232 119 46 / 0.2);
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .streak.pop {
+    animation: bump 0.4s ease;
+  }
+  @keyframes bump {
+    50% {
+      transform: scale(1.18);
+    }
+  }
+  .score {
+    font-weight: 600;
+  }
+  .q-body {
+    min-height: 220px;
+    display: grid;
+    gap: 18px;
+    align-content: start;
+    padding-top: 8px;
+  }
+  .q-body :global(.q-prompt) {
+    font: 600 clamp(22px, 3vw, 28px) / 1.3 var(--serif);
+  }
+  .q-body :global(.q-kind) {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .q-body :global(.opts) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .q-body :global(.opt),
+  .q-body :global(.tile) {
+    min-height: 56px;
+    padding: 12px 18px;
+    border: 2px solid #3a4d6b;
+    border-radius: 14px;
+    background: var(--navy-soft);
+    color: var(--cream);
+    font: 600 17px/1.35 var(--sans);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+  }
+  .q-body :global(.opt:hover:not(:disabled)),
+  .q-body :global(.tile:hover:not(:disabled)) {
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+  .q-body :global(.opt:disabled) {
+    cursor: default;
+  }
+  .q-body :global(.opt.right),
+  .q-body :global(.tile.right) {
+    border-color: #6cc49b;
+    background: #1f4a3d;
+  }
+  .q-body :global(.opt.wrong),
+  .q-body :global(.tile.wrong) {
+    border-color: #e57b88;
+    background: #4a2432;
+    animation: shake 0.35s ease;
+  }
+  .q-body :global(.opt.dim) {
+    opacity: 0.55;
+  }
+  @keyframes shake {
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+  .q-body :global(.tf) {
+    grid-template-columns: 1fr 1fr;
+  }
+  .q-body :global(.tf .opt) {
+    text-align: center;
+    font-size: 19px;
+  }
+  .q-body :global(.gap-line) {
+    font: 500 clamp(21px, 3vw, 26px) / 1.6 var(--serif);
+  }
+  .q-body :global(.blank) {
+    display: inline-block;
+    min-width: 120px;
+    padding: 0 10px;
+    margin: 0 2px;
+    border-bottom: 3px dashed var(--gold);
+    color: var(--gold);
+    text-align: center;
+  }
+  .q-body :global(.blank.filled-right) {
+    border-bottom-style: solid;
+    border-color: #6cc49b;
+    color: #9fe0c1;
+  }
+  .q-body :global(.blank.filled-wrong) {
+    border-bottom-style: solid;
+    border-color: #e57b88;
+    color: #f2a9b2;
+  }
+  .q-body :global(.chips-row) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .q-body :global(.chips-row .opt),
+  .q-body :global(.tile) {
+    min-height: 48px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    text-align: center;
+  }
+  .q-body :global(.build) {
+    min-height: 72px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    padding: 12px;
+    border-radius: 16px;
+    border: 2px dashed #3a4d6b;
+  }
+  .q-body :global(.build .tile) {
+    background: var(--cream);
+    color: var(--navy);
+    border-color: var(--cream);
+  }
+  .q-body :global(.build.right) {
+    border-style: solid;
+    border-color: #6cc49b;
+  }
+  .q-body :global(.build.wrong) {
+    border-style: solid;
+    border-color: #e57b88;
+  }
+  .q-body :global(.build-empty) {
+    color: #8793a8;
+    font-size: 15px;
+    align-self: center;
+    padding-left: 6px;
+  }
+  .q-body :global(.tile.used) {
+    visibility: hidden;
+  }
+  .q-body :global(.check) {
+    justify-self: start;
+  }
+  .q-body :global(.correct-answer) {
+    color: #9fe0c1;
+    font-weight: 600;
+  }
+  .q-body :global(.match) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+  .q-body :global(.match-col) {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+  .q-body :global(.match .opt) {
+    min-height: 52px;
+    font-size: 16px;
+  }
+  .q-body :global(.match .opt.sel) {
+    border-color: var(--gold);
+    background: #3b3a3a;
+    background: rgb(244 182 63 / 0.16);
+  }
+  .q-body :global(.match .opt.done) {
+    border-color: #6cc49b;
+    background: #1f4a3d;
+    opacity: 0.85;
+  }
+  .q-body :global(.match .opt.l) {
+    font-family: var(--serif);
+    font-size: 18px;
+  }
+  .feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 6px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--navy-soft);
+    border-left: 0;
+  }
+  .feedback[hidden] {
+    display: none;
+  }
+  .feedback.good {
+    background: #1f4a3d;
+  }
+  .feedback.bad {
+    background: #4a2432;
+  }
+  .fb-text {
+    display: grid;
+    gap: 2px;
+    flex: 1 1 280px;
+  }
+  .fb-text strong {
+    font: 600 20px var(--serif);
+  }
+  .fb-text p {
+    color: #e3e7ee;
+    font-size: 15px;
+  }
+  .fb-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-ghost.light {
+    border-color: var(--cream);
+    color: var(--cream);
+  }
+  .btn-ghost.light:hover {
+    background: var(--navy);
+    color: var(--cream);
+  }
+  .stars {
+    display: flex;
+    gap: 8px;
+  }
+  .stars svg {
+    fill: #3a4d6b;
+    transition: fill 0.3s ease, transform 0.3s ease;
+  }
+  .stars svg.on {
+    fill: var(--gold);
+    animation: star 0.5s ease backwards;
+  }
+  .stars svg.on:nth-child(2) {
+    animation-delay: 0.15s;
+    transform: translateY(-8px);
+  }
+  .stars svg.on:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  @keyframes star {
+    from {
+      transform: scale(0.2) rotate(-40deg);
+      opacity: 0;
+    }
+  }
+  .r-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .r-stats div {
+    display: grid;
+    min-width: 110px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: var(--navy-soft);
+  }
+  .r-stats b {
+    font: 600 30px var(--serif);
+    color: var(--gold);
+  }
+  .r-stats span {
+    font-size: 13px;
+    color: #b9c1cf;
+  }
+  .review {
+    width: min(100%, 560px);
+    text-align: left;
+    display: grid;
+    gap: 8px;
+  }
+  .review h3 {
+    color: var(--cream);
+    font-size: 19px;
+  }
+  .review ul {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+    color: #d7dce5;
+    font-size: 15px;
+  }
+  .review :global(b) {
+    color: #9fe0c1;
+  }
+  .lb {
+    width: min(100%, 520px);
+    display: grid;
+    gap: 12px;
+    padding: 20px 22px;
+    border-radius: 18px;
+    background: var(--navy-soft);
+    text-align: left;
+  }
+  .lb-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .lb-head h3 {
+    color: var(--cream);
+    font-size: 20px;
+  }
+  .lb-head span,
+  .lb-note,
+  .lb-empty {
+    font-size: 13px;
+    color: #b9c1cf;
+  }
+  .lb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    counter-reset: lb;
+  }
+  .lb-list :global(li) {
+    counter-increment: lb;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  .lb-list :global(li::before) {
+    content: counter(lb);
+    font: 700 14px var(--serif);
+    color: #b9c1cf;
+    text-align: center;
+  }
+  .lb-list :global(li:nth-child(-n + 3)::before) {
+    color: var(--gold);
+  }
+  .lb-list :global(li.me) {
+    background: rgb(244 182 63 / 0.18);
+  }
+  .lb-list :global(b) {
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .lb-form {
+    display: grid;
+    gap: 6px;
+  }
+  .lb-form label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .lb-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .lb-row input {
+    flex: 1 1 160px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--cream);
+    color: var(--navy);
+    font: 500 16px var(--sans);
+  }
+  .lb-msg {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9fe0c1;
+  }
+  .lb-msg.err {
+    color: #f2a9b2;
+  }
+  .r-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .share-note {
+    color: #9fe0c1;
+    font-size: 14px;
+  }
+  @media (max-width: 560px) {
+    .q-body :global(.match) {
+      gap: 8px;
+    }
+    .q-body :global(.match .opt) {
+      padding: 10px 12px;
+      font-size: 15px;
+    }
+  }
+</style>

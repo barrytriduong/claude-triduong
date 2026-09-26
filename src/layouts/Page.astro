@@ -1,0 +1,28 @@
+---
+// Simple text page (privacy, disclosure).
+import Base from './Base.astro';
+interface Props {
+  title: string;
+  description: string;
+  updated: string;
+}
+const { title, description, updated } = Astro.props;
+---
+<Base title={title} description={description}>
+  <section class="wrap section page">
+    <p class="eyebrow">Last updated {updated}</p>
+    <h1>{title}</h1>
+    <div class="prose">
+      <slot />
+    </div>
+  </section>
+</Base>
+<style>
+  .page {
+    display: grid;
+    gap: 20px;
+  }
+  .page h1 {
+    font-size: clamp(34px, 5vw, 52px);
+  }
+</style>

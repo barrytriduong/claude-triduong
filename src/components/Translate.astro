@@ -1,0 +1,184 @@
+---
+// Free, machine translation of the page via Google's website translator.
+// English that learners should read in English (transcripts, vocabulary words,
+// quiz questions) is marked translate="no" so it stays in English.
+const LANGS = [
+  ['vi', 'Tiếng Việt'],
+  ['es', 'Español'],
+  ['pt', 'Português'],
+  ['fr', 'Français'],
+  ['id', 'Bahasa Indonesia'],
+  ['th', 'ไทย'],
+  ['zh-CN', '简体中文'],
+  ['ja', '日本語'],
+  ['ko', '한국어'],
+  ['hi', 'हिन्दी'],
+  ['ar', 'العربية'],
+  ['tr', 'Türkçe'],
+];
+---
+<div class="translate" data-translate>
+  <button type="button" class="t-btn" aria-expanded="false" aria-controls="t-menu" data-t-toggle>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"></path></svg>
+    <span data-t-label>Language</span>
+  </button>
+  <div id="t-menu" class="t-menu" hidden data-t-menu>
+    <p class="t-note">Translate the site's explanations. Lessons stay in English, so you still practise.</p>
+    <ul>
+      <li><button type="button" data-lang="en" translate="no">English (original)</button></li>
+      {LANGS.map(([code, label]) => (
+        <li><button type="button" data-lang={code} translate="no">{label}</button></li>
+      ))}
+    </ul>
+  </div>
+  <div id="google_translate_element" hidden></div>
+</div>
+
+<style>
+  .translate {
+    position: relative;
+  }
+  .t-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--navy);
+    font: 600 14px var(--sans);
+    cursor: pointer;
+  }
+  .t-btn:hover {
+    border-color: var(--navy);
+  }
+  .t-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 50;
+    width: 260px;
+    padding: 14px;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  }
+  .t-note {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .t-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .t-menu button {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+    text-align: left;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--navy);
+    font: 500 14px var(--sans);
+    cursor: pointer;
+  }
+  .t-menu button:hover,
+  .t-menu button[aria-current='true'] {
+    background: var(--sand);
+  }
+  :global(.goog-te-banner-frame),
+  :global(iframe.skiptranslate),
+  :global(#goog-gt-tt),
+  :global(.goog-te-balloon-frame) {
+    display: none !important;
+  }
+  :global(body) {
+    top: 0 !important;
+  }
+  :global(font[style]) {
+    background: none !important;
+    box-shadow: none !important;
+  }
+</style>
+
+<script>
+  const COOKIE = 'googtrans';
+
+  function currentLang() {
+    const m = document.cookie.match(/(?:^|; )googtrans=\/en\/([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : 'en';
+  }
+
+  function setCookie(value: string) {
+    const host = location.hostname;
+    const expire = value ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    const v = value ? `/en/${value}` : '';
+    document.cookie = `${COOKIE}=${v}; path=/${expire}`;
+    // Google also sets the cookie on the parent domain; clear/set both.
+    const parts = host.split('.');
+    if (parts.length > 1) {
+      document.cookie = `${COOKIE}=${v}; path=/; domain=.${parts.slice(-2).join('.')}${expire}`;
+    }
+  }
+
+  function loadGoogle() {
+    (window as any).googleTranslateElementInit = () => {
+      const g = (window as any).google;
+      new g.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
+    };
+    const s = document.createElement('script');
+    s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    s.async = true;
+    document.head.appendChild(s);
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-translate]');
+  if (root) {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-t-toggle]')!;
+    const menu = root.querySelector<HTMLElement>('[data-t-menu]')!;
+    const label = root.querySelector<HTMLElement>('[data-t-label]')!;
+    const lang = currentLang();
+
+    root.querySelectorAll<HTMLButtonElement>('[data-lang]').forEach((b) => {
+      if (b.dataset.lang === lang) {
+        b.setAttribute('aria-current', 'true');
+        if (lang !== 'en') label.textContent = b.textContent!;
+      }
+      b.addEventListener('click', () => {
+        const code = b.dataset.lang!;
+        setCookie(code === 'en' ? '' : code);
+        location.reload();
+      });
+    });
+
+    const close = () => {
+      menu.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    toggle.addEventListener('click', () => {
+      const open = menu.hidden;
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target as Node)) close();
+    });
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        close();
+        toggle.focus();
+      }
+    });
+
+    if (lang !== 'en') loadGoogle();
+  }
+</script>

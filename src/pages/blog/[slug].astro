@@ -1,0 +1,152 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { SITE, formatDate } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog', (p) => !p.data.draft)).sort(
+    (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+  );
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, more: posts.filter((p) => p.id !== post.id).slice(0, 2) },
+  }));
+}
+
+const { post, more } = Astro.props;
+const d = post.data;
+const { Content } = await render(post);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description,
+  datePublished: d.publishDate.toISOString(),
+  image: new URL(d.cover.replace('.svg', '.png'), Astro.site).href,
+  publisher: { '@type': 'Organization', name: SITE.name },
+  inLanguage: 'en',
+};
+---
+<Base title={d.title} description={d.description} image={d.cover.replace('.svg', '.png')} type="article" jsonLd={jsonLd}>
+  <article class="post">
+    <header class="wrap p-head">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/blog/">Blog</a></nav>
+      <div class="meta">
+        {d.levels.map((l) => <a class="level" href={`/blog/?level=${l}`}>{l}</a>)}
+        <span class="tag">{d.tags.join(' · ')}</span>
+      </div>
+      <h1>{d.title}</h1>
+      <p class="lede">{d.description}</p>
+      <p class="date">{formatDate(d.publishDate)}{d.readingTime && ` · ${d.readingTime}`}</p>
+    </header>
+    <div class="wrap">
+      <img class="cover" src={d.cover} alt={d.coverAlt} width="1200" height="675" />
+    </div>
+    <div class="wrap body">
+      <div class="main-col">
+        {d.affiliate && (
+          <p class="aff-note">
+            This article contains affiliate links. If you buy through them, we may earn a small commission at no extra cost to you.
+            <a href="/disclosure/">Learn more</a>.
+          </p>
+        )}
+        <div class="prose">
+          <Content />
+        </div>
+        <NewsletterForm id="nl-post" source={`blog:${post.id}`} title="Get one useful tip every week" />
+      </div>
+      <aside class="cta card">
+        <p class="eyebrow">Practise with a story</p>
+        <p>Put these tips to work with a short video about a real person.</p>
+        <a class="btn btn-primary btn-sm" href="/lessons/">Browse lessons</a>
+      </aside>
+    </div>
+  </article>
+
+  {more.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head"><div><p class="eyebrow">Read next</p><h2>More from the blog</h2></div></div>
+      <div class="grid-cards">{more.map((p) => <BlogCard post={p} />)}</div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .p-head {
+    display: grid;
+    gap: 16px;
+    padding-block: 40px 32px;
+    max-width: 900px;
+  }
+  .p-head h1 {
+    font-size: clamp(34px, 5vw, 54px);
+  }
+  .crumbs a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  a.level {
+    text-decoration: none;
+  }
+  a.level:hover {
+    background: var(--gold);
+  }
+  .date {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .cover {
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+  }
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 48px;
+    align-items: start;
+    padding-top: 48px;
+  }
+  .aff-note {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--sand);
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 68ch;
+  }
+  .main-col {
+    display: grid;
+    gap: 56px;
+    min-width: 0;
+  }
+  .cta {
+    position: sticky;
+    top: 100px;
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+    padding: 22px;
+    background: var(--gold-soft);
+    box-shadow: none;
+    font-size: 15px;
+  }
+  @media (max-width: 900px) {
+    .body {
+      grid-template-columns: 1fr;
+    }
+    .cta {
+      position: static;
+    }
+  }
+</style>

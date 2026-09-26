@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /youtube/
+Disallow: /thanks/
+
+Sitemap: https://brightlivesenglish.com/sitemap-index.xml

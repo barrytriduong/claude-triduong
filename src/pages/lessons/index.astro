@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import LessonCard from '../../components/LessonCard.astro';
+import LevelFilter from '../../components/LevelFilter.astro';
+
+const lessons = (await getCollection('lessons', (l) => !l.data.draft)).sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+const counts: Record<string, number> = {};
+lessons.forEach((l) => (counts[l.data.level] = (counts[l.data.level] || 0) + 1));
+---
+<Base title="Video lessons" description="Inspiring stories about real people, turned into English lessons with a transcript, vocabulary cards and a quiz. Filter by level from A1 to C2.">
+  <section class="wrap section">
+    <div class="head">
+      <p class="eyebrow">Video lessons</p>
+      <h1>Real stories. Real English.</h1>
+      <p class="lede">Each lesson is a short video about a real person who did something brave, kind or surprising. Watch, read along, learn the words, then take the Story Challenge.</p>
+    </div>
+    <LevelFilter counts={counts} noun={lessons.length === 1 ? 'lesson' : 'lessons'} />
+    <div class="grid-cards">
+      {lessons.map((l) => (
+        <div data-filter-item data-levels={l.data.level}>
+          <LessonCard lesson={l} />
+        </div>
+      ))}
+    </div>
+    <p class="empty-note" data-filter-empty hidden>No lessons at this level yet. New stories arrive every week, so check back soon.</p>
+    <p class="not-sure">Not sure which level you are? <a href="/levels/">Find your level in 1 minute</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .grid-cards > div {
+    display: grid;
+  }
+  .grid-cards > div[hidden] {
+    display: none;
+  }
+  .not-sure {
+    margin-top: 40px;
+    color: var(--muted);
+  }
+</style>

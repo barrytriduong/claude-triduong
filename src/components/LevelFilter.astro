@@ -1,0 +1,70 @@
+---
+// Level chips (All, A1–C2). Filters elements marked [data-filter-item] whose
+// data-levels contains the chosen level. The choice is kept in the URL (?level=B1)
+// so filtered pages can be shared and bookmarked.
+import { LEVELS, LEVEL_INFO } from '../lib/levels';
+interface Props {
+  counts: Record<string, number>;
+  noun: string;
+}
+const { counts, noun } = Astro.props;
+---
+<div class="filter" data-level-filter data-noun={noun}>
+  <div class="chips" role="group" aria-label="Filter by level">
+    <button type="button" class="chip" data-level="" aria-pressed="true">All levels</button>
+    {LEVELS.map((l) => (
+      <button type="button" class="chip" data-level={l} aria-pressed="false" title={LEVEL_INFO[l].name} disabled={!counts[l]}>
+        {l}
+      </button>
+    ))}
+  </div>
+  <p class="count" aria-live="polite" data-filter-count></p>
+</div>
+
+<style>
+  .filter {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .chip:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .count {
+    font-size: 14px;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-level-filter]');
+  if (root) {
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-item]'));
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-level]'));
+    const count = root.querySelector<HTMLElement>('[data-filter-count]')!;
+    const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+    const noun = root.dataset.noun || 'items';
+
+    const apply = (level: string, push: boolean) => {
+      let shown = 0;
+      items.forEach((el) => {
+        const ok = !level || (el.dataset.levels || '').split(' ').includes(level);
+        el.hidden = !ok;
+        if (ok) shown++;
+      });
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.level === level)));
+      count.textContent = level ? `${shown} ${noun} at level ${level}` : `${shown} ${noun}`;
+      if (empty) empty.hidden = shown > 0;
+      if (push) {
+        const u = new URL(location.href);
+        if (level) u.searchParams.set('level', level);
+        else u.searchParams.delete('level');
+        history.replaceState(null, '', u);
+      }
+    };
+    chips.forEach((c) => c.addEventListener('click', () => apply(c.dataset.level || '', true)));
+    const initial = new URL(location.href).searchParams.get('level')?.toUpperCase() || '';
+    apply(chips.some((c) => c.dataset.level === initial) ? initial : '', false);
+  }
+</script>

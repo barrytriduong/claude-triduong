@@ -1,0 +1,76 @@
+---
+import Logo from './Logo.astro';
+import NewsletterForm from './NewsletterForm.astro';
+import { SITE } from '../lib/site';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap top">
+    <div class="brand">
+      <Logo dark />
+      <p>{SITE.tagline} Short, inspiring videos about real people, turned into English lessons you can actually enjoy.</p>
+    </div>
+
+    <NewsletterForm id="nl-footer" source="footer" dark />
+  </div>
+
+  <div class="wrap bottom">
+    <nav aria-label="Footer">
+      <a href="/lessons/">Lessons</a>
+      <a href="/blog/">Blog</a>
+      <a href="/levels/">Find your level</a>
+      <a href="/about/">About</a>
+      <a href={SITE.youtube} target="_blank" rel="noopener">YouTube</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/disclosure/">Affiliate disclosure</a>
+    </nav>
+    <p>© {year} Bright Lives English</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy);
+    color: #d7dce5;
+    margin-top: 40px;
+  }
+  .top {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 48px;
+    padding-block: 64px 48px;
+  }
+  .brand {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+    max-width: 38ch;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 24px 32px;
+    border-top: 1px solid #34465f;
+    font-size: 14px;
+  }
+  .bottom nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+  .bottom a {
+    color: #d7dce5;
+    text-decoration: none;
+    padding-block: 10px;
+  }
+  .bottom a:hover {
+    color: var(--gold);
+  }
+  @media (max-width: 860px) {
+    .top {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

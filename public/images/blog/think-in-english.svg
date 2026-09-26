@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#1B2A41"/>
+  <circle cx="330" cy="700" r="380" fill="#2C3D57"/>
+  <path d="M170 675 C170 560 200 500 250 470 C200 420 190 330 230 260 C280 170 400 140 480 180 C560 220 590 300 570 370 C600 400 610 420 590 440 L570 450 C580 480 570 510 540 510 L500 510 C500 560 520 620 540 675Z" fill="#FBF6EC"/>
+  <circle cx="470" cy="300" r="10" fill="#1B2A41"/>
+  <g transform="translate(420 250)" opacity=".95">
+    <path d="M0 0 A60 60 0 0 1 120 0 Z" fill="#F4B63F" transform="translate(-80 30)"/>
+  </g>
+  <circle cx="640" cy="330" r="16" fill="#FCEBC6"/>
+  <circle cx="690" cy="280" r="24" fill="#FCEBC6"/>
+  <path d="M740 60 C800 20 900 20 950 60 C1020 40 1110 80 1110 150 C1160 190 1150 290 1080 310 C1070 380 980 400 930 370 C880 410 790 400 760 350 C690 360 640 300 670 240 C630 190 670 100 740 60Z" fill="#FCEBC6"/>
+  <text x="890" y="170" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#1B2A41">I think,</text>
+  <text x="890" y="240" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-style="italic" fill="#A84A14">therefore</text>
+  <text x="890" y="305" text-anchor="middle" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#1B2A41">I speak.</text>
+  <g stroke="#F4B63F" stroke-width="10" stroke-linecap="round"><line x1="1040" y1="470" x2="1040" y2="440"/><line x1="1100" y1="490" x2="1120" y2="468"/><line x1="980" y1="490" x2="960" y2="468"/></g>
+  <path d="M960 560 A80 80 0 0 1 1120 560 Z" fill="#F4B63F"/>
+  <path d="M900 580 Q970 560 1035 585 L1035 640 Q970 620 900 635 Z M1180 580 Q1110 560 1045 585 L1045 640 Q1110 620 1180 635 Z" fill="#FBF6EC"/>
+</svg>

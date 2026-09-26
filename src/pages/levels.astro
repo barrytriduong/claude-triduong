@@ -1,0 +1,187 @@
+---
+import Base from '../layouts/Base.astro';
+import { LEVELS, LEVEL_INFO } from '../lib/levels';
+
+const checks: Record<string, string> = {
+  A1: 'I can introduce myself and understand very simple questions, like “Where are you from?”',
+  A2: 'I can talk about my family, my job and my daily routine in short, simple sentences.',
+  B1: 'I can follow the main story of a clear video about a familiar topic, and tell someone what happened.',
+  B2: 'I can understand most videos and TV without subtitles, and have a conversation with a native speaker.',
+  C1: 'I can understand long, fast speech and express complex ideas fluently, without searching for words.',
+  C2: 'I understand almost everything I hear or read, including jokes, idioms and fine differences in meaning.',
+};
+---
+<Base title="Find your English level (A1–C2)" description="What do A1, A2, B1, B2, C1 and C2 mean? A simple guide to the CEFR English levels, and a one-minute self-check to find the right lessons for you.">
+  <section class="wrap section">
+    <div class="head">
+      <p class="eyebrow">English levels</p>
+      <h1>What's my English level?</h1>
+      <p class="lede">Our lessons use the <strong>CEFR</strong> (Common European Framework of Reference), the scale that schools, exams and employers around the world use to describe language level. It goes from A1 (beginner) to C2 (proficient).</p>
+    </div>
+
+    <div class="check card" data-check>
+      <h2>1-minute self-check</h2>
+      <p class="sub">Tick every sentence that is true for you. Be honest, this isn't a test!</p>
+      <ul>
+        {LEVELS.map((l) => (
+          <li>
+            <label>
+              <input type="checkbox" value={l} />
+              <span>{checks[l]}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      <div class="result" aria-live="polite" data-result>
+        <p>Tick the sentences above to see your level.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section levels">
+    <h2>The six levels at a glance</h2>
+    <div class="table">
+      {LEVELS.map((l) => (
+        <div class="row" id={l.toLowerCase()}>
+          <span class="code">{l}</span>
+          <div>
+            <h3>{LEVEL_INFO[l].name}</h3>
+            <p>{LEVEL_INFO[l].can}</p>
+          </div>
+          <a class="btn btn-ghost btn-sm" href={`/lessons/?level=${l}`}>{l} lessons</a>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 36px;
+    max-width: 780px;
+  }
+  .check {
+    padding: clamp(24px, 4vw, 40px);
+    display: grid;
+    gap: 14px;
+    max-width: 860px;
+  }
+  .sub {
+    color: var(--muted);
+  }
+  .check ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .check label {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    cursor: pointer;
+  }
+  .check label:hover {
+    border-color: var(--navy);
+  }
+  .check label:has(input:checked) {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+  }
+  .check input {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    accent-color: var(--navy);
+  }
+  .result {
+    margin-top: 8px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: var(--sand);
+  }
+  .result :global(strong) {
+    font: 600 22px var(--serif);
+  }
+  .result :global(a) {
+    font-weight: 700;
+  }
+  .levels h2 {
+    margin-bottom: 24px;
+  }
+  .table {
+    display: grid;
+    gap: 12px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .code {
+    font: 600 44px/1 var(--serif);
+    color: var(--rust);
+  }
+  .row p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 64px 1fr;
+    }
+    .row .btn {
+      grid-column: 2;
+      justify-self: start;
+    }
+    .code {
+      font-size: 34px;
+    }
+  }
+</style>
+
+<script>
+  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const root = document.querySelector<HTMLElement>('[data-check]');
+  if (root) {
+    const boxes = Array.from(root.querySelectorAll<HTMLInputElement>('input[type=checkbox]'));
+    const out = root.querySelector<HTMLElement>('[data-result]')!;
+    const update = () => {
+      // Your level is the highest level where every level below it is also ticked.
+      let lvl = -1;
+      for (let i = 0; i < boxes.length && boxes[i].checked; i++) lvl = i;
+      const any = boxes.some((b) => b.checked);
+      if (!any) {
+        out.innerHTML = '<p>Tick the sentences above to see your level.</p>';
+        return;
+      }
+      if (lvl < 0) {
+        out.innerHTML = '<p>Start with <strong>A1</strong>. Our <a href="/lessons/?level=A1">A1 lessons</a> use short, simple sentences.</p>';
+        return;
+      }
+      const you = LEVELS[lvl];
+      const next = LEVELS[Math.min(lvl + 1, LEVELS.length - 1)];
+      out.innerHTML =
+        `<p>You're probably around <strong>${you}</strong>. ` +
+        (you === next
+          ? `Amazing! Try any lesson and enjoy the stories.</p>`
+          : `Lessons at <a href="/lessons/?level=${you}">${you}</a> will feel comfortable, and <a href="/lessons/?level=${next}">${next}</a> lessons will help you grow.</p>`);
+      try {
+        localStorage.setItem('ble:level', you);
+      } catch {}
+    };
+    boxes.forEach((b) => b.addEventListener('change', update));
+  }
+</script>
