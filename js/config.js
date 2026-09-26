@@ -12,8 +12,10 @@
 // and only signed-in parents can edit. See README.md for the 5-minute setup.
 export default {
   supabase: {
-    url: "",      // e.g. "https://abcdefghijk.supabase.co"
-    anonKey: "",  // Project Settings → API → "anon public" key (safe to publish)
+    url: "https://yfhecewvbuakbofvhtac.supabase.co",
+    // Project Settings → API Keys → "Publishable key" (sb_publishable_…) or the
+    // legacy "anon public" key. Both are safe to publish. NEVER put the secret key here.
+    anonKey: "",
     bucket: "timeline-media",
   },
 

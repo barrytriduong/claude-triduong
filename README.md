@@ -34,7 +34,7 @@ Setup takes about 5 minutes:
 2. **Authentication → Users → Add user**: create *your* login (email + password, tick "Auto confirm").
 3. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up".
 4. **SQL Editor → New query**: paste [`supabase/setup.sql`](supabase/setup.sql), replace `YOUR_EMAIL_HERE` at the bottom with the email from step 2, and click **Run**. The last result row should show your email: you are now the only admin.
-5. **Project Settings → API**: copy the *Project URL* and the *anon public* key into [`js/config.js`](js/config.js):
+5. **Project Settings → API Keys**: copy the *Project URL* and the *Publishable key* (or the legacy *anon public* key) into [`js/config.js`](js/config.js):
    ```js
    supabase: {
      url: "https://YOUR-PROJECT.supabase.co",
