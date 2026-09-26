@@ -89,12 +89,12 @@ create policy "parents delete media" on storage.objects
 -- ---------- People ----------
 -- You (admin):
 insert into public.admins (user_id)
-select id from auth.users where email = 'YOUR_EMAIL_HERE'
+select id from auth.users where email = 'tri2212@gmail.com'
 on conflict do nothing;
 
 -- A family member who can view. Copy this block for each new person.
 insert into public.family (user_id)
-select id from auth.users where email = 'FAMILY_EMAIL_HERE'
+select id from auth.users where email = 'test@email.com'
 on conflict do nothing;
 
 -- Check: lists everyone with access. Every email you added should appear here.
