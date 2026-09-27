@@ -81,7 +81,12 @@ const times = starts.map((s) => {
 });
 for (let i = 1; i < times.length; i++) if (times[i] < times[i - 1]) times[i] = times[i - 1];
 
-const remap = new Map(lines.map((l, i) => [Number(l.old), times[i]]));
+// Only move a vocabulary/quiz time when it matches exactly one line's old time
+// (if lines shared a placeholder time such as 0, we can't tell which line it meant).
+const counts = new Map();
+for (const l of lines) counts.set(Number(l.old), (counts.get(Number(l.old)) || 0) + 1);
+const remap = new Map(lines.filter((l) => counts.get(Number(l.old)) === 1).map((l) => [Number(l.old), times[lines.indexOf(l)]]));
+const unmapped = [...counts].filter(([, c]) => c > 1).map(([t]) => t);
 let li = 0;
 let out = md.replace(lineRe, (_, a, _t, b, text) => `${a}${times[li++]}${b}${text}`);
 // Vocabulary and quiz times: move with the line they pointed at.
@@ -89,5 +94,6 @@ const [head, rest] = [out.slice(0, out.indexOf('vocabulary:')), out.slice(out.in
 out = head + rest.replace(/\bt:\s*(\d+(?:\.\d+)?)/g, (m, v) => (remap.has(Number(v)) ? `t: ${remap.get(Number(v))}` : m));
 
 writeFileSync(lessonPath, out);
+if (unmapped.length) console.warn(`Note: several lines had the same old time (${unmapped.join(', ')}), so vocabulary/quiz times using it were not changed. Set those by hand.`);
 console.log(`Matched ${Math.round((matched / tw.length) * 100)}% of transcript words. Updated ${lines.length} line times.`);
 if (matched / tw.length < 0.8) console.warn('Warning: low match. Check that the captions belong to this video.');
