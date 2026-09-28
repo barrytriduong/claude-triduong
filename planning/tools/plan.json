@@ -1,0 +1,2837 @@
+[
+ {
+  "level": "B1",
+  "person": "Temple Grandin",
+  "years": "born 1947",
+  "status": "living",
+  "title": "Doctors Said She Would Never Talk… Then She Changed How Farms Treat Animals",
+  "angle": "At two she didn't speak, and doctors suggested sending her away to an institution. Her mother refused and found teachers and speech therapy. Temple thinks in pictures. She became a professor of animal science and designed calmer, kinder systems for cattle.",
+  "words": [
+   "autism|noun",
+   "institution|noun",
+   "calm|verb",
+   "cattle|noun",
+   "design|verb"
+  ],
+  "extras": [
+   "speech therapy",
+   "ranch",
+   "professor"
+  ],
+  "structure": "would + verb for the future in the past (said / thought she would…)",
+  "example": "Doctors said she would never talk.",
+  "topics": [
+   "Disability",
+   "Science",
+   "Women"
+  ],
+  "ep": 5,
+  "slug": "temple-grandin",
+  "file": "EP05-temple-grandin-B1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Marie Curie",
+  "years": "1867–1934",
+  "status": "past",
+  "title": "Women Couldn't Go to University… Then She Won Two Nobel Prizes",
+  "angle": "In Poland, women could not study at university, so she studied in secret and later moved to Paris. She and her husband Pierre discovered two new elements. She won Nobel Prizes in both physics and chemistry.",
+  "words": [
+   "prize|noun",
+   "scientist|noun",
+   "discover|verb",
+   "element|noun",
+   "university|noun"
+  ],
+  "extras": [
+   "physics",
+   "chemistry",
+   "husband"
+  ],
+  "structure": "both … and",
+  "example": "She won prizes in both physics and chemistry.",
+  "topics": [
+   "Science",
+   "Women"
+  ],
+  "ep": 6,
+  "slug": "marie-curie",
+  "file": "EP06-marie-curie-A2.md"
+ },
+ {
+  "level": "A1",
+  "person": "Louis Braille",
+  "years": "1809–1852",
+  "status": "past",
+  "title": "He Lost His Sight as a Small Boy… Then Made Letters You Can Feel",
+  "angle": "At three he hurt his eye with a tool in his father's workshop, and by five he was blind. At fifteen, at a school in Paris, he made a new alphabet of raised dots. Today blind people all over the world read braille.",
+  "words": [
+   "dot|noun",
+   "finger|noun",
+   "invent|verb",
+   "letter|noun",
+   "read|verb"
+  ],
+  "extras": [
+   "tool",
+   "alphabet",
+   "raised"
+  ],
+  "structure": "was / were (past of be)",
+  "example": "He was only fifteen. The dots were small.",
+  "topics": [
+   "Disability",
+   "Invention",
+   "Education"
+  ],
+  "ep": 7,
+  "slug": "louis-braille",
+  "file": "EP07-louis-braille-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Fridtjof Nansen",
+  "years": "1861–1930",
+  "status": "past",
+  "title": "He Skied Across Greenland… Then Gave Refugees a Passport",
+  "angle": "An explorer and scientist, he crossed the Greenland ice cap on skis in 1888 and drifted toward the North Pole in his ship Fram. After the First World War he led efforts to bring prisoners of war home and created the \"Nansen passport\" for stateless refugees, winning the Nobel Peace Prize in 1922.",
+  "words": [
+   "refugee|noun",
+   "stateless|adjective",
+   "drift|verb",
+   "expedition|noun",
+   "humanitarian|adjective"
+  ],
+  "extras": [
+   "ice cap",
+   "prisoner of war",
+   "peace prize"
+  ],
+  "structure": "inversion: Not only did he …, but he also …",
+  "example": "Not only did he cross Greenland, but he also helped hundreds of thousands of prisoners return home.",
+  "topics": [
+   "Exploration",
+   "Kindness"
+  ],
+  "ep": 8,
+  "slug": "fridtjof-nansen",
+  "file": "EP08-fridtjof-nansen-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Frida Kahlo",
+  "years": "1907–1954",
+  "status": "past",
+  "title": "A Bus Accident Kept Her in Bed… So She Painted Herself",
+  "angle": "At eighteen she was badly hurt in a bus accident in Mexico. She had to stay in bed for months. Her mother put a mirror above her bed, and Frida began to paint pictures of herself full of colour.",
+  "words": [
+   "accident|noun",
+   "mirror|noun",
+   "colourful|adjective",
+   "painting|noun",
+   "hurt|verb"
+  ],
+  "extras": [
+   "self-portrait",
+   "flower",
+   "pain"
+  ],
+  "structure": "past continuous + when (was -ing when…)",
+  "example": "She was riding a bus when the accident happened.",
+  "topics": [
+   "Art",
+   "Women",
+   "Courage"
+  ],
+  "ep": 9,
+  "slug": "frida-kahlo",
+  "file": "EP09-frida-kahlo-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Ludwig van Beethoven",
+  "years": "1770–1827",
+  "status": "past",
+  "title": "He Was Losing His Hearing… Then Wrote His Greatest Symphony",
+  "angle": "In his late twenties he began to lose his hearing. He was afraid and wrote about it in a private letter, but he kept writing music. At the first performance of his Ninth Symphony in 1824 he was almost completely deaf, and a singer turned him around to see the applause.",
+  "words": [
+   "symphony|noun",
+   "orchestra|noun",
+   "applause|noun",
+   "hearing|noun",
+   "performance|noun"
+  ],
+  "extras": [
+   "conductor",
+   "silence",
+   "premiere"
+  ],
+  "structure": "although / even though",
+  "example": "Although he couldn't hear the music, he wrote it.",
+  "topics": [
+   "Music",
+   "Disability",
+   "Courage"
+  ],
+  "ep": 10,
+  "slug": "ludwig-van-beethoven",
+  "file": "EP10-ludwig-van-beethoven-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Hans Christian Andersen",
+  "years": "1805–1875",
+  "status": "past",
+  "title": "He Was a Poor Boy… Then Wrote Stories for the Whole World",
+  "angle": "The son of a poor shoemaker in Denmark, he went to Copenhagen at fourteen with almost no money. He wrote fairy tales like The Ugly Duckling and The Little Mermaid, and children everywhere still read them.",
+  "words": [
+   "poor|adjective",
+   "story|noun",
+   "duck|noun",
+   "ugly|adjective",
+   "famous|adjective"
+  ],
+  "extras": [
+   "fairy tale",
+   "shoemaker",
+   "swan"
+  ],
+  "structure": "there was / there were",
+  "example": "There was a poor boy in Denmark. There were no books in his home.",
+  "topics": [
+   "Writing",
+   "Childhood"
+  ],
+  "ep": 11,
+  "slug": "hans-christian-andersen",
+  "file": "EP11-hans-christian-andersen-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Alan Turing",
+  "years": "1912–1954",
+  "status": "past",
+  "title": "He Helped Break a Secret Code… and Imagined the Computer",
+  "angle": "At Bletchley Park in the Second World War, he helped design machines to break Germany's Enigma code. Historians believe this shortened the war. He also imagined a universal computing machine and asked whether machines could think. He was treated unjustly by the laws of his time and was pardoned in 2013.",
+  "words": [
+   "codebreaker|noun",
+   "decipher|verb",
+   "universal|adjective",
+   "pardon|noun",
+   "unjust|adjective"
+  ],
+  "extras": [
+   "codebreaking",
+   "wartime",
+   "persecution"
+  ],
+  "structure": "third conditional (If … had …, … would/might have …)",
+  "example": "If the code hadn't been broken, the war might have lasted longer.",
+  "topics": [
+   "Science",
+   "Technology",
+   "History"
+  ],
+  "ep": 12,
+  "slug": "alan-turing",
+  "file": "EP12-alan-turing-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Tenzing Norgay",
+  "years": "1914–1986",
+  "status": "past",
+  "title": "He Tried Again and Again… Then Stood on Top of the World",
+  "angle": "He grew up in the mountains of Nepal and Tibet and carried loads for climbers. He tried to climb Everest many times. In 1953, with Edmund Hillary, he reached the top — the highest place on Earth.",
+  "words": [
+   "climb|verb",
+   "top|noun",
+   "rope|noun",
+   "oxygen|noun",
+   "carry|verb"
+  ],
+  "extras": [
+   "camp",
+   "porter",
+   "peak"
+  ],
+  "structure": "superlatives (the highest, the most dangerous)",
+  "example": "Everest is the highest mountain in the world.",
+  "topics": [
+   "Adventure",
+   "Asia"
+  ],
+  "ep": 13,
+  "slug": "tenzing-norgay",
+  "file": "EP13-tenzing-norgay-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Stephen Hawking",
+  "years": "1942–2018",
+  "status": "past",
+  "title": "Doctors Gave Him Two Years… He Lived Another 55 and Explained the Universe",
+  "angle": "At 21 he was told he had motor neurone disease. He slowly lost the use of his body, but his mind kept exploring black holes and time. He spoke through a computer voice, and his book A Brief History of Time sold millions of copies.",
+  "words": [
+   "universe|noun",
+   "black hole|noun",
+   "diagnose|verb",
+   "copy|noun",
+   "explore|verb"
+  ],
+  "extras": [
+   "computer voice",
+   "bestseller",
+   "lecture"
+  ],
+  "structure": "be able to (was able to / wasn't able to)",
+  "example": "He wasn't able to walk, but he was able to explore the universe.",
+  "topics": [
+   "Science",
+   "Disability"
+  ],
+  "ep": 14,
+  "slug": "stephen-hawking",
+  "file": "EP14-stephen-hawking-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Momofuku Ando",
+  "years": "1910–2007",
+  "status": "past",
+  "title": "He Was 48 and Had Nothing… Then Invented Instant Noodles",
+  "angle": "After the war, he saw hungry people waiting in long lines for noodles in Japan. In a small shed behind his house, he tried again and again. In 1958 he made instant noodles, and later Cup Noodles.",
+  "words": [
+   "noodles|noun",
+   "hungry|adjective",
+   "cheap|adjective",
+   "cup|noun",
+   "kitchen|noun"
+  ],
+  "extras": [
+   "shed",
+   "line",
+   "soup"
+  ],
+  "structure": "past simple: regular verbs (-ed)",
+  "example": "He tried and tried. He worked every night.",
+  "topics": [
+   "Business",
+   "Food",
+   "Invention"
+  ],
+  "ep": 15,
+  "slug": "momofuku-ando",
+  "file": "EP15-momofuku-ando-A1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Jane Goodall",
+  "years": "1934–2025",
+  "status": "past",
+  "title": "She Had No University Degree… Then Changed What We Know About Chimpanzees",
+  "angle": "As a girl she dreamed of living with animals in Africa. In 1960 she went to Gombe, Tanzania, and watched chimpanzees for months. She saw them use grass stems as tools. She spent her life protecting animals and forests.",
+  "words": [
+   "chimpanzee|noun",
+   "forest|noun",
+   "patient|adjective",
+   "notebook|noun",
+   "grass|noun"
+  ],
+  "extras": [
+   "termite",
+   "protect",
+   "degree"
+  ],
+  "structure": "dream of + -ing",
+  "example": "She dreamed of living with animals in Africa.",
+  "topics": [
+   "Nature",
+   "Science",
+   "Women"
+  ],
+  "ep": 16,
+  "slug": "jane-goodall",
+  "file": "EP16-jane-goodall-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Charles Darwin",
+  "years": "1809–1882",
+  "status": "past",
+  "title": "A Five-Year Voyage and Some Small Birds… Then an Idea That Changed Biology",
+  "angle": "His father worried he had no direction. In 1831 he joined HMS Beagle on a five-year voyage around the world. On the Galápagos Islands he saw that birds such as finches and mockingbirds were slightly different on each island. Years later his book explained evolution.",
+  "words": [
+   "voyage|noun",
+   "species|noun",
+   "beak|noun",
+   "island|noun",
+   "evolution|noun"
+  ],
+  "extras": [
+   "finch",
+   "naturalist",
+   "tortoise"
+  ],
+  "structure": "past simple passive (was published, were called)",
+  "example": "His book was published in 1859.",
+  "topics": [
+   "Science",
+   "Nature",
+   "Exploration"
+  ],
+  "ep": 17,
+  "slug": "charles-darwin",
+  "file": "EP17-charles-darwin-B1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Ada Lovelace",
+  "years": "1815–1852",
+  "status": "past",
+  "title": "She Saw the Future of Computers… 100 Years Early",
+  "angle": "Daughter of the poet Lord Byron, she was taught mathematics from a young age. Working with Charles Babbage on his Analytical Engine, she wrote notes in 1843 that included what many call the first computer program — and she imagined machines making music.",
+  "words": [
+   "algorithm|noun",
+   "analytical|adjective",
+   "visionary|noun",
+   "notes|noun",
+   "calculation|noun"
+  ],
+  "extras": [
+   "mathematics",
+   "punch card",
+   "countess"
+  ],
+  "structure": "ahead of her time (set expression)",
+  "example": "Her ideas were a hundred years ahead of her time.",
+  "topics": [
+   "Science",
+   "Women",
+   "Technology"
+  ],
+  "ep": 18,
+  "slug": "ada-lovelace",
+  "file": "EP18-ada-lovelace-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Roger Bannister",
+  "years": "1929–2018",
+  "status": "past",
+  "title": "Many Said It Was Impossible… Then He Ran a Mile in Under Four Minutes",
+  "angle": "Many people believed no one could run a mile in less than four minutes. He was a busy medical student who trained in his lunch break. On 6 May 1954 he ran it in 3 minutes 59.4 seconds.",
+  "words": [
+   "mile|noun",
+   "record|noun",
+   "minute|noun",
+   "impossible|adjective",
+   "second|noun"
+  ],
+  "extras": [
+   "stopwatch",
+   "lunch break",
+   "track"
+  ],
+  "structure": "comparatives (faster than, less than)",
+  "example": "He ran faster than anyone before him.",
+  "topics": [
+   "Sport",
+   "Health"
+  ],
+  "ep": 19,
+  "slug": "roger-bannister",
+  "file": "EP19-roger-bannister-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Rachel Carson",
+  "years": "1907–1964",
+  "status": "past",
+  "title": "She Asked: What If Spring Had No Birds? Then a Book Changed the Law",
+  "angle": "A marine biologist and writer, she studied how chemical sprays like DDT were harming birds, fish and people. Her 1962 book Silent Spring was so powerful that it helped start the modern environmental movement.",
+  "words": [
+   "pesticide|noun",
+   "harm|verb",
+   "chemical|noun",
+   "spray|noun",
+   "environment|noun"
+  ],
+  "extras": [
+   "marine biologist",
+   "bird song",
+   "insect"
+  ],
+  "structure": "so … that",
+  "example": "The book was so powerful that it changed the law.",
+  "topics": [
+   "Nature",
+   "Science",
+   "Women"
+  ],
+  "ep": 20,
+  "slug": "rachel-carson",
+  "file": "EP20-rachel-carson-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Jesse Owens",
+  "years": "1913–1980",
+  "status": "past",
+  "title": "He Was Poor and Sick as a Boy… Then Won Four Gold Medals",
+  "angle": "Born in Alabama to a poor family, he was often sick as a child. He ran and jumped at school, and at the 1936 Olympics in Berlin he won four gold medals. A German athlete, Luz Long, became his friend.",
+  "words": [
+   "run|verb",
+   "jump|verb",
+   "fast|adjective",
+   "race|noun",
+   "gold|noun"
+  ],
+  "extras": [
+   "stadium",
+   "athlete",
+   "friend"
+  ],
+  "structure": "past simple: irregular verbs (ran, won, went)",
+  "example": "He ran very fast. He won four races.",
+  "topics": [
+   "Sport",
+   "Friendship"
+  ],
+  "ep": 21,
+  "slug": "jesse-owens",
+  "file": "EP21-jesse-owens-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Nellie Bly",
+  "years": "1864–1922",
+  "status": "past",
+  "title": "She Pretended to Be Ill to Expose an Asylum… Then Raced Around the World",
+  "angle": "In 1887 the young reporter got herself admitted to an asylum in New York to report on the terrible conditions inside; her articles led to reforms. In 1889–90 she travelled around the world in 72 days, beating the fictional record of Around the World in Eighty Days.",
+  "words": [
+   "reporter|noun",
+   "expose|verb",
+   "asylum|noun",
+   "reform|noun",
+   "undercover|adjective"
+  ],
+  "extras": [
+   "journalist",
+   "conditions",
+   "circumnavigate"
+  ],
+  "structure": "reporting verbs (claimed, insisted, promised)",
+  "example": "She insisted on going alone and promised to beat the record.",
+  "topics": [
+   "Writing",
+   "Women",
+   "Adventure"
+  ],
+  "ep": 22,
+  "slug": "nellie-bly",
+  "file": "EP22-nellie-bly-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Harriet Tubman",
+  "years": "c. 1822–1913",
+  "status": "past",
+  "title": "She Escaped Slavery… Then Went Back Again and Again",
+  "angle": "Born enslaved in Maryland, she escaped to the North in 1849. She was free, but her family was not. She went back about thirteen times and guided around seventy people to freedom, travelling at night.",
+  "words": [
+   "escape|verb",
+   "north|noun",
+   "free|adjective",
+   "guide|verb",
+   "night|noun"
+  ],
+  "extras": [
+   "freedom",
+   "enslaved",
+   "danger"
+  ],
+  "structure": "more than / about + number",
+  "example": "She went back about thirteen times.",
+  "topics": [
+   "Freedom",
+   "Women",
+   "Courage"
+  ],
+  "ep": 23,
+  "slug": "harriet-tubman",
+  "file": "EP23-harriet-tubman-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Ernest Shackleton",
+  "years": "1874–1922",
+  "status": "past",
+  "title": "His Ship Was Crushed by Ice… Then He Brought Every Man Home",
+  "angle": "In 1915 his ship Endurance was trapped and crushed by Antarctic ice. For months his men camped on the ice. He sailed a small lifeboat about 1,300 km across a stormy sea to find help — and all 28 men of the Endurance survived.",
+  "words": [
+   "crew|noun",
+   "trapped|adjective",
+   "crush|verb",
+   "lifeboat|noun",
+   "storm|noun"
+  ],
+  "extras": [
+   "whaling station",
+   "penguin",
+   "captain"
+  ],
+  "structure": "past perfect (had + past participle)",
+  "example": "By the time help came, they had waited for months.",
+  "topics": [
+   "Adventure",
+   "Leadership",
+   "Exploration"
+  ],
+  "ep": 24,
+  "slug": "ernest-shackleton",
+  "file": "EP24-ernest-shackleton-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Albert Einstein",
+  "years": "1879–1955",
+  "status": "past",
+  "title": "A Little Compass Made Him Ask Questions… Then He Changed Science",
+  "angle": "When he was about five, his father showed him a compass. He wanted to know why the needle moved. He asked questions all his life, played the violin, and became one of the most famous scientists in history.",
+  "words": [
+   "compass|noun",
+   "question|noun",
+   "ask|verb",
+   "violin|noun",
+   "why|adverb"
+  ],
+  "extras": [
+   "needle",
+   "science",
+   "math"
+  ],
+  "structure": "wh- questions in the past (Why did…? What did…?)",
+  "example": "Why did the needle move? What did he want to know?",
+  "topics": [
+   "Science",
+   "Curiosity"
+  ],
+  "ep": 25,
+  "slug": "albert-einstein",
+  "file": "EP25-albert-einstein-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Frederick Douglass",
+  "years": "c. 1818–1895",
+  "status": "past",
+  "title": "He Was Forbidden to Read… So He Taught Himself and Changed a Nation's Mind",
+  "angle": "Born enslaved in Maryland, he learned the alphabet as a boy and secretly taught himself to read. He escaped in 1838, and his autobiography and powerful speeches made him one of the most important voices against slavery.",
+  "words": [
+   "forbid|verb",
+   "autobiography|noun",
+   "abolish|verb",
+   "eloquent|adjective",
+   "literacy|noun"
+  ],
+  "extras": [
+   "newspaper",
+   "abolitionist",
+   "conscience"
+  ],
+  "structure": "cleft sentences (It was … that …)",
+  "example": "It was reading that showed him the way to freedom.",
+  "topics": [
+   "Freedom",
+   "Writing",
+   "Education"
+  ],
+  "ep": 26,
+  "slug": "frederick-douglass",
+  "file": "EP26-frederick-douglass-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Sadako Sasaki",
+  "years": "1943–1955",
+  "status": "past",
+  "title": "She Folded Paper Cranes in Hospital… Then Children Everywhere Folded Them Too",
+  "angle": "She was two when the bomb fell on Hiroshima. At twelve she became very ill. In hospital she folded paper cranes because of an old Japanese story about wishes. Today a statue of her in Hiroshima asks for peace.",
+  "words": [
+   "crane|noun",
+   "fold|verb",
+   "paper|noun",
+   "wish|noun",
+   "peace|noun"
+  ],
+  "extras": [
+   "statue",
+   "ill",
+   "bird"
+  ],
+  "structure": "so (result)",
+  "example": "She wanted to get better, so she folded cranes every day.",
+  "topics": [
+   "Peace",
+   "Childhood",
+   "Asia"
+  ],
+  "ep": 27,
+  "slug": "sadako-sasaki",
+  "file": "EP27-sadako-sasaki-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Ray Charles",
+  "years": "1930–2004",
+  "status": "past",
+  "title": "He Lost His Sight at Seven… Then Invented a New Sound",
+  "angle": "He grew up poor in the American South and was completely blind by seven. At a school for the blind he learned to read music in braille and play piano. He mixed gospel, blues and jazz into soul music.",
+  "words": [
+   "piano|noun",
+   "soul|noun",
+   "blues|noun",
+   "mix|verb",
+   "sight|noun"
+  ],
+  "extras": [
+   "gospel",
+   "keyboard",
+   "braille"
+  ],
+  "structure": "not only … but also",
+  "example": "He not only sang, but also played piano, saxophone and more.",
+  "topics": [
+   "Music",
+   "Disability"
+  ],
+  "ep": 28,
+  "slug": "ray-charles",
+  "file": "EP28-ray-charles-B1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Anne Frank",
+  "years": "1929–1945",
+  "status": "past",
+  "title": "She Hid in a Secret Room for Two Years… and Her Diary Speaks to the World",
+  "angle": "Her family was Jewish and moved from Germany to Amsterdam. In 1942 they hid in secret rooms behind a bookcase. Anne wrote in her diary for two years. Her father published it after the war.",
+  "words": [
+   "diary|noun",
+   "hide|verb",
+   "secret|adjective",
+   "hope|noun",
+   "bookcase|noun"
+  ],
+  "extras": [
+   "publish",
+   "birthday",
+   "father"
+  ],
+  "structure": "for + period of time",
+  "example": "They hid for two years. She wrote for hours every day.",
+  "topics": [
+   "History",
+   "Writing",
+   "Childhood"
+  ],
+  "ep": 29,
+  "slug": "anne-frank",
+  "file": "EP29-anne-frank-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Katherine Johnson",
+  "years": "1918–2020",
+  "status": "past",
+  "title": "The Astronaut Said: Get the Girl to Check the Numbers",
+  "angle": "She loved counting as a child and started high school at ten. At NASA she was one of the \"human computers\". In 1962, before John Glenn flew around the Earth, he asked for her to check the computer's calculations.",
+  "words": [
+   "calculate|verb",
+   "orbit|noun",
+   "check|verb",
+   "mathematician|noun",
+   "path|noun"
+  ],
+  "extras": [
+   "human computer",
+   "launch",
+   "trajectory"
+  ],
+  "structure": "relative clauses with who",
+  "example": "She was the woman who checked the numbers.",
+  "topics": [
+   "Science",
+   "Space",
+   "Women"
+  ],
+  "ep": 30,
+  "slug": "katherine-johnson",
+  "file": "EP30-katherine-johnson-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Amelia Earhart",
+  "years": "1897–1937",
+  "status": "past",
+  "title": "People Said Women Can't Fly… Then She Crossed the Ocean Alone",
+  "angle": "She saw her first plane at a fair and did not like it, but her first flight changed everything. In 1932 she flew alone across the Atlantic Ocean, the first woman to do it.",
+  "words": [
+   "fly|verb",
+   "plane|noun",
+   "sky|noun",
+   "alone|adjective",
+   "ocean|noun"
+  ],
+  "extras": [
+   "pilot",
+   "fair",
+   "flight"
+  ],
+  "structure": "the first + noun + to + verb",
+  "example": "She was the first woman to fly across the ocean alone.",
+  "topics": [
+   "Aviation",
+   "Women",
+   "Adventure"
+  ],
+  "ep": 31,
+  "slug": "amelia-earhart",
+  "file": "EP31-amelia-earhart-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Edward Jenner",
+  "years": "1749–1823",
+  "status": "past",
+  "title": "A Milkmaid's Story Led to the World's First Vaccine",
+  "angle": "Country people said that milkmaids who caught cowpox didn't get smallpox. In 1796 the doctor tested this idea on eight-year-old James Phipps. His work led to vaccination, and smallpox was declared eradicated in 1980.",
+  "words": [
+   "smallpox|noun",
+   "immune|adjective",
+   "eradicate|verb",
+   "milkmaid|noun",
+   "contagious|adjective"
+  ],
+  "extras": [
+   "cowpox",
+   "vaccination",
+   "scar"
+  ],
+  "structure": "passive reporting (It was said that … / were thought to …)",
+  "example": "Milkmaids were thought to be immune to smallpox.",
+  "topics": [
+   "Health",
+   "Science"
+  ],
+  "ep": 32,
+  "slug": "edward-jenner",
+  "file": "EP32-edward-jenner-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Louis Armstrong",
+  "years": "1901–1971",
+  "status": "past",
+  "title": "He Grew Up Poor in New Orleans… Then His Trumpet Filled the World With Joy",
+  "angle": "As a boy he sold coal and sang on the street. At a home for boys he learned to play the cornet. He became one of the greatest jazz musicians, and his big smile and warm voice made people happy.",
+  "words": [
+   "trumpet|noun",
+   "band|noun",
+   "smile|noun",
+   "jazz|noun",
+   "song|noun"
+  ],
+  "extras": [
+   "cornet",
+   "coal",
+   "joy"
+  ],
+  "structure": "adverbs of manner (-ly)",
+  "example": "He played beautifully and sang happily.",
+  "topics": [
+   "Music",
+   "Childhood"
+  ],
+  "ep": 33,
+  "slug": "louis-armstrong",
+  "file": "EP33-louis-armstrong-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Kalpana Chawla",
+  "years": "1962–2003",
+  "status": "past",
+  "title": "A Girl Who Drew Planes in India… Became an Astronaut",
+  "angle": "As a girl in Karnal, India, she watched planes and wanted to fly. She studied aerospace engineering in India and the United States. In 1997 she became the first woman born in India to go to space.",
+  "words": [
+   "astronaut|noun",
+   "engineering|noun",
+   "dream big|phrase",
+   "shuttle|noun",
+   "mission|noun"
+  ],
+  "extras": [
+   "space shuttle",
+   "aerospace",
+   "village"
+  ],
+  "structure": "present perfect for experience (Have you ever…?)",
+  "example": "Have you ever looked at the stars and wanted to go there?",
+  "topics": [
+   "Space",
+   "Women",
+   "Asia"
+  ],
+  "ep": 34,
+  "slug": "kalpana-chawla",
+  "file": "EP34-kalpana-chawla-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Beatrix Potter",
+  "years": "1866–1943",
+  "status": "past",
+  "title": "She Wrote a Letter to a Sick Boy… Then Peter Rabbit Was Born",
+  "angle": "As a lonely girl in London, she drew her pet animals every day. She wrote a picture letter about a rabbit to a sick little boy. It became The Tale of Peter Rabbit. Later she bought farms and gave her land to the nation.",
+  "words": [
+   "rabbit|noun",
+   "draw|verb",
+   "farm|noun",
+   "garden|noun",
+   "pet|noun"
+  ],
+  "extras": [
+   "picture",
+   "lake",
+   "sheep"
+  ],
+  "structure": "love / like + -ing",
+  "example": "She loved drawing animals. She liked walking in the hills.",
+  "topics": [
+   "Art",
+   "Nature",
+   "Writing"
+  ],
+  "ep": 35,
+  "slug": "beatrix-potter",
+  "file": "EP35-beatrix-potter-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Louis Pasteur",
+  "years": "1822–1895",
+  "status": "past",
+  "title": "A Boy Was Bitten by a Rabid Dog… and Pasteur Took a Huge Risk",
+  "angle": "He showed that tiny microbes cause disease and invented pasteurisation to make milk safe. In 1885 nine-year-old Joseph Meister was bitten by a rabid dog; Pasteur's experimental vaccine saved him.",
+  "words": [
+   "microbe|noun",
+   "rabies|noun",
+   "experimental|adjective",
+   "take a risk|phrase",
+   "pasteurise|verb"
+  ],
+  "extras": [
+   "bite",
+   "spoil",
+   "fermentation"
+  ],
+  "structure": "had no choice but to + verb",
+  "example": "He had no choice but to try the new vaccine.",
+  "topics": [
+   "Science",
+   "Health"
+  ],
+  "ep": 36,
+  "slug": "louis-pasteur",
+  "file": "EP36-louis-pasteur-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Bessie Coleman",
+  "years": "1892–1926",
+  "status": "past",
+  "title": "No Flight School Would Take Her… So She Learned French and Flew",
+  "angle": "She worked in Chicago and dreamed of flying. American flight schools did not accept Black women, so she learned French and went to France. In 1921 she became the first African American woman with a pilot's licence.",
+  "words": [
+   "licence|noun",
+   "French|noun",
+   "air show|noun",
+   "accept|verb",
+   "save|verb"
+  ],
+  "extras": [
+   "flight school",
+   "dangerous",
+   "trick"
+  ],
+  "structure": "decided to + verb",
+  "example": "She decided to learn French.",
+  "topics": [
+   "Aviation",
+   "Women",
+   "Equality"
+  ],
+  "ep": 37,
+  "slug": "bessie-coleman",
+  "file": "EP37-bessie-coleman-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Hedy Lamarr",
+  "years": "1914–2000",
+  "status": "past",
+  "title": "A Hollywood Star by Day… an Inventor by Night",
+  "angle": "She was a famous film star, but in her free time she invented things. In the Second World War she and composer George Antheil designed a \"frequency hopping\" system to guide torpedoes. Frequency hopping is still used in some wireless technology today.",
+  "words": [
+   "signal|noun",
+   "patent|noun",
+   "frequency|noun",
+   "radio|noun",
+   "star|noun"
+  ],
+  "extras": [
+   "torpedo",
+   "inventor",
+   "wireless"
+  ],
+  "structure": "be known as / be known for",
+  "example": "She was known as a film star, but today she is also known for her invention.",
+  "topics": [
+   "Science",
+   "Women",
+   "Film"
+  ],
+  "ep": 38,
+  "slug": "hedy-lamarr",
+  "file": "EP38-hedy-lamarr-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Pelé",
+  "years": "1940–2022",
+  "status": "past",
+  "title": "He Played With a Ball Made of Socks… Then Won Three World Cups",
+  "angle": "As a poor boy in Brazil, he could not buy a real ball, so he played with socks full of paper. At seventeen he played in the World Cup and won. He won the World Cup three times.",
+  "words": [
+   "ball|noun",
+   "kick|verb",
+   "goal|noun",
+   "team|noun",
+   "sock|noun"
+  ],
+  "extras": [
+   "field",
+   "shirt",
+   "score"
+  ],
+  "structure": "When + past simple",
+  "example": "When he was seventeen, he played in the World Cup.",
+  "topics": [
+   "Sport",
+   "Childhood"
+  ],
+  "ep": 39,
+  "slug": "pele",
+  "file": "EP39-pele-A1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Alexander Fleming",
+  "years": "1881–1955",
+  "status": "past",
+  "title": "He Left a Messy Lab for a Holiday… and Came Back to a Medicine That Saved Millions",
+  "angle": "In 1928 he went on holiday and left some dishes in his lab. When he came back, a mould was growing on one dish, and the germs around it were dead. This mould gave the world penicillin.",
+  "words": [
+   "mould|noun",
+   "dish|noun",
+   "holiday|noun",
+   "germ|noun",
+   "medicine|noun"
+  ],
+  "extras": [
+   "penicillin",
+   "messy",
+   "bacteria"
+  ],
+  "structure": "past simple + but (contrast)",
+  "example": "The lab was messy, but the mess was lucky.",
+  "topics": [
+   "Science",
+   "Health"
+  ],
+  "ep": 40,
+  "slug": "alexander-fleming",
+  "file": "EP40-alexander-fleming-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Nikola Tesla",
+  "years": "1856–1943",
+  "status": "past",
+  "title": "He Arrived in America With Almost Nothing… and Lit Up Cities",
+  "angle": "Born in what is now Croatia, he arrived in New York in 1884 with very little money. His ideas about alternating current (AC) helped bring electricity to homes around the world. He imagined machines in his head before building them.",
+  "words": [
+   "electricity|noun",
+   "current|noun",
+   "motor|noun",
+   "imagine|verb",
+   "machine|noun"
+  ],
+  "extras": [
+   "coil",
+   "alternating current",
+   "lightning"
+  ],
+  "structure": "relative clauses with which / that",
+  "example": "He built a motor that used alternating current.",
+  "topics": [
+   "Science",
+   "Invention"
+  ],
+  "ep": 41,
+  "slug": "nikola-tesla",
+  "file": "EP41-nikola-tesla-B1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Zheng He",
+  "years": "1371–1433",
+  "status": "past",
+  "title": "He Led Huge Fleets Across the Indian Ocean… Decades Before Columbus",
+  "angle": "Between 1405 and 1433, the Ming admiral led seven great voyages across the Indian Ocean, reaching Southeast Asia, India, Arabia and East Africa with fleets of large ships and tens of thousands of sailors.",
+  "words": [
+   "fleet|noun",
+   "admiral|noun",
+   "treasure|noun",
+   "diplomacy|noun",
+   "vast|adjective"
+  ],
+  "extras": [
+   "treasure ship",
+   "giraffe",
+   "envoy"
+  ],
+  "structure": "such + (a) + adjective + noun + that",
+  "example": "It was such a vast fleet that people could not believe their eyes.",
+  "topics": [
+   "Exploration",
+   "Asia",
+   "History"
+  ],
+  "ep": 42,
+  "slug": "zheng-he",
+  "file": "EP42-zheng-he-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Muhammad Ali",
+  "years": "1942–2016",
+  "status": "past",
+  "title": "Someone Stole His Bike… Then He Became the Greatest",
+  "angle": "When he was twelve, his new bike was stolen in Louisville. A police officer who trained boxers told him to learn to fight first. He won Olympic gold in 1960 and became world champion. In 1996 he lit the Olympic flame.",
+  "words": [
+   "bike|noun",
+   "steal|verb",
+   "boxing|noun",
+   "champion|noun",
+   "flame|noun"
+  ],
+  "extras": [
+   "glove",
+   "police officer",
+   "torch"
+  ],
+  "structure": "adverbs of frequency (always, often, never)",
+  "example": "He always trained hard. He never stopped.",
+  "topics": [
+   "Sport",
+   "Courage"
+  ],
+  "ep": 43,
+  "slug": "muhammad-ali",
+  "file": "EP43-muhammad-ali-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "George Washington Carver",
+  "years": "c. 1864–1943",
+  "status": "past",
+  "title": "Born Into Slavery… He Became the Scientist Who Saved Southern Farms",
+  "angle": "He was born enslaved in Missouri near the end of the US Civil War. He worked hard to get an education. As a scientist at Tuskegee Institute he taught farmers to grow peanuts and sweet potatoes to make tired soil healthy again.",
+  "words": [
+   "peanut|noun",
+   "soil|noun",
+   "crop|noun",
+   "farmer|noun",
+   "healthy|adjective"
+  ],
+  "extras": [
+   "sweet potato",
+   "cotton",
+   "nutrient"
+  ],
+  "structure": "by + -ing (how)",
+  "example": "Farmers made the soil healthy by planting peanuts.",
+  "topics": [
+   "Science",
+   "Nature",
+   "Equality"
+  ],
+  "ep": 44,
+  "slug": "george-washington-carver",
+  "file": "EP44-george-washington-carver-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Charlie Chaplin",
+  "years": "1889–1977",
+  "status": "past",
+  "title": "He Grew Up Poor in London… Then Made the Whole World Laugh",
+  "angle": "His family had very little money, and his mother was often ill. He went to America and made films. With his little hat, big shoes and walking stick, he became famous — and his films didn't need words.",
+  "words": [
+   "funny|adjective",
+   "hat|noun",
+   "laugh|verb",
+   "film|noun",
+   "shoe|noun"
+  ],
+  "extras": [
+   "walking stick",
+   "actor",
+   "moustache"
+  ],
+  "structure": "past simple negative: didn't + verb",
+  "example": "His films didn't have sound. People didn't need words to laugh.",
+  "topics": [
+   "Film",
+   "Comedy"
+  ],
+  "ep": 45,
+  "slug": "charlie-chaplin",
+  "file": "EP45-charlie-chaplin-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Ibn Battuta",
+  "years": "1304–c. 1369",
+  "status": "past",
+  "title": "He Left Home for a Pilgrimage… and Travelled for 29 Years",
+  "angle": "At 21 he left Tangier in Morocco. His journeys took him across North Africa, the Middle East, India, China and West Africa — tens of thousands of kilometres. Back home, he told his story, which was written down as the Rihla.",
+  "words": [
+   "pilgrimage|noun",
+   "caravan|noun",
+   "wander|verb",
+   "chronicle|noun",
+   "hospitality|noun"
+  ],
+  "extras": [
+   "travel writer",
+   "scholar",
+   "homesick"
+  ],
+  "structure": "would for past habits",
+  "example": "He would stay in a city for months before moving on.",
+  "topics": [
+   "Exploration",
+   "Africa",
+   "Asia"
+  ],
+  "ep": 46,
+  "slug": "ibn-battuta",
+  "file": "EP46-ibn-battuta-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Vincent van Gogh",
+  "years": "1853–1890",
+  "status": "past",
+  "title": "Few People Bought His Paintings… Now They Are Loved Around the World",
+  "angle": "He started painting at twenty-seven. His brother Theo helped him and they wrote many letters. In about ten years he made more than two thousand artworks, like Sunflowers and The Starry Night.",
+  "words": [
+   "sunflower|noun",
+   "brush|noun",
+   "yellow|adjective",
+   "brother|noun",
+   "artist|noun"
+  ],
+  "extras": [
+   "starry",
+   "canvas",
+   "sell"
+  ],
+  "structure": "more and more",
+  "example": "He painted more and more every year.",
+  "topics": [
+   "Art"
+  ],
+  "ep": 47,
+  "slug": "vincent-van-gogh",
+  "file": "EP47-vincent-van-gogh-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Johannes Gutenberg",
+  "years": "c. 1400–1468",
+  "status": "past",
+  "title": "Books Were Written by Hand… Then One Machine Changed Everything",
+  "angle": "In the 1400s, books were copied by hand and were very expensive. In Mainz, Germany, he developed a printing press with movable metal letters. His Bible, printed around 1455, showed that many books could be made quickly.",
+  "words": [
+   "printing press|noun",
+   "ink|noun",
+   "metal|noun",
+   "page|noun",
+   "expensive|adjective"
+  ],
+  "extras": [
+   "movable type",
+   "scribe",
+   "printer"
+  ],
+  "structure": "present simple passive (books are printed)",
+  "example": "Today, millions of books are printed every year.",
+  "topics": [
+   "Invention",
+   "History"
+  ],
+  "ep": 48,
+  "slug": "johannes-gutenberg",
+  "file": "EP48-johannes-gutenberg-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Walt Disney",
+  "years": "1901–1966",
+  "status": "past",
+  "title": "He Drew a Little Mouse… Then Built a Magic Kingdom",
+  "angle": "He loved drawing as a boy on a farm in Missouri. His first company failed. Then he and his team made a cartoon mouse called Mickey. In 1955 he opened Disneyland.",
+  "words": [
+   "mouse|noun",
+   "cartoon|noun",
+   "park|noun",
+   "happy|adjective",
+   "company|noun"
+  ],
+  "extras": [
+   "drawing",
+   "magic",
+   "studio"
+  ],
+  "structure": "wanted to + verb",
+  "example": "He wanted to make people happy. He wanted to build a park.",
+  "topics": [
+   "Film",
+   "Business",
+   "Art"
+  ],
+  "ep": 49,
+  "slug": "walt-disney",
+  "file": "EP49-walt-disney-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Mary Shelley",
+  "years": "1797–1851",
+  "status": "past",
+  "title": "A Ghost Story Contest on a Stormy Night… Created Frankenstein",
+  "angle": "In 1816, stuck indoors by bad weather near Lake Geneva, friends challenged each other to write ghost stories. The 18-year-old Mary imagined a scientist who creates life. Frankenstein, published in 1818, is often called the first science fiction novel.",
+  "words": [
+   "challenge|verb",
+   "ghost|noun",
+   "creature|noun",
+   "science fiction|noun",
+   "gothic|adjective"
+  ],
+  "extras": [
+   "villa",
+   "monster",
+   "novelist"
+  ],
+  "structure": "no sooner … than / hardly … when",
+  "example": "No sooner had the challenge begun than she started to imagine her monster.",
+  "topics": [
+   "Writing",
+   "Women"
+  ],
+  "ep": 50,
+  "slug": "mary-shelley",
+  "file": "EP50-mary-shelley-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Wolfgang Amadeus Mozart",
+  "years": "1756–1791",
+  "status": "past",
+  "title": "He Wrote Music at Five… and We Still Play It Today",
+  "angle": "As a small boy in Salzburg he played for kings and queens across Europe. He wrote his first music at about five. In his short life he wrote more than 600 pieces of music.",
+  "words": [
+   "composer|noun",
+   "concert|noun",
+   "piece|noun",
+   "king|noun",
+   "travel|verb"
+  ],
+  "extras": [
+   "opera",
+   "queen",
+   "note"
+  ],
+  "structure": "at the age of + number",
+  "example": "At the age of five, he wrote his first music.",
+  "topics": [
+   "Music",
+   "Childhood"
+  ],
+  "ep": 51,
+  "slug": "wolfgang-amadeus-mozart",
+  "file": "EP51-wolfgang-amadeus-mozart-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Roberto Clemente",
+  "years": "1934–1972",
+  "status": "past",
+  "title": "A Baseball Star Who Gave His Life Helping Others",
+  "angle": "He grew up in Puerto Rico and became one of baseball's greatest players, with 3,000 hits. He always helped people in need. In 1972 he died in a plane crash while flying supplies to earthquake victims in Nicaragua.",
+  "words": [
+   "earthquake|noun",
+   "supplies|noun",
+   "hit|noun",
+   "victim|noun",
+   "generous|adjective"
+  ],
+  "extras": [
+   "charity",
+   "relief",
+   "humble"
+  ],
+  "structure": "reported speech (said that…)",
+  "example": "He said that he wanted to help people.",
+  "topics": [
+   "Sport",
+   "Kindness"
+  ],
+  "ep": 52,
+  "slug": "roberto-clemente",
+  "file": "EP52-roberto-clemente-B1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Audrey Hepburn",
+  "years": "1929–1993",
+  "status": "past",
+  "title": "She Was Hungry as a Child in the War… Then She Helped Hungry Children Everywhere",
+  "angle": "She grew up in the Netherlands during World War II and often had little food. After the war, help came from the United Nations. She became a famous actress, and later she travelled the world for UNICEF to help children.",
+  "words": [
+   "actress|noun",
+   "dancer|noun",
+   "war|noun",
+   "visit|verb",
+   "kind|adjective"
+  ],
+  "extras": [
+   "ballet",
+   "film star",
+   "hunger"
+  ],
+  "structure": "used to + verb",
+  "example": "She used to be hungry. Later, she used to visit children in many countries.",
+  "topics": [
+   "Film",
+   "Kindness",
+   "Women"
+  ],
+  "ep": 53,
+  "slug": "audrey-hepburn",
+  "file": "EP53-audrey-hepburn-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Clara Barton",
+  "years": "1821–1912",
+  "status": "past",
+  "title": "She Was Shy as a Child… Then Ran Toward the Battlefield",
+  "angle": "She was a shy girl who nursed her brother through a long illness. In the American Civil War she brought supplies and care to wounded soldiers and was called \"the angel of the battlefield\". In 1881 she founded the American Red Cross.",
+  "words": [
+   "battlefield|noun",
+   "wounded|adjective",
+   "found|verb",
+   "angel|noun",
+   "volunteer|noun"
+  ],
+  "extras": [
+   "bandage",
+   "nursing",
+   "disaster"
+  ],
+  "structure": "in order to + verb",
+  "example": "She went to the battlefield in order to help wounded soldiers.",
+  "topics": [
+   "Health",
+   "Women",
+   "Kindness"
+  ],
+  "ep": 54,
+  "slug": "clara-barton",
+  "file": "EP54-clara-barton-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Neil Armstrong",
+  "years": "1930–2012",
+  "status": "past",
+  "title": "He Could Fly Before He Could Drive… Then Walked on the Moon",
+  "angle": "He loved planes as a boy and had a pilot's licence at sixteen. In 1969 he flew to the Moon on Apollo 11. He stepped onto the Moon and said: \"That's one small step for man…\"",
+  "words": [
+   "moon|noun",
+   "rocket|noun",
+   "step|noun",
+   "space|noun",
+   "Earth|noun"
+  ],
+  "extras": [
+   "flag",
+   "helmet",
+   "footprint"
+  ],
+  "structure": "in / on / at with time (in 1969, on 20 July, at 16)",
+  "example": "In 1969, on 20 July, he walked on the Moon.",
+  "topics": [
+   "Space",
+   "Science"
+  ],
+  "ep": 55,
+  "slug": "neil-armstrong",
+  "file": "EP55-neil-armstrong-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Leonardo da Vinci",
+  "years": "1452–1519",
+  "status": "past",
+  "title": "He Painted the Mona Lisa… and Designed Flying Machines 400 Years Early",
+  "angle": "An artist, engineer and scientist, he filled thousands of notebook pages with mirror writing, studies of the human body, and designs for flying machines and bridges. He painted the Mona Lisa and The Last Supper.",
+  "words": [
+   "sketch|noun",
+   "anatomy|noun",
+   "curiosity|noun",
+   "mirror writing|noun",
+   "masterpiece|noun"
+  ],
+  "extras": [
+   "flying machine",
+   "apprentice",
+   "polymath"
+  ],
+  "structure": "modal perfect: must have / might have",
+  "example": "He must have spent thousands of hours on his notebooks.",
+  "topics": [
+   "Art",
+   "Science",
+   "Curiosity"
+  ],
+  "ep": 56,
+  "slug": "leonardo-da-vinci",
+  "file": "EP56-leonardo-da-vinci-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Nicholas Winton",
+  "years": "1909–2015",
+  "status": "past",
+  "title": "He Saved 669 Children… and Told No One for 50 Years",
+  "angle": "In 1938 he went to Prague and saw Jewish families in danger. He organised trains to take 669 children to safety in Britain. He never talked about it. In 1988, on a TV show, he met some of the children — now grown up.",
+  "words": [
+   "rescue|verb",
+   "list|noun",
+   "scrapbook|noun",
+   "surprise|noun",
+   "safety|noun"
+  ],
+  "extras": [
+   "grown-up",
+   "platform",
+   "foster family"
+  ],
+  "structure": "no one / anyone / everyone",
+  "example": "He didn't tell anyone. No one knew.",
+  "topics": [
+   "Kindness",
+   "History"
+  ],
+  "ep": 57,
+  "slug": "nicholas-winton",
+  "file": "EP57-nicholas-winton-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Jonas Salk",
+  "years": "1914–1995",
+  "status": "past",
+  "title": "He Made a Vaccine for Polio… and Didn't Try to Get Rich From It",
+  "angle": "In the early 1950s, polio frightened families everywhere. Jonas Salk's team developed a vaccine, and in 1955 it was announced safe and effective. When asked who owned the patent, he answered, \"Could you patent the sun?\"",
+  "words": [
+   "vaccine|noun",
+   "polio|noun",
+   "effective|adjective",
+   "announce|verb",
+   "own|verb"
+  ],
+  "extras": [
+   "laboratory",
+   "trial",
+   "injection"
+  ],
+  "structure": "it took + time + to + verb",
+  "example": "It took years to make the vaccine.",
+  "topics": [
+   "Health",
+   "Science",
+   "Kindness"
+  ],
+  "ep": 58,
+  "slug": "jonas-salk",
+  "file": "EP58-jonas-salk-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Thomas Edison",
+  "years": "1847–1931",
+  "status": "past",
+  "title": "He Went to School for Only a Few Months… Then He Lit Up the World",
+  "angle": "He went to school for only a few months, and his mother taught him at home. He loved experiments. He and his team tried thousands of materials to make a light bulb that worked for a long time.",
+  "words": [
+   "light|noun",
+   "dark|adjective",
+   "try|verb",
+   "bulb|noun",
+   "experiment|noun"
+  ],
+  "extras": [
+   "lab",
+   "idea",
+   "electric"
+  ],
+  "structure": "again and again / many times",
+  "example": "He tried again and again. He failed many times.",
+  "topics": [
+   "Science",
+   "Invention"
+  ],
+  "ep": 59,
+  "slug": "thomas-edison",
+  "file": "EP59-thomas-edison-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Arthur Ashe",
+  "years": "1943–1993",
+  "status": "past",
+  "title": "He Was Kept Out of Tennis Clubs… Then Won Wimbledon",
+  "angle": "Growing up in segregated Richmond, Virginia, he was not allowed on many courts. In 1975 he became the first Black man to win Wimbledon. After getting HIV from a blood transfusion, he spent his last years fighting for education and awareness.",
+  "words": [
+   "segregated|adjective",
+   "court|noun",
+   "transfusion|noun",
+   "awareness|noun",
+   "dignity|noun"
+  ],
+  "extras": [
+   "racket",
+   "grand slam",
+   "activist"
+  ],
+  "structure": "imperatives for advice: Start where you are. Use what you have.",
+  "example": "\"Start where you are. Use what you have. Do what you can.\"",
+  "topics": [
+   "Sport",
+   "Equality",
+   "Health"
+  ],
+  "ep": 60,
+  "slug": "arthur-ashe",
+  "file": "EP60-arthur-ashe-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Isaac Newton",
+  "years": "1643–1727",
+  "status": "past",
+  "title": "An Apple Fell From a Tree… and He Asked Why",
+  "angle": "When the university closed because of a disease, he went home to his mother's farm. Later he said that seeing an apple fall made him think about gravity. He also showed that white light has all the colours of the rainbow.",
+  "words": [
+   "apple|noun",
+   "fall|verb",
+   "pull|verb",
+   "rainbow|noun",
+   "planet|noun"
+  ],
+  "extras": [
+   "gravity",
+   "prism",
+   "tree"
+  ],
+  "structure": "zero conditional (If you…, it…)",
+  "example": "If you drop an apple, it falls.",
+  "topics": [
+   "Science",
+   "Curiosity"
+  ],
+  "ep": 61,
+  "slug": "isaac-newton",
+  "file": "EP61-isaac-newton-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Srinivasa Ramanujan",
+  "years": "1887–1920",
+  "status": "past",
+  "title": "A Clerk in India Wrote a Letter… and a Famous Mathematician Wrote Back",
+  "angle": "He taught himself mathematics from a book and filled notebooks with formulas. Working as a clerk in Madras, he wrote to G. H. Hardy at Cambridge in 1913. Hardy invited him to England, where he did amazing work before dying young.",
+  "words": [
+   "formula|noun",
+   "genius|noun",
+   "clerk|noun",
+   "theory|noun",
+   "invite|verb"
+  ],
+  "extras": [
+   "infinity",
+   "prime number",
+   "scholarship"
+  ],
+  "structure": "taught himself / herself (reflexive pronouns)",
+  "example": "He taught himself mathematics.",
+  "topics": [
+   "Science",
+   "Asia",
+   "Education"
+  ],
+  "ep": 62,
+  "slug": "srinivasa-ramanujan",
+  "file": "EP62-srinivasa-ramanujan-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Florence Nightingale",
+  "years": "1820–1910",
+  "status": "past",
+  "title": "She Walked With a Lamp at Night… Then Changed Hospitals Forever",
+  "angle": "Her rich family did not want her to be a nurse. In 1854 she went to a war hospital in Turkey. It was dirty. She and her nurses cleaned it and cared for the soldiers. At night she walked with her lamp.",
+  "words": [
+   "nurse|noun",
+   "hospital|noun",
+   "clean|verb",
+   "lamp|noun",
+   "soldier|noun"
+  ],
+  "extras": [
+   "bed",
+   "care",
+   "dirty"
+  ],
+  "structure": "every day / every night",
+  "example": "Every night, she walked with her lamp.",
+  "topics": [
+   "Health",
+   "Women"
+  ],
+  "ep": 63,
+  "slug": "florence-nightingale",
+  "file": "EP63-florence-nightingale-A1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Emil Zátopek",
+  "years": "1922–2000",
+  "status": "past",
+  "title": "He Ran His First Marathon at the Olympics… and Won",
+  "angle": "He worked in a shoe factory in Czechoslovakia and didn't like running at first. He trained very hard, even in heavy army boots. At the 1952 Olympics he won the 5,000 m, the 10,000 m and — in his first ever marathon — the marathon.",
+  "words": [
+   "marathon|noun",
+   "boot|noun",
+   "train|verb",
+   "heavy|adjective",
+   "army|noun"
+  ],
+  "extras": [
+   "lap",
+   "sweat",
+   "record-breaker"
+  ],
+  "structure": "even (for surprise): even in the snow, even in boots",
+  "example": "He trained every day, even in the snow.",
+  "topics": [
+   "Sport"
+  ],
+  "ep": 64,
+  "slug": "emil-zatopek",
+  "file": "EP64-emil-zatopek-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Mary Seacole",
+  "years": "1805–1881",
+  "status": "past",
+  "title": "They Said No to Her… So She Went to the War Anyway",
+  "angle": "A Jamaican nurse with knowledge of herbal medicine, she asked to join the nurses going to the Crimean War and was refused. She paid for her own journey and opened the British Hotel near the front, where she cared for soldiers.",
+  "words": [
+   "herb|noun",
+   "cure|verb",
+   "journey|noun",
+   "hotel|noun",
+   "knowledge|noun"
+  ],
+  "extras": [
+   "remedy",
+   "cholera",
+   "fever"
+  ],
+  "structure": "managed to + verb",
+  "example": "She managed to reach the front on her own.",
+  "topics": [
+   "Health",
+   "Women",
+   "Courage"
+  ],
+  "ep": 65,
+  "slug": "mary-seacole",
+  "file": "EP65-mary-seacole-B1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Althea Gibson",
+  "years": "1927–2003",
+  "status": "past",
+  "title": "She Learned Tennis in the Streets of Harlem… Then Won Wimbledon",
+  "angle": "She played paddle tennis on a closed-off street in Harlem. Despite segregation, she broke the colour barrier in international tennis and in 1957 became the first Black player to win Wimbledon.",
+  "words": [
+   "barrier|noun",
+   "despite|preposition",
+   "tournament|noun",
+   "determination|noun",
+   "paddle|noun"
+  ],
+  "extras": [
+   "trophy",
+   "pioneer",
+   "amateur"
+  ],
+  "structure": "despite / in spite of + noun / -ing",
+  "example": "Despite segregation, she became a champion.",
+  "topics": [
+   "Sport",
+   "Women",
+   "Equality"
+  ],
+  "ep": 66,
+  "slug": "althea-gibson",
+  "file": "EP66-althea-gibson-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Chiune Sugihara",
+  "years": "1900–1986",
+  "status": "past",
+  "title": "He Wrote Visas Day and Night… and Saved Thousands of Lives",
+  "angle": "In 1940 he was a Japanese diplomat in Lithuania. Many Jewish families came to his office in danger. His government said no, but he wrote travel visas by hand for weeks, until his train left the city.",
+  "words": [
+   "visa|noun",
+   "sign|verb",
+   "pen|noun",
+   "office|noun",
+   "government|noun"
+  ],
+  "extras": [
+   "diplomat",
+   "stamp",
+   "handwriting"
+  ],
+  "structure": "until",
+  "example": "He wrote visas until his train left.",
+  "topics": [
+   "Kindness",
+   "History",
+   "Asia"
+  ],
+  "ep": 67,
+  "slug": "chiune-sugihara",
+  "file": "EP67-chiune-sugihara-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Soichiro Honda",
+  "years": "1906–1991",
+  "status": "past",
+  "title": "He Failed Again and Again… Then Built One of the World's Biggest Car Companies",
+  "angle": "His first piston rings were rejected. His factory was damaged in the war and by an earthquake. He began again, put small engines on bicycles, and built Honda into a famous company. He said success is built on failure.",
+  "words": [
+   "engine|noun",
+   "motorcycle|noun",
+   "failure|noun",
+   "reject|verb",
+   "success|noun"
+  ],
+  "extras": [
+   "piston ring",
+   "bicycle",
+   "workshop"
+  ],
+  "structure": "learn from your mistakes (set expression)",
+  "example": "He learned from his mistakes and tried again.",
+  "topics": [
+   "Business",
+   "Invention",
+   "Asia"
+  ],
+  "ep": 68,
+  "slug": "soichiro-honda",
+  "file": "EP68-soichiro-honda-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Jackie Robinson",
+  "years": "1919–1972",
+  "status": "past",
+  "title": "People Shouted at Him… Then He Changed Baseball Forever",
+  "angle": "In 1947 he became the first Black player in Major League Baseball. Some people shouted at him, but he stayed calm and played very well. Today every player wears his number, 42, on one day each year.",
+  "words": [
+   "baseball|noun",
+   "player|noun",
+   "brave|adjective",
+   "number|noun",
+   "shout|verb"
+  ],
+  "extras": [
+   "fan",
+   "uniform",
+   "angry"
+  ],
+  "structure": "because",
+  "example": "He stayed calm because he wanted to change baseball.",
+  "topics": [
+   "Sport",
+   "Equality"
+  ],
+  "ep": 69,
+  "slug": "jackie-robinson",
+  "file": "EP69-jackie-robinson-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Christopher Reeve",
+  "years": "1952–2004",
+  "status": "past",
+  "title": "He Played Superman… Then Showed a Different Kind of Strength",
+  "angle": "After a riding accident in 1995 left him paralysed from the neck down, the actor became a powerful campaigner for spinal cord research and for people living with paralysis.",
+  "words": [
+   "paralysed|adjective",
+   "campaigner|noun",
+   "research|noun",
+   "spinal cord|noun",
+   "strength|noun"
+  ],
+  "extras": [
+   "foundation",
+   "horse riding",
+   "advocate"
+  ],
+  "structure": "be used to + -ing vs used to + verb",
+  "example": "He used to fly as Superman. He wasn't used to depending on others.",
+  "topics": [
+   "Film",
+   "Disability",
+   "Health"
+  ],
+  "ep": 70,
+  "slug": "christopher-reeve",
+  "file": "EP70-christopher-reeve-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Steve Irwin",
+  "years": "1962–2006",
+  "status": "past",
+  "title": "He Grew Up in a Zoo… Then Taught the World to Love Wild Animals",
+  "angle": "His parents started a small zoo in Australia, and he caught his first crocodile as a boy with his dad. On TV he showed people crocodiles and snakes with huge excitement, and he worked to protect wild places.",
+  "words": [
+   "zoo|noun",
+   "crocodile|noun",
+   "snake|noun",
+   "wild|adjective",
+   "excited|adjective"
+  ],
+  "extras": [
+   "wildlife",
+   "khaki",
+   "reptile"
+  ],
+  "structure": "adjectives with -ed and -ing (excited / exciting)",
+  "example": "He was excited. Crocodiles were exciting.",
+  "topics": [
+   "Nature",
+   "TV"
+  ],
+  "ep": 71,
+  "slug": "steve-irwin",
+  "file": "EP71-steve-irwin-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Rosalind Franklin",
+  "years": "1920–1958",
+  "status": "past",
+  "title": "Her X-Ray Photo Showed the Secret of Life",
+  "angle": "She was a brilliant scientist who used X-rays to study tiny structures. Her famous Photo 51 helped show that DNA has a double-helix shape. Her part in the discovery was not fully recognised in her lifetime.",
+  "words": [
+   "X-ray|noun",
+   "DNA|noun",
+   "photograph|noun",
+   "shape|noun",
+   "recognise|verb"
+  ],
+  "extras": [
+   "double helix",
+   "crystal",
+   "molecule"
+  ],
+  "structure": "relative clauses with whose",
+  "example": "She was the scientist whose photo showed the shape of DNA.",
+  "topics": [
+   "Science",
+   "Women"
+  ],
+  "ep": 72,
+  "slug": "rosalind-franklin",
+  "file": "EP72-rosalind-franklin-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Rosa Parks",
+  "years": "1913–2005",
+  "status": "past",
+  "title": "The Driver Told Her to Stand Up… She Said No",
+  "angle": "In 1955 in Montgomery, Alabama, Black people had to give their bus seats to white people. Rosa Parks was tired of this rule. She did not stand up. Her quiet \"no\" helped change the law.",
+  "words": [
+   "bus|noun",
+   "seat|noun",
+   "sit|verb",
+   "driver|noun",
+   "rule|noun"
+  ],
+  "extras": [
+   "law",
+   "tired",
+   "quiet"
+  ],
+  "structure": "past simple questions: Did…? Yes, she did. / No, she didn't.",
+  "example": "Did she stand up? No, she didn't.",
+  "topics": [
+   "Equality",
+   "Courage"
+  ],
+  "ep": 73,
+  "slug": "rosa-parks",
+  "file": "EP73-rosa-parks-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Marie Curie",
+  "years": "1867–1934",
+  "status": "past",
+  "title": "She Drove X-Ray Cars to the Front Line in the First World War",
+  "angle": "When war broke out in 1914, she realised that X-rays could help surgeons find bullets. She learned to drive, equipped vehicles with X-ray machines — soldiers called them \"little Curies\" — and trained about 150 women to operate them.",
+  "words": [
+   "surgeon|noun",
+   "equip|verb",
+   "front line|noun",
+   "vehicle|noun",
+   "operate|verb"
+  ],
+  "extras": [
+   "radiology",
+   "bullet",
+   "ambulance"
+  ],
+  "structure": "participle clauses (Realising …, she …)",
+  "example": "Realising that X-rays could save lives, she learned to drive.",
+  "topics": [
+   "Science",
+   "Women",
+   "History"
+  ],
+  "ep": 74,
+  "slug": "marie-curie",
+  "file": "EP74-marie-curie-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Fred Rogers",
+  "years": "1928–2003",
+  "status": "past",
+  "title": "He Wore a Sweater and Spoke Softly… and Taught Children About Feelings",
+  "angle": "He was a shy boy. He saw children's TV and wanted to make something kinder. For more than thirty years, on Mister Rogers' Neighborhood, he changed his shoes, put on a sweater and talked to children about their feelings.",
+  "words": [
+   "sweater|noun",
+   "neighbour|noun",
+   "feelings|noun",
+   "listen|verb",
+   "shy|adjective"
+  ],
+  "extras": [
+   "trainers",
+   "zip",
+   "kindness"
+  ],
+  "structure": "it's + adjective + to + verb",
+  "example": "It's okay to feel sad. It's important to listen.",
+  "topics": [
+   "TV",
+   "Kindness",
+   "Childhood"
+  ],
+  "ep": 75,
+  "slug": "fred-rogers",
+  "file": "EP75-fred-rogers-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Maya Angelou",
+  "years": "1928–2014",
+  "status": "past",
+  "title": "She Didn't Speak for Five Years… Then Her Voice Reached the World",
+  "angle": "After a painful experience as a young girl, she stopped speaking for almost five years. A neighbour gave her books and poems to read aloud. She became a poet, writer and teacher, and her book I Know Why the Caged Bird Sings was read everywhere.",
+  "words": [
+   "poem|noun",
+   "poet|noun",
+   "aloud|adverb",
+   "cage|noun",
+   "library|noun"
+  ],
+  "extras": [
+   "memoir",
+   "stage",
+   "poetry"
+  ],
+  "structure": "stop + -ing / start + -ing",
+  "example": "She stopped speaking. Years later, she started writing poems.",
+  "topics": [
+   "Writing",
+   "Women",
+   "Courage"
+  ],
+  "ep": 76,
+  "slug": "maya-angelou",
+  "file": "EP76-maya-angelou-B1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Nick Vujicic",
+  "years": "born 1982",
+  "status": "living",
+  "title": "He Was Born Without Arms or Legs… Now He Surfs and Speaks to Millions",
+  "angle": "Born in Australia without arms or legs, he felt very alone as a boy. He learned to write with his toes, to swim and even to surf. Today he travels the world and tells people never to lose hope.",
+  "words": [
+   "arm|noun",
+   "toe|noun",
+   "swim|verb",
+   "surf|verb",
+   "speaker|noun"
+  ],
+  "extras": [
+   "audience",
+   "confident",
+   "skateboard"
+  ],
+  "structure": "learned to + verb",
+  "example": "He learned to write with his toes.",
+  "topics": [
+   "Disability",
+   "Courage"
+  ],
+  "ep": 77,
+  "slug": "nick-vujicic",
+  "file": "EP77-nick-vujicic-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Charles Dickens",
+  "years": "1812–1870",
+  "status": "past",
+  "title": "At Twelve He Worked in a Factory… Then Wrote for the Poor Children of London",
+  "angle": "When his father was sent to prison for debt, 12-year-old Charles had to work in a factory, sticking labels on pots of shoe polish. He never forgot it. His novels, like Oliver Twist, showed people how hard life was for poor children.",
+  "words": [
+   "debt|noun",
+   "prison|noun",
+   "novel|noun",
+   "label|noun",
+   "orphan|noun"
+  ],
+  "extras": [
+   "shoe polish",
+   "workhouse",
+   "serial"
+  ],
+  "structure": "make + someone + verb (causative make)",
+  "example": "His novels made people think about poor children.",
+  "topics": [
+   "Writing",
+   "Childhood"
+  ],
+  "ep": 78,
+  "slug": "charles-dickens",
+  "file": "EP78-charles-dickens-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Roald Amundsen",
+  "years": "1872–1928",
+  "status": "past",
+  "title": "Five Men, Many Dogs and a Lot of Snow… The First to the South Pole",
+  "angle": "As a boy in Norway he read about explorers and slept with his window open to get used to the cold. In 1911 he and his team used dogs and skis and reached the South Pole first.",
+  "words": [
+   "snow|noun",
+   "ice|noun",
+   "dog|noun",
+   "cold|adjective",
+   "tent|noun"
+  ],
+  "extras": [
+   "ski",
+   "explorer",
+   "south"
+  ],
+  "structure": "had to + verb",
+  "example": "They had to walk in the snow for many weeks.",
+  "topics": [
+   "Adventure",
+   "Exploration"
+  ],
+  "ep": 79,
+  "slug": "roald-amundsen",
+  "file": "EP79-roald-amundsen-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "J. R. R. Tolkien",
+  "years": "1892–1973",
+  "status": "past",
+  "title": "He Invented Languages for Fun… Then Built a Whole World",
+  "angle": "An orphan by twelve and a soldier in the First World War, he became an Oxford professor who loved old languages. He invented languages and then created Middle-earth, the world of The Hobbit and The Lord of the Rings.",
+  "words": [
+   "linguist|noun",
+   "myth|noun",
+   "trilogy|noun",
+   "trench|noun",
+   "imaginary|adjective"
+  ],
+  "extras": [
+   "hobbit",
+   "elvish",
+   "manuscript"
+  ],
+  "structure": "the more …, the more …",
+  "example": "The more languages he invented, the more his world grew.",
+  "topics": [
+   "Writing",
+   "Imagination"
+  ],
+  "ep": 80,
+  "slug": "j-r-r-tolkien",
+  "file": "EP80-j-r-r-tolkien-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Yuri Gagarin",
+  "years": "1934–1968",
+  "status": "past",
+  "title": "A Farm Boy Looked Up at the Planes… Then Became the First Person in Space",
+  "angle": "He grew up on a farm in Russia and loved planes. He trained as a pilot and was chosen for a secret space programme. On 12 April 1961 he flew around the Earth in 108 minutes and came down by parachute.",
+  "words": [
+   "parachute|noun",
+   "capsule|noun",
+   "around|preposition",
+   "choose|verb",
+   "land|verb"
+  ],
+  "extras": [
+   "cosmonaut",
+   "space programme",
+   "hometown"
+  ],
+  "structure": "prepositions of movement (around, over, down)",
+  "example": "He flew around the Earth and came down by parachute.",
+  "topics": [
+   "Space",
+   "Science"
+  ],
+  "ep": 81,
+  "slug": "yuri-gagarin",
+  "file": "EP81-yuri-gagarin-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Gertrude Ederle",
+  "years": "1905–2003",
+  "status": "past",
+  "title": "People Said Women Were Too Weak… She Swam the English Channel",
+  "angle": "She learned to swim as a child and won Olympic medals in 1924. In 1926 she swam from France to England through cold water and strong tides. She was the first woman to swim the Channel — and faster than any man before her.",
+  "words": [
+   "channel|noun",
+   "tide|noun",
+   "swimmer|noun",
+   "goggles|noun",
+   "cross|verb"
+  ],
+  "extras": [
+   "grease",
+   "boat",
+   "jellyfish"
+  ],
+  "structure": "too … to (People said she was too weak to swim it)",
+  "example": "People said women were too weak to swim the Channel.",
+  "topics": [
+   "Sport",
+   "Women"
+  ],
+  "ep": 82,
+  "slug": "gertrude-ederle",
+  "file": "EP82-gertrude-ederle-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Mary Anning",
+  "years": "1799–1847",
+  "status": "past",
+  "title": "A Poor Girl on the Beach… Then She Found a Sea Monster",
+  "angle": "She lived by the sea in Lyme Regis, England, and looked for old stones to sell. When she was about twelve, she and her brother found the bones of a huge sea animal. She found many more fossils all her life.",
+  "words": [
+   "beach|noun",
+   "stone|noun",
+   "bone|noun",
+   "find|verb",
+   "sea|noun"
+  ],
+  "extras": [
+   "fossil",
+   "museum",
+   "hammer"
+  ],
+  "structure": "a lot of / many",
+  "example": "She found a lot of bones. Many scientists visited her.",
+  "topics": [
+   "Science",
+   "Women",
+   "Nature"
+  ],
+  "ep": 83,
+  "slug": "mary-anning",
+  "file": "EP83-mary-anning-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Satyajit Ray",
+  "years": "1921–1992",
+  "status": "past",
+  "title": "He Had Almost No Money for His First Film… Then Won an Honorary Oscar",
+  "angle": "Working in advertising in Calcutta, he spent years making his first film, Pather Panchali, with a small crew and little money. It was released in 1955 and praised worldwide. In 1992 he received an honorary Oscar.",
+  "words": [
+   "director|noun",
+   "budget|noun",
+   "release|verb",
+   "acclaim|noun",
+   "screenplay|noun"
+  ],
+  "extras": [
+   "honorary award",
+   "advertising",
+   "jewellery"
+  ],
+  "structure": "however / no matter how",
+  "example": "No matter how little money he had, he kept filming.",
+  "topics": [
+   "Film",
+   "Art",
+   "Asia"
+  ],
+  "ep": 84,
+  "slug": "satyajit-ray",
+  "file": "EP84-satyajit-ray-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Ruby Bridges",
+  "years": "born 1954",
+  "status": "living",
+  "title": "She Was Six… and She Walked Into a School Alone",
+  "angle": "In 1960 in New Orleans she became the first Black child at an all-white school. Crowds shouted outside, so four US marshals walked with her every day. For most of the year she was the only child in her teacher's class.",
+  "words": [
+   "crowd|noun",
+   "classroom|noun",
+   "marshal|noun",
+   "only|adjective",
+   "walk|verb"
+  ],
+  "extras": [
+   "first grade",
+   "desk",
+   "escort"
+  ],
+  "structure": "the only + noun",
+  "example": "She was the only child in the class.",
+  "topics": [
+   "Equality",
+   "Childhood",
+   "Courage"
+  ],
+  "ep": 85,
+  "slug": "ruby-bridges",
+  "file": "EP85-ruby-bridges-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Grace Hopper",
+  "years": "1906–1992",
+  "status": "past",
+  "title": "She Found a Real Bug in a Computer… and Taught Computers to Understand English",
+  "angle": "A mathematician and US Navy officer, she worked on early computers. In 1947 her team found a moth stuck in a machine and taped it in their logbook. She believed computers should use words, not only numbers, and helped create the COBOL language.",
+  "words": [
+   "bug|noun",
+   "moth|noun",
+   "program|noun",
+   "code|noun",
+   "language|noun"
+  ],
+  "extras": [
+   "logbook",
+   "navy",
+   "compiler"
+  ],
+  "structure": "should (advice / opinion)",
+  "example": "She believed computers should understand words.",
+  "topics": [
+   "Science",
+   "Women",
+   "Technology"
+  ],
+  "ep": 86,
+  "slug": "grace-hopper",
+  "file": "EP86-grace-hopper-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Katsushika Hokusai",
+  "years": "1760–1849",
+  "status": "past",
+  "title": "He Painted All His Life… Then Made the Most Famous Wave in the World",
+  "angle": "He began to paint as a young boy in Japan and never stopped. He moved house many times and changed his name many times. In his seventies he made The Great Wave, a picture people know everywhere.",
+  "words": [
+   "wave|noun",
+   "paint|verb",
+   "mountain|noun",
+   "old|adjective",
+   "blue|adjective"
+  ],
+  "extras": [
+   "print",
+   "fisherman",
+   "wood"
+  ],
+  "structure": "very + adjective / really + adjective",
+  "example": "The wave was very big. He was really old, but he painted every day.",
+  "topics": [
+   "Art",
+   "Asia"
+  ],
+  "ep": 87,
+  "slug": "katsushika-hokusai",
+  "file": "EP87-katsushika-hokusai-A1.md"
+ },
+ {
+  "level": "A2",
+  "person": "Charles Schulz",
+  "years": "1922–2000",
+  "status": "past",
+  "title": "His Drawings Were Rejected… Then Snoopy Became Famous Everywhere",
+  "angle": "As a shy boy in Minnesota he loved comics. His school yearbook didn't use his drawings, and Disney didn't give him a job. In 1950 he started Peanuts, with Charlie Brown and Snoopy, and he drew it for fifty years.",
+  "words": [
+   "comic|noun",
+   "strip|noun",
+   "character|noun",
+   "beagle|noun",
+   "yearbook|noun"
+  ],
+  "extras": [
+   "pencil",
+   "cartoonist",
+   "joke"
+  ],
+  "structure": "still (continuing): he still drew every day",
+  "example": "He was famous, but he still drew every strip himself.",
+  "topics": [
+   "Art",
+   "Comedy"
+  ],
+  "ep": 88,
+  "slug": "charles-schulz",
+  "file": "EP88-charles-schulz-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Anne Sullivan",
+  "years": "1866–1936",
+  "status": "past",
+  "title": "She Grew Up in a Poorhouse, Nearly Blind… Then Became the Teacher Who Opened Helen Keller's World",
+  "angle": "As a child she lost her mother and was sent to a poorhouse. She begged to go to school and at fourteen entered the Perkins School for the Blind, where eye operations helped her see better. At twenty she went to teach six-year-old Helen Keller.",
+  "words": [
+   "poorhouse|noun",
+   "operation|noun",
+   "beg|verb",
+   "graduate|verb",
+   "patience|noun"
+  ],
+  "extras": [
+   "finger spelling",
+   "valedictorian",
+   "eyesight"
+  ],
+  "structure": "past perfect with before / by the time",
+  "example": "By the time she met Helen, she had learned finger spelling.",
+  "topics": [
+   "Education",
+   "Disability",
+   "Women"
+  ],
+  "ep": 89,
+  "slug": "anne-sullivan",
+  "file": "EP89-anne-sullivan-B1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Tu Youyou",
+  "years": "born 1930",
+  "status": "living",
+  "title": "An Ancient Text Held the Clue… and Her Discovery Has Saved Millions From Malaria",
+  "angle": "In the 1960s and 70s her team searched old Chinese medical texts for a malaria treatment. A 1,600-year-old text gave a clue about sweet wormwood. Her team extracted artemisinin, and she volunteered to test it herself. In 2015 she won a Nobel Prize.",
+  "words": [
+   "malaria|noun",
+   "extract|verb",
+   "ancient|adjective",
+   "treatment|noun",
+   "dose|noun"
+  ],
+  "extras": [
+   "artemisinin",
+   "sweet wormwood",
+   "clinical trial"
+  ],
+  "structure": "present perfect passive (has been used / have been saved)",
+  "example": "Artemisinin has been used to treat millions of people.",
+  "topics": [
+   "Health",
+   "Science",
+   "Women",
+   "Asia"
+  ],
+  "ep": 90,
+  "slug": "tu-youyou",
+  "file": "EP90-tu-youyou-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Levi Strauss",
+  "years": "1829–1902",
+  "status": "past",
+  "title": "He Sold Cloth to Gold Miners… and Gave the World Blue Jeans",
+  "angle": "He moved from Germany to America and opened a shop in San Francisco during the Gold Rush. A tailor, Jacob Davis, used small metal rivets to make work trousers stronger. In 1873 they got a patent — the start of blue jeans.",
+  "words": [
+   "jeans|noun",
+   "pocket|noun",
+   "miner|noun",
+   "strong|adjective",
+   "cloth|noun"
+  ],
+  "extras": [
+   "rivet",
+   "tailor",
+   "trousers"
+  ],
+  "structure": "stronger / better + for + noun",
+  "example": "Rivets made the trousers stronger for miners.",
+  "topics": [
+   "Business",
+   "Fashion"
+  ],
+  "ep": 91,
+  "slug": "levi-strauss",
+  "file": "EP91-levi-strauss-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Irena Sendler",
+  "years": "1910–2008",
+  "status": "past",
+  "title": "She Hid Children's Names in Jars Under a Tree",
+  "angle": "A social worker in Warsaw during the Second World War, she helped smuggle Jewish children out of the ghetto to safety. She wrote their real names on paper and buried the lists in jars so their families could find them later.",
+  "words": [
+   "jar|noun",
+   "bury|verb",
+   "smuggle|verb",
+   "social worker|noun",
+   "identity|noun"
+  ],
+  "extras": [
+   "ghetto",
+   "apple tree",
+   "rescuer"
+  ],
+  "structure": "so that (purpose)",
+  "example": "She buried the names so that the children could find their families.",
+  "topics": [
+   "Kindness",
+   "History",
+   "Women"
+  ],
+  "ep": 92,
+  "slug": "irena-sendler",
+  "file": "EP92-irena-sendler-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Jim Henson",
+  "years": "1936–1990",
+  "status": "past",
+  "title": "He Made a Frog From His Mother's Old Coat… Then Made the World Smile",
+  "angle": "In 1955 he made a puppet from his mother's old green coat and a ping-pong ball. The puppet was Kermit the Frog. He made more puppets — the Muppets — and they were on TV all over the world.",
+  "words": [
+   "puppet|noun",
+   "frog|noun",
+   "green|adjective",
+   "coat|noun",
+   "TV|noun"
+  ],
+  "extras": [
+   "ping-pong ball",
+   "show",
+   "voice"
+  ],
+  "structure": "made + noun + from + noun",
+  "example": "He made Kermit from an old coat.",
+  "topics": [
+   "TV",
+   "Art",
+   "Comedy"
+  ],
+  "ep": 93,
+  "slug": "jim-henson",
+  "file": "EP93-jim-henson-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Joseph Lister",
+  "years": "1827–1912",
+  "status": "past",
+  "title": "Many Patients Died After Surgery… Until He Made Hospitals Clean",
+  "angle": "Inspired by Pasteur's germ theory, the surgeon began using carbolic acid to clean wounds and instruments in 1867. Deaths from infection after operations fell sharply, and antiseptic surgery spread around the world.",
+  "words": [
+   "infection|noun",
+   "antiseptic|adjective",
+   "wound|noun",
+   "instrument|noun",
+   "sterile|adjective"
+  ],
+  "extras": [
+   "carbolic acid",
+   "germ theory",
+   "operating theatre"
+  ],
+  "structure": "it wasn't until … that …",
+  "example": "It wasn't until Lister that surgeons cleaned their hands and tools.",
+  "topics": [
+   "Health",
+   "Science"
+  ],
+  "ep": 94,
+  "slug": "joseph-lister",
+  "file": "EP94-joseph-lister-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Abebe Bikila",
+  "years": "1932–1973",
+  "status": "past",
+  "title": "He Ran a Marathon Barefoot… and Won Olympic Gold",
+  "angle": "He was a soldier in the Ethiopian Imperial Guard. At the 1960 Rome Olympics his shoes didn't fit, so he ran the marathon barefoot at night and won. He was the first Black African to win Olympic gold.",
+  "words": [
+   "barefoot|adjective",
+   "fit|verb",
+   "street|noun",
+   "guard|noun",
+   "finish line|noun"
+  ],
+  "extras": [
+   "night race",
+   "pace",
+   "national team"
+  ],
+  "structure": "without + noun",
+  "example": "He ran without shoes.",
+  "topics": [
+   "Sport",
+   "Africa"
+  ],
+  "ep": 95,
+  "slug": "abebe-bikila",
+  "file": "EP95-abebe-bikila-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Jacques Cousteau",
+  "years": "1910–1997",
+  "status": "past",
+  "title": "He Wanted to Breathe Underwater… So He Helped Invent a Way",
+  "angle": "After a car accident, he began swimming in the sea to get stronger and fell in love with the underwater world. In 1943 he and engineer Émile Gagnan developed the Aqua-Lung. His films showed millions of people the life of the oceans.",
+  "words": [
+   "dive|verb",
+   "underwater|adverb",
+   "breathe|verb",
+   "tank|noun",
+   "coral|noun"
+  ],
+  "extras": [
+   "documentary",
+   "fin",
+   "scuba"
+  ],
+  "structure": "for the first time",
+  "example": "For the first time, people could breathe underwater for a long time.",
+  "topics": [
+   "Nature",
+   "Invention",
+   "Adventure"
+  ],
+  "ep": 96,
+  "slug": "jacques-cousteau",
+  "file": "EP96-jacques-cousteau-B1.md"
+ },
+ {
+  "level": "A1",
+  "person": "Milton Hershey",
+  "years": "1857–1945",
+  "status": "past",
+  "title": "His First Shops Failed… Then He Built a Chocolate Town",
+  "angle": "He left school young and worked for a candy maker. His first candy shops failed, but he did not stop. He made money with caramels, then chocolate. He built a town for his workers and a school for children with no parents.",
+  "words": [
+   "chocolate|noun",
+   "candy|noun",
+   "sweet|adjective",
+   "factory|noun",
+   "town|noun"
+  ],
+  "extras": [
+   "caramel",
+   "worker",
+   "shop"
+  ],
+  "structure": "first … then … after that (telling events in order)",
+  "example": "First he made caramels. Then he made chocolate. After that, he built a town.",
+  "topics": [
+   "Business",
+   "Food",
+   "Kindness"
+  ],
+  "ep": 97,
+  "slug": "milton-hershey",
+  "file": "EP97-milton-hershey-A1.md"
+ },
+ {
+  "level": "B2",
+  "person": "Albert Einstein",
+  "years": "1879–1955",
+  "status": "past",
+  "title": "A Patent Clerk's Miracle Year Changed Physics Forever",
+  "angle": "Unable to get a university job, he worked as a clerk at the patent office in Bern. In 1905, in his spare time, he published four papers — including special relativity and E = mc² — that transformed physics.",
+  "words": [
+   "relativity|noun",
+   "patent office|noun",
+   "transform|verb",
+   "spare time|noun",
+   "breakthrough|noun"
+  ],
+  "extras": [
+   "miracle year",
+   "physicist",
+   "photon"
+  ],
+  "structure": "reduced relative clauses (papers written in his spare time)",
+  "example": "Four papers written in his spare time changed physics.",
+  "topics": [
+   "Science",
+   "Curiosity"
+  ],
+  "ep": 98,
+  "slug": "albert-einstein",
+  "file": "EP98-albert-einstein-B2.md"
+ },
+ {
+  "level": "A2",
+  "person": "Lou Gehrig",
+  "years": "1903–1941",
+  "status": "past",
+  "title": "He Played 2,130 Games in a Row… Then Called Himself the Luckiest Man",
+  "angle": "He was a great baseball player for the New York Yankees and never missed a game for about fourteen years. Then he became very ill with a disease that made him weak. In 1939 he told the crowd he was \"the luckiest man on the face of the earth\".",
+  "words": [
+   "lucky|adjective",
+   "speech|noun",
+   "miss|verb",
+   "row|noun",
+   "disease|noun"
+  ],
+  "extras": [
+   "illness",
+   "streak",
+   "retire"
+  ],
+  "structure": "in a row",
+  "example": "He played 2,130 games in a row.",
+  "topics": [
+   "Sport",
+   "Health",
+   "Courage"
+  ],
+  "ep": 99,
+  "slug": "lou-gehrig",
+  "file": "EP99-lou-gehrig-A2.md"
+ },
+ {
+  "level": "B1",
+  "person": "Ludwig Guttmann",
+  "years": "1899–1980",
+  "status": "past",
+  "title": "Doctors Gave Up on Patients With Spinal Injuries… He Gave Them Sport",
+  "angle": "A Jewish doctor who fled Nazi Germany, he worked at Stoke Mandeville Hospital in England. He believed sport could help people with spinal injuries live full lives. On the opening day of the 1948 London Olympics he held games for wheelchair athletes — the start of the Paralympics.",
+  "words": [
+   "spinal injury|noun",
+   "wheelchair|noun",
+   "compete|verb",
+   "games|noun",
+   "flee|verb"
+  ],
+  "extras": [
+   "archery",
+   "disability",
+   "rehabilitation"
+  ],
+  "structure": "believe (that) + clause",
+  "example": "He believed that sport could change lives.",
+  "topics": [
+   "Sport",
+   "Health",
+   "Disability"
+  ],
+  "ep": 100,
+  "slug": "ludwig-guttmann",
+  "file": "EP100-ludwig-guttmann-B1.md"
+ }
+]
