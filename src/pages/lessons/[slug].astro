@@ -5,6 +5,7 @@ import Video from '../../components/lesson/Video.astro';
 import Transcript from '../../components/lesson/Transcript.astro';
 import Vocabulary from '../../components/lesson/Vocabulary.astro';
 import Quiz from '../../components/lesson/Quiz.astro';
+import Grammar from '../../components/lesson/Grammar.astro';
 import LessonCard from '../../components/LessonCard.astro';
 import NewsletterForm from '../../components/NewsletterForm.astro';
 import { LEVEL_INFO } from '../../lib/levels';
@@ -111,7 +112,7 @@ const steps = [
           <Video youtubeId={d.youtubeId} title={d.title} cover={d.cover} />
         </div>
         <div id="transcript">
-          <Transcript lines={d.transcript} vocab={d.vocabulary} hasVideo={hasVideo} />
+          <Transcript lines={d.transcript} vocab={d.vocabulary} hasVideo={hasVideo} grammar={d.structure?.highlight} />
         </div>
       </div>
 
@@ -143,6 +144,12 @@ const steps = [
     <div class="wrap block">
       <Vocabulary words={d.vocabulary} hasVideo={hasVideo} />
     </div>
+
+    {d.structure && (
+      <div class="wrap block">
+        <Grammar structure={d.structure} lines={d.transcript} hasVideo={hasVideo} />
+      </div>
+    )}
 
     <div class="wrap block">
       <Quiz count={d.quiz.length} />

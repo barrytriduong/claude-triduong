@@ -117,6 +117,44 @@ function init(L: LessonData) {
   const deck = setupVocab(L, player, markStep);
   setupWordPopover(L, deck);
   setupQuiz(L, player, markStep);
+  setupGrammar(player);
+}
+
+/* ---------- Grammar in the story ---------- */
+
+function setupGrammar(player: Player) {
+  const root = document.querySelector<HTMLElement>('[data-grammar]');
+  if (!root) return;
+  root.querySelectorAll<HTMLButtonElement>('[data-say-text]').forEach((b) => b.addEventListener('click', () => speak(b.dataset.sayText!)));
+  root.querySelectorAll<HTMLButtonElement>('[data-found-t]').forEach((b) =>
+    b.addEventListener('click', () => (player.hasVideo ? player.seek(Number(b.dataset.foundT), true) : speak(b.dataset.foundText!))),
+  );
+  const items = Array.from(root.querySelectorAll<HTMLElement>('[data-gp]'));
+  const scoreEl = root.querySelector<HTMLElement>('[data-gp-score]');
+  let right = 0;
+  items.forEach((li) => {
+    const answer = li.dataset.answer!;
+    const blank = li.querySelector<HTMLElement>('[data-gp-blank]')!;
+    const fb = li.querySelector<HTMLElement>('[data-gp-fb]')!;
+    const opts = Array.from(li.querySelectorAll<HTMLButtonElement>('[data-gp-opt]'));
+    opts.forEach((b) =>
+      b.addEventListener('click', () => {
+        const ok = norm(b.dataset.gpOpt!) === norm(answer);
+        blank.textContent = b.dataset.gpOpt!;
+        blank.classList.add(ok ? 'ok' : 'no');
+        opts.forEach((x) => {
+          x.disabled = true;
+          if (norm(x.dataset.gpOpt!) === norm(answer)) x.classList.add('ok');
+        });
+        if (!ok) b.classList.add('no');
+        fb.hidden = false;
+        fb.textContent = (ok ? 'Correct! ' : `Answer: ${answer}. `) + (li.dataset.explain || '');
+        if (ok) right++;
+        if (scoreEl) scoreEl.textContent = `${right}/${items.length}`;
+        recordActivity();
+      }),
+    );
+  });
 }
 
 /* ---------- YouTube player ---------- */

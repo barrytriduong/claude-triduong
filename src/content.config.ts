@@ -57,6 +57,19 @@ const question = z.discriminatedUnion('type', [
   }),
 ]);
 
+// The episode's target structure or expression (from EP04). Shown as "Grammar in the story".
+const structure = z.object({
+  pattern: z.string(), // e.g. "could / couldn't + verb"
+  use: z.string(), // e.g. "ability in the past"
+  forms: z.array(z.string()).default([]), // e.g. ["can → could", "can't → couldn't"]
+  highlight: z.array(z.string()).default([]), // words to mark in the transcript, e.g. ["could", "couldn't"]
+  examples: z.array(z.string()).min(1), // sentences from the story
+  // Short gap-fill practice. Write the gap as ___ in `sentence`.
+  practice: z
+    .array(z.object({ sentence: z.string(), options: z.array(z.string()).min(2), answer: z.string(), explain: z.string().optional() }))
+    .default([]),
+});
+
 const lessons = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/lessons' }),
   schema: z.object({
@@ -73,6 +86,7 @@ const lessons = defineCollection({
     draft: z.boolean().default(false),
     transcript: z.array(line),
     vocabulary: z.array(word),
+    structure: structure.optional(),
     quiz: z.array(question),
   }),
 });

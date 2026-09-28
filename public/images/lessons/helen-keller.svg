@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FBF6EC"/>
+  <circle cx="1000" cy="190" r="120" fill="#F4B63F"/>
+  <g stroke="#E8772E" stroke-width="12" stroke-linecap="round"><line x1="1000" y1="30" x2="1000" y2="5"/><line x1="1115" y1="80" x2="1135" y2="58"/><line x1="885" y1="80" x2="865" y2="58"/><line x1="1150" y1="190" x2="1180" y2="190"/><line x1="850" y1="190" x2="820" y2="190"/></g>
+  <path d="M0 500 Q320 430 640 480 T1280 460 V720 H0Z" fill="#E6DAC4"/>
+  <path d="M0 580 Q380 520 760 570 T1280 560 V720 H0Z" fill="#2F7D5B"/>
+  <g transform="translate(150 300)"><rect x="-8" y="0" width="16" height="200" fill="#A84A14"/><circle cy="-10" r="110" fill="#256A4C"/><circle cx="-50" cy="-50" r="60" fill="#2F7D5B"/><circle cx="60" cy="10" r="55" fill="#3E9670"/></g>
+  <g transform="translate(520 250)">
+    <rect x="0" y="40" width="80" height="330" rx="14" fill="#1B2A41"/>
+    <rect x="-20" y="30" width="120" height="30" rx="10" fill="#2C3D57"/>
+    <path d="M80 110 L200 110 Q220 110 220 130 L220 150" stroke="#1B2A41" stroke-width="34" fill="none" stroke-linecap="round"/>
+    <path d="M40 40 L-60 -40" stroke="#1B2A41" stroke-width="22" stroke-linecap="round"/>
+    <circle cx="-66" cy="-45" r="18" fill="#A84A14"/>
+    <rect x="-30" y="360" width="140" height="40" rx="10" fill="#2C3D57"/>
+  </g>
+  <g fill="#8FB9D9">
+    <path d="M725 410 q14 60 -4 130 q30 -60 18 -130z" opacity=".9"/>
+    <path d="M745 410 q10 70 20 140 q6 -70 -6 -140z" opacity=".7"/>
+    <circle cx="760" cy="600" r="10"/><circle cx="720" cy="620" r="7"/><circle cx="790" cy="585" r="6"/>
+  </g>
+  <g transform="translate(700 470) rotate(-12)">
+    <path d="M0 0 C40 -12 90 -8 120 4 L130 18 C100 22 60 26 20 30 Z" fill="#E8B48A"/>
+    <path d="M110 6 C150 -4 170 10 160 22 L128 22Z" fill="#E8B48A"/>
+    <path d="M-60 -6 L10 -6 L20 34 L-60 34 Z" fill="#A84A14"/>
+  </g>
+  <g font-family="Georgia, serif" font-weight="700" fill="#1B2A41">
+    <text x="880" y="430" font-size="56" letter-spacing="14">W·A·T·E·R</text>
+  </g>
+</svg>
