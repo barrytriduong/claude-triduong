@@ -50,6 +50,21 @@ If a required field is missing or wrong, the build stops with a clear error.
 
 **The two sample lessons** (Terry Fox, Wangari Maathai) are original scripts written for this site. They have no `youtubeId` yet, so they show "Video coming soon". Record them as videos, or replace them with your own.
 
+### Grammar in the story (target structure)
+
+From EP04, each lesson can have a `structure` block. It adds a **Grammar in the story** section to the lesson page (pattern, forms, examples, every line where it appears, and a short practice), marks the words in the transcript, adds an exercise to the worksheet and a 🧩 line to the YouTube description:
+
+```yaml
+structure:
+  pattern: "could / couldn't + verb"
+  use: "ability in the past"
+  forms: ["can → could", "can't → couldn't"]
+  highlight: ["could", "couldn't"]        # words to mark in the transcript
+  examples: ["She couldn't see, but she could read."]
+  practice:
+    - { sentence: "Helen was deaf. She ___ hear.", options: ["could", "couldn't"], answer: "couldn't" }
+```
+
 ### Set exact transcript times from YouTube captions
 
 Write the transcript lines with rough times (or all `t: 0`), then download the video's captions in **YouTube Studio → Subtitles → the video → ⋮ → Download** (.sbv, .srt or .vtt; auto-captions are fine) and run:

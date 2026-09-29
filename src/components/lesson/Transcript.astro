@@ -1,12 +1,13 @@
 ---
-import { highlight, fmtTime } from '../../lib/highlight';
+import { highlight, markGrammar, fmtTime } from '../../lib/highlight';
 
 interface Props {
   lines: { t: number; text: string }[];
   vocab: { word: string; forms: string[] }[];
   hasVideo: boolean;
+  grammar?: string[]; // target-structure words to mark
 }
-const { lines, vocab, hasVideo } = Astro.props;
+const { lines, vocab, hasVideo, grammar = [] } = Astro.props;
 ---
 <section class="transcript" data-transcript aria-labelledby="ts-title">
   <div class="ts-head">
@@ -16,6 +17,7 @@ const { lines, vocab, hasVideo } = Astro.props;
         {hasVideo
           ? 'Tap a time to jump to that moment. Highlighted words have a meaning: tap them.'
           : 'Tap the speaker to hear a line. Highlighted words have a meaning: tap them.'}
+        {grammar.length > 0 && <> Words in <b class="g">bold</b> show today's grammar.</>}
       </p>
     </div>
     <button type="button" class="btn btn-ghost btn-sm" data-ts-toggle aria-expanded="false" aria-controls="ts-body">
@@ -42,9 +44,13 @@ const { lines, vocab, hasVideo } = Astro.props;
             )}
           </button>
           <p class="text">
-            {highlight(l.text, vocab).map((s) =>
-              s.word === undefined ? s.text : (
+            {markGrammar(highlight(l.text, vocab), grammar).map((s) =>
+              s.word !== undefined ? (
                 <button type="button" class="w" data-word={s.word}>{s.text}</button>
+              ) : s.grammar ? (
+                <b class="g">{s.text}</b>
+              ) : (
+                s.text
               )
             )}
           </p>
@@ -172,6 +178,13 @@ const { lines, vocab, hasVideo } = Astro.props;
   }
   .w:hover {
     background: rgb(232 119 46 / 0.22);
+  }
+  .g {
+    font-weight: 800;
+    color: var(--navy);
+    text-decoration: underline dashed var(--gold);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
   .pop {
     position: absolute;

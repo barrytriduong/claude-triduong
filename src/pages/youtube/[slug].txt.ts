@@ -24,6 +24,7 @@ export const GET: APIRoute = ({ props, site }) => {
     'Words from this story:',
     ...d.vocabulary.map((w) => `• ${w.word} (${w.pos}): ${w.meaning}`),
     '',
+    ...(d.structure ? [`🧩 Grammar: ${d.structure.pattern} (${d.structure.use}): "${d.structure.examples[0]}"`, ''] : []),
     `Test yourself with the Story Challenge: ${url}#quiz`,
     `Find your level: ${new URL('/levels/', site).href}`,
     `More stories: ${new URL('/lessons/', site).href}`,

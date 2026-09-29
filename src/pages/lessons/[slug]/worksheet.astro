@@ -127,8 +127,24 @@ const orders = d.quiz.filter((q) => q.type === 'order').map((q) => {
       </section>
     )}
 
+    {d.structure && (
+      <section>
+        <h2><span>E</span> Grammar: {d.structure.pattern}</h2>
+        <p class="rule">We use it for {d.structure.use}.{d.structure.forms.length > 0 && ` ${d.structure.forms.join(' · ')}`}</p>
+        <p class="example">Example from the story: <em>{d.structure.examples[0]}</em></p>
+        {d.structure.practice.length > 0 && (
+          <ol>
+            {d.structure.practice.map((p) => {
+              const [before, after = ''] = p.sentence.split('___');
+              return <li>{before}<span class="line"></span>{after} <span class="opts-inline">({p.options.join(' / ')})</span></li>;
+            })}
+          </ol>
+        )}
+      </section>
+    )}
+
     <section>
-      <h2><span>E</span> Your turn</h2>
+      <h2><span>{d.structure ? "F" : "E"}</span> Your turn</h2>
       <p>Retell {d.person}'s story in 5–6 sentences. Use at least three words from exercise A.</p>
       <div class="write">{[...Array(6)].map(() => <span class="line full"></span>)}</div>
     </section>
@@ -153,6 +169,9 @@ const orders = d.quiz.filter((q) => q.type === 'order').map((q) => {
         </p>
       )}
       {orders.length > 0 && <p><strong>D.</strong> {orders.map((o, i) => `${i + 1} ${o.sentence}.`).join('  ')}</p>}
+      {d.structure && d.structure.practice.length > 0 && (
+        <p><strong>E.</strong> {d.structure.practice.map((p, i) => `${i + 1} ${p.answer}`).join(' · ')}</p>
+      )}
     </section>
   </article>
 </Base>
@@ -290,6 +309,14 @@ const orders = d.quiz.filter((q) => q.type === 'order').map((q) => {
     margin-left: 10px;
     font-weight: 600;
     color: #444;
+  }
+  .rule,
+  .example {
+    margin-bottom: 8px;
+  }
+  .opts-inline {
+    color: #555;
+    font-size: 14px;
   }
   .mixed {
     font-style: italic;

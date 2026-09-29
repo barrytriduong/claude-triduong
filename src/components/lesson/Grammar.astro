@@ -1,0 +1,284 @@
+---
+// "Grammar in the story": the episode's target structure, where it appears, and quick practice.
+import { markGrammar, hasGrammar, fmtTime } from '../../lib/highlight';
+
+interface Props {
+  structure: {
+    pattern: string;
+    use: string;
+    forms: string[];
+    highlight: string[];
+    examples: string[];
+    practice: { sentence: string; options: string[]; answer: string; explain?: string }[];
+  };
+  lines: { t: number; text: string }[];
+  hasVideo: boolean;
+}
+const { structure: g, lines, hasVideo } = Astro.props;
+const found = lines.map((l, i) => ({ ...l, i })).filter((l) => hasGrammar(l.text, g.highlight));
+const mark = (text: string) => markGrammar([{ text }], g.highlight);
+---
+<section class="grammar" id="grammar" data-grammar aria-labelledby="grammar-title">
+  <div class="gr-card">
+    <div class="gr-head">
+      <p class="eyebrow">Grammar in the story</p>
+      <h2 id="grammar-title" translate="no">{g.pattern}</h2>
+      <p class="gr-use">We use it for: <strong>{g.use}</strong></p>
+      {g.forms.length > 0 && (
+        <ul class="forms" translate="no">
+          {g.forms.map((f) => <li>{f}</li>)}
+        </ul>
+      )}
+    </div>
+
+    <div class="gr-cols">
+      <div class="gr-col">
+        <h3>From the story</h3>
+        <ul class="examples" translate="no">
+          {g.examples.map((e) => (
+            <li>
+              <button type="button" class="say" data-say-text={e} aria-label={`Listen: ${e}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+              </button>
+              <span>{mark(e).map((s) => (s.grammar ? <b>{s.text}</b> : s.text))}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {found.length > 0 && (
+        <div class="gr-col">
+          <h3>Find it in the story <span class="count">{`${found.length} ${found.length === 1 ? 'time' : 'times'}`}</span></h3>
+          <ol class="found" translate="no">
+            {found.map((l) => (
+              <li>
+                <button type="button" class="found-line" data-found-t={l.t} data-found-text={l.text}>
+                  <span class="t">{hasVideo ? fmtTime(l.t) : '▸'}</span>
+                  <span>{mark(l.text).map((s) => (s.grammar ? <b>{s.text}</b> : s.text))}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
+
+    {g.practice.length > 0 && (
+      <div class="practice" translate="no">
+        <h3>Your turn <span class="count" data-gp-score></span></h3>
+        <ol>
+          {g.practice.map((p, i) => {
+            const [before, after = ''] = p.sentence.split('___');
+            return (
+              <li data-gp={i} data-answer={p.answer} data-explain={p.explain ?? ''}>
+                <p class="gp-line">{before}<span class="blank" data-gp-blank>&nbsp;</span>{after}</p>
+                <div class="gp-opts">
+                  {p.options.map((o) => (
+                    <button type="button" class="gp-opt" data-gp-opt={o}>{o}</button>
+                  ))}
+                </div>
+                <p class="gp-fb" data-gp-fb hidden></p>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .gr-card {
+    display: grid;
+    gap: 28px;
+    padding: clamp(24px, 4vw, 40px);
+    border-radius: 24px;
+    background: var(--white);
+    box-shadow: var(--shadow);
+    border-top: 6px solid var(--gold);
+  }
+  .gr-head {
+    display: grid;
+    gap: 10px;
+  }
+  .gr-head h2 {
+    font-size: clamp(30px, 4.4vw, 44px);
+  }
+  .gr-use {
+    color: var(--muted);
+    font-size: 18px;
+  }
+  .gr-use strong {
+    color: var(--navy);
+  }
+  .forms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+  .forms li {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .gr-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px 40px;
+  }
+  .gr-col,
+  .practice {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+  h3 {
+    font-size: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .count {
+    font: 700 13px var(--sans);
+    color: var(--rust);
+    word-spacing: 0.25em;
+  }
+  .examples,
+  .found {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .examples li {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--cream);
+    font: 500 19px/1.45 var(--serif);
+  }
+  b {
+    color: var(--rust);
+    font-weight: 800;
+  }
+  .say {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--cream);
+    cursor: pointer;
+  }
+  .found {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .found-line {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 8px;
+    align-items: start;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink);
+    font: 400 16px/1.5 var(--sans);
+    text-align: left;
+    cursor: pointer;
+  }
+  .found-line:hover {
+    background: var(--sand);
+  }
+  .found-line .t {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--sand);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .practice ol {
+    margin: 0;
+    padding-left: 22px;
+    display: grid;
+    gap: 16px;
+  }
+  .gp-line {
+    font: 500 19px/1.6 var(--serif);
+  }
+  .blank {
+    display: inline-block;
+    min-width: 90px;
+    margin: 0 4px;
+    border-bottom: 3px dashed var(--gold);
+    text-align: center;
+    color: var(--rust);
+    font-weight: 700;
+  }
+  .blank.ok {
+    border-bottom-style: solid;
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+  .blank.no {
+    border-bottom-style: solid;
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+  .gp-opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .gp-opt {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: var(--white);
+    color: var(--navy);
+    font: 700 15px var(--sans);
+    cursor: pointer;
+  }
+  .gp-opt:hover:not(:disabled) {
+    border-color: var(--navy);
+  }
+  .gp-opt:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+  .gp-opt.ok {
+    opacity: 1;
+    background: var(--ok-soft);
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+  .gp-opt.no {
+    opacity: 1;
+    background: var(--bad-soft);
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+  .gp-fb {
+    margin-top: 6px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>
