@@ -6,7 +6,7 @@ level: A2
 topics: [Science, Women, Education]
 publishDate: 2026-10-01
 youtubeId: "ZmzQ02dYSaY"
-duration: "3:43"
+duration: "3:45"
 # Line times (t) come from the YouTube captions.
 transcript:
   - { t: 0, text: "In her country, girls couldn't go to university." }
