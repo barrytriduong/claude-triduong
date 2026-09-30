@@ -7,6 +7,9 @@ export const SITE = {
   youtubeSubscribe: 'https://www.youtube.com/@brightlivesenglish?sub_confirmation=1',
   email: 'hello@brightlivesenglish.com',
   owner: 'Bright Lives English',
+  // Google Analytics 4 measurement ID (looks like 'G-XXXXXXXXXX').
+  // Leave empty to turn analytics off.
+  gaId: 'G-ZERB0PDRZN',
 };
 
 export function formatDate(d: Date) {
