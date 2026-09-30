@@ -1,0 +1,16 @@
+---
+// Google Analytics 4. Renders nothing until SITE.gaId is set, and only in production builds.
+import { SITE } from '../lib/site';
+const id = import.meta.env.PROD ? SITE.gaId : '';
+---
+{id && (
+  <>
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
+    <script is:inline define:vars={{ id }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', id);
+    </script>
+  </>
+)}
