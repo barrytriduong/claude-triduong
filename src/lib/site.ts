@@ -9,7 +9,7 @@ export const SITE = {
   owner: 'Bright Lives English',
   // Google Analytics 4 measurement ID (looks like 'G-XXXXXXXXXX').
   // Leave empty to turn analytics off.
-  gaId: '',
+  gaId: 'G-ZERB0PDRZN',
 };
 
 export function formatDate(d: Date) {
