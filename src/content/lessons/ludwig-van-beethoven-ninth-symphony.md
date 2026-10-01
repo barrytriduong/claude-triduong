@@ -6,7 +6,7 @@ level: B1
 topics: [Music, Disability, Courage]
 publishDate: 2026-10-11
 youtubeId: "wLJo2Vo3h1E"
-duration: "4:31"
+duration: "4:32"
 # Line times (t) come from the YouTube captions.
 transcript:
   - { t: 0, text: "The music ended." }
