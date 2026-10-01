@@ -185,5 +185,6 @@ Chapter times come from the captions:
 | 07 | Louis Braille | A1 | louis-braille-letters-you-can-feel | tqKooYToV2M | 3:10 (est.) |
 | 08 | Fridtjof Nansen | B2 | fridtjof-nansen-passport-for-refugees | IQ-3X6a9Uyg | 6:09 (est.) |
 | 09 | Frida Kahlo | A2 | frida-kahlo-painted-herself | ZMyN88-L3ik | 3:48 (est.) |
+| 10 | Ludwig van Beethoven | B1 | ludwig-van-beethoven-ninth-symphony | wLJo2Vo3h1E | 4:32 |
 
 The full episode plan (EP05–EP100) and the vocabulary log, including the words already reserved for later episodes, are on the `episode-plans` branch. Never merge that branch. Check the log so an episode doesn't reuse words from earlier ones.
