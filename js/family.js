@@ -32,7 +32,7 @@ async function renderFamily() {
   }, ["admin", "family", "none"].map((r) => h("option", { value: r, selected: m.role === r }, t(`role_${r}`))));
 
   fill(body,
-    pin && pinSection(pin),
+    pin ? pinSection(pin) : h("div", { class: "invite-form" }, h("h3", {}, t("pinTitle")), h("p", { class: "form-error" }, t("pinNeedsSql"))),
     // New invite
     h("form", { class: "invite-form", onsubmit: createInvite },
       h("h3", {}, t("famInviteTitle")),
