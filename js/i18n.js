@@ -216,6 +216,18 @@ const en = {
   nudgeMonth: "{name} is {age} today 💕 Add a photo or a few words?", nudgeBackup: "It's been a while since your last backup.",
   nudgeBackupNever: "Keep everything safe — download a backup now and then.",
   icsTitle: "{name}'s month-day 💕 Add a memory", icsBody: "A little moment from this month? {url}",
+  // View-only PIN
+  gateTextPin: "These memories are just for family. Enter the family PIN to look, or sign in.",
+  pinLabel: "Family PIN", pinPh: "••••", pinEnter: "👀 View", pinOr: "Family member or parent with an account?",
+  pinWrong: "That PIN isn't right — try again.", pinLocked: "Too many wrong tries. Please wait 15 minutes and try again.",
+  pinTitle: "🔢 View-only PIN", pinFormat: "4 digits, e.g. 1234",
+  pinOffHelp: "Let people look (without commenting or editing) by typing a 4-digit PIN — no account needed.",
+  pinOnHelp: "On since {date}. Anyone with the PIN can look, but not comment or change anything. Changing the PIN signs out everyone who used the old one.",
+  pinWarn: "{n} wrong PIN tries in the last 7 days. If that wasn't family, change the PIN.",
+  pinTurnOn: "Turn on", pinChange: "Change PIN", pinTurnOff: "Turn off",
+  pinSaved: "PIN saved: {pin} 🔢 Share it only with people you trust.",
+  pinOffConfirm: "Turn off the PIN? Everyone who used it will be signed out.", pinOff: "PIN turned off",
+  pinNeedsSettings: "Supabase blocked it. In Supabase → Authentication → Sign In / Providers, turn ON “Allow new users to sign up” and turn OFF “Confirm email”, then try again.",
 };
 
 const vi = {
@@ -401,6 +413,17 @@ const vi = {
   nudgeMonth: "Hôm nay {name} {age} 💕 Thêm một tấm ảnh hay đôi dòng nhé?", nudgeBackup: "Đã lâu rồi chưa sao lưu.",
   nudgeBackupNever: "Giữ mọi thứ an toàn — thỉnh thoảng hãy tải bản sao lưu.",
   icsTitle: "Tròn tháng của {name} 💕 Thêm một kỷ niệm", icsBody: "Có khoảnh khắc nào tháng này không? {url}",
+  gateTextPin: "Những kỷ niệm này chỉ dành cho gia đình. Nhập mã PIN gia đình để xem, hoặc đăng nhập.",
+  pinLabel: "Mã PIN gia đình", pinPh: "••••", pinEnter: "👀 Xem", pinOr: "Người nhà hoặc bố mẹ có tài khoản?",
+  pinWrong: "Mã PIN chưa đúng — thử lại nhé.", pinLocked: "Nhập sai quá nhiều lần. Vui lòng đợi 15 phút rồi thử lại.",
+  pinTitle: "🔢 Mã PIN chỉ xem", pinFormat: "4 chữ số, ví dụ 1234",
+  pinOffHelp: "Cho phép mọi người xem (không bình luận hay sửa) bằng mã PIN 4 số — không cần tài khoản.",
+  pinOnHelp: "Đang bật từ {date}. Ai có mã PIN đều xem được, nhưng không bình luận hay thay đổi gì. Đổi mã PIN sẽ đăng xuất mọi người dùng mã cũ.",
+  pinWarn: "{n} lần nhập sai mã PIN trong 7 ngày qua. Nếu không phải người nhà, hãy đổi mã PIN.",
+  pinTurnOn: "Bật", pinChange: "Đổi mã PIN", pinTurnOff: "Tắt",
+  pinSaved: "Đã lưu mã PIN: {pin} 🔢 Chỉ chia sẻ với người bạn tin tưởng.",
+  pinOffConfirm: "Tắt mã PIN? Mọi người đang dùng mã sẽ bị đăng xuất.", pinOff: "Đã tắt mã PIN",
+  pinNeedsSettings: "Supabase đã chặn. Vào Supabase → Authentication → Sign In / Providers, BẬT “Allow new users to sign up” và TẮT “Confirm email”, rồi thử lại.",
 };
 
 const DICTS = { en, vi };

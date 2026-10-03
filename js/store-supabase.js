@@ -5,7 +5,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 // Bump together with public.schema_version() in supabase/setup.sql.
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 
 /** Throw Supabase errors instead of returning them. */
 function check({ data, error }) {
@@ -42,8 +42,44 @@ export class SupabaseStore {
   }
 
   async signOut() {
-    await this.#sb.auth.signOut();
+    // "local": only this browser. The PIN login is shared, so signing out must not end everyone's session.
+    await this.#sb.auth.signOut({ scope: "local" });
   }
+
+  // ---------- View-only PIN ----------
+
+  async pinEnabled() {
+    const { data, error } = await this.#sb.rpc("pin_enabled");
+    return !error && data === true;
+  }
+
+  /** Signs this browser in with the shared viewer login if the PIN is right. */
+  async signInWithPin(pin) {
+    const { data, error } = await this.#sb.rpc("pin_login", { pin });
+    if (error) throw new Error(/too many/i.test(error.message) ? "pin-locked" : error.message);
+    const login = data?.[0];
+    if (!login) throw new Error("pin-wrong");
+    if (await this.getUser()) await this.signOut();
+    await this.signIn(login.email, login.password);
+  }
+
+  async pinStatus() { return check(await this.#sb.rpc("admin_pin_status"))?.[0] || { enabled: false }; }
+
+  /** Admin: creates a fresh shared viewer login and stores the new PIN with it. */
+  async setPin(pin) {
+    const rand = (n) => [...crypto.getRandomValues(new Uint8Array(n))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    const domain = location.hostname.includes(".") ? location.hostname : "example.com";
+    const email = `pin-viewer-${rand(6)}@${domain}`;
+    const password = rand(24);
+    const { userId, needsConfirmation } = await this.createMember({ email, password, name: "PIN viewer", role: "viewer" });
+    if (needsConfirmation || !userId) {
+      if (userId) await this.removeMember(userId).catch(() => {});
+      throw new Error("Confirm email");
+    }
+    check(await this.#sb.rpc("admin_set_pin", { new_pin: pin, viewer: userId, email, password }));
+  }
+
+  async disablePin() { check(await this.#sb.rpc("admin_disable_pin")); }
 
   // ---------- Invites ----------
 
@@ -60,14 +96,17 @@ export class SupabaseStore {
 
   /** What the signed-in user may do: { admin, family, setupNeeded }. */
   async getAccess() {
-    const [admin, family, version] = await Promise.all([
-      this.#sb.rpc("is_admin"), this.#sb.rpc("is_family"), this.#sb.rpc("schema_version"),
+    const [admin, family, view, version] = await Promise.all([
+      this.#sb.rpc("is_admin"), this.#sb.rpc("is_family"), this.#sb.rpc("can_view"), this.#sb.rpc("schema_version"),
     ]);
     // Missing access functions: the private-site setup was never run, so nobody gets in.
     const setupNeeded = !!(admin.error || family.error);
     // Older schema: the timeline still works, the newer features wait for the latest supabase/setup.sql.
     const outdated = !setupNeeded && !!(version.error || version.data < SCHEMA_VERSION);
-    return { admin: admin.data === true && !setupNeeded, family: family.data === true && !setupNeeded, setupNeeded, outdated };
+    // "family" here means "can see the site"; viewers (site PIN) can see it but not write anything.
+    const isFamily = family.data === true && !setupNeeded;
+    const viewer = !isFamily && !setupNeeded && view.data === true;
+    return { admin: admin.data === true && !setupNeeded, family: isFamily || viewer, viewer, setupNeeded, outdated };
   }
 
   async getMyName() {
@@ -343,6 +382,6 @@ export class SupabaseStore {
       await this.deleteInvite(code).catch(() => {});
       throw new Error("already registered");
     }
-    return { needsConfirmation: !data.session };
+    return { needsConfirmation: !data.session, userId: data.user?.id };
   }
 }

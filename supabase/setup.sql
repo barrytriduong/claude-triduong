@@ -3,7 +3,8 @@
 --
 -- Who can do what:
 --   * ADMINS (you)        can view, add, edit and delete memories
---   * FAMILY (invited)    can view memories
+--   * FAMILY (invited)    can view memories, heart, comment, write letters and wishes, share photos
+--   * VIEWERS (site PIN)  can only look — set or turn off the PIN in Tools → Family
 --   * everyone else       sees nothing — not the stories, not the photos
 --
 -- BEFORE RUNNING:
@@ -92,7 +93,7 @@ create policy "parents delete media" on storage.objects
 -- ---------- Features added in version 2 ----------
 
 -- Lets the website know this script is up to date. Bump together with SCHEMA_VERSION in js/store-supabase.js.
-create or replace function public.schema_version() returns int language sql immutable as $$ select 4 $$;
+create or replace function public.schema_version() returns int language sql immutable as $$ select 5 $$;
 
 -- Tags on memories ("firsts", "birthday", or your own).
 alter table public.events add column if not exists tags text[] not null default '{}';
@@ -428,6 +429,178 @@ create policy "admins only" on public.health for all to authenticated using (pub
 
 -- The setup helper is only needed while this script runs.
 drop function if exists public.family_read_admin_write(text);
+
+-- ---------- Features added in version 5: view-only PIN ----------
+-- The admin sets a 4-digit PIN in the Family panel. The site then creates one shared
+-- "viewer" login with a long random password. Entering the right PIN hands that login to
+-- the browser. Viewers can read everything family can read, but never write anything.
+-- Wrong PINs are throttled here in the database (5 wrong tries per 15 minutes for the whole site).
+
+create table if not exists public.viewers (
+  user_id uuid primary key references auth.users (id) on delete cascade
+);
+alter table public.viewers enable row level security; -- no policies: only the functions below touch it
+
+create or replace function public.can_view() returns boolean
+language sql stable security definer set search_path = public
+as $$ select public.is_family() or exists (select 1 from public.viewers where user_id = auth.uid()) $$;
+
+-- Reading: family OR viewers. (Writing rules above stay family/admin only.)
+drop policy if exists "family read events" on public.events;
+create policy "family read events" on public.events for select to authenticated using (
+  public.is_admin() or (public.can_view() and (status = 'published' or (status = 'pending' and submitted_by = auth.uid()))));
+drop policy if exists "family read settings" on public.settings;
+create policy "family read settings" on public.settings for select to authenticated using (public.can_view());
+drop policy if exists "family read media" on storage.objects;
+create policy "family read media" on storage.objects
+  for select to authenticated using (bucket_id = 'timeline-media' and public.can_view());
+drop policy if exists "family read measurements" on public.measurements;
+create policy "family read measurements" on public.measurements for select to authenticated using (public.can_view());
+drop policy if exists "read opened or own letters" on public.letters;
+create policy "read opened or own letters" on public.letters for select to authenticated using (
+  public.is_admin() or user_id = auth.uid() or (public.can_view() and (unlock_on is null or unlock_on <= current_date)));
+create or replace function public.sealed_letters()
+returns table (id uuid, user_id uuid, author_name text, title text, written_on date, unlock_on date)
+language sql stable security definer set search_path = public
+as $$
+  select l.id, l.user_id, l.author_name, ''::text, l.written_on, l.unlock_on
+  from public.letters l
+  where public.can_view() and l.unlock_on > current_date
+$$;
+drop policy if exists "family read comments" on public.comments;
+create policy "family read comments" on public.comments for select to authenticated using (public.can_view());
+drop policy if exists "family read hearts" on public.reactions;
+create policy "family read hearts" on public.reactions for select to authenticated using (public.can_view());
+drop policy if exists "family read wishes" on public.wishes;
+create policy "family read wishes" on public.wishes for select to authenticated using (public.can_view());
+do $$
+declare tbl text;
+begin
+  foreach tbl in array array['sayings', 'people', 'portraits', 'about_cards', 'milestones'] loop
+    execute format('drop policy if exists "family read" on public.%I', tbl);
+    execute format('create policy "family read" on public.%I for select to authenticated using (public.can_view())', tbl);
+  end loop;
+end $$;
+
+-- Invites may also create the shared viewer login.
+alter table public.invites drop constraint if exists invites_role_check;
+alter table public.invites add constraint invites_role_check check (role in ('family', 'admin', 'viewer'));
+
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public
+as $$
+declare
+  c text := new.raw_user_meta_data ->> 'invite_code';
+  inv public.invites;
+begin
+  if c is null or c = '' then return new; end if;
+  select * into inv from public.invites where code = c and used_by is null and expires_at > now() for update;
+  if not found then raise exception 'This invite link is invalid, expired or already used.'; end if;
+  if inv.role = 'admin' then insert into public.admins (user_id) values (new.id) on conflict do nothing;
+  elsif inv.role = 'viewer' then insert into public.viewers (user_id) values (new.id) on conflict do nothing;
+  else insert into public.family (user_id) values (new.id) on conflict do nothing; end if;
+  update public.invites set used_by = new.id, used_at = now() where code = c;
+  return new;
+end $$;
+
+-- The shared viewer login isn't a person, so it stays out of the members list.
+create or replace function public.admin_list_members()
+returns table (user_id uuid, email text, name text, role text, last_sign_in_at timestamptz, created_at timestamptz)
+language plpgsql stable security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  return query
+    select u.id, u.email::text, coalesce(u.raw_user_meta_data ->> 'name', ''),
+           case when a.user_id is not null then 'admin' when f.user_id is not null then 'family' else 'none' end,
+           u.last_sign_in_at, u.created_at
+    from auth.users u
+    left join public.admins a on a.user_id = u.id
+    left join public.family f on f.user_id = u.id
+    where not exists (select 1 from public.viewers v where v.user_id = u.id)
+    order by u.created_at;
+end $$;
+
+-- The PIN (stored hashed) and the shared viewer login it unlocks. No policies: never readable directly.
+create table if not exists public.site_pin (
+  id              int primary key default 1 check (id = 1),
+  pin_hash        text not null,
+  viewer_id       uuid references auth.users (id) on delete set null,
+  viewer_email    text not null,
+  viewer_password text not null,
+  updated_at      timestamptz not null default now()
+);
+alter table public.site_pin enable row level security;
+
+create table if not exists public.pin_attempts (at timestamptz not null default now());
+alter table public.pin_attempts enable row level security;
+
+-- Lets the sign-in screen know whether to show the PIN box.
+create or replace function public.pin_enabled() returns boolean
+language sql stable security definer set search_path = public
+as $$ select exists (select 1 from public.site_pin where viewer_id is not null) $$;
+grant execute on function public.pin_enabled() to anon, authenticated;
+
+-- Right PIN → the viewer login. Wrong PIN → nothing (and it counts toward the limit).
+create or replace function public.pin_login(pin text)
+returns table (email text, password text)
+language plpgsql volatile security definer set search_path = public, extensions
+as $$
+declare p public.site_pin;
+begin
+  delete from public.pin_attempts where at < now() - interval '30 days';
+  if (select count(*) from public.pin_attempts where at > now() - interval '15 minutes') >= 5 then
+    raise exception 'too many tries';
+  end if;
+  select * into p from public.site_pin where id = 1 and viewer_id is not null;
+  if not found or p.pin_hash <> extensions.crypt(coalesce(pin, ''), p.pin_hash) then
+    insert into public.pin_attempts default values;
+    return;
+  end if;
+  return query select p.viewer_email, p.viewer_password;
+end $$;
+grant execute on function public.pin_login(text) to anon, authenticated;
+
+-- Admin: store a new PIN with a freshly created viewer login. The old viewer login is
+-- deleted, so everyone who used the old PIN has to enter the new one.
+create or replace function public.admin_set_pin(new_pin text, viewer uuid, email text, password text)
+returns void language plpgsql security definer set search_path = public, extensions
+as $$
+begin
+  perform public.require_admin();
+  if coalesce(new_pin, '') !~ '^[0-9]{4}$' then raise exception 'The PIN must be 4 digits.'; end if;
+  if not exists (select 1 from public.viewers where user_id = viewer) then raise exception 'The viewer login is missing.'; end if;
+  delete from auth.users where id in (select viewer_id from public.site_pin where viewer_id is distinct from viewer);
+  delete from auth.users where id in (select user_id from public.viewers where user_id <> viewer);
+  insert into public.site_pin (id, pin_hash, viewer_id, viewer_email, viewer_password, updated_at)
+  values (1, extensions.crypt(new_pin, extensions.gen_salt('bf')), viewer, email, password, now())
+  on conflict (id) do update set pin_hash = excluded.pin_hash, viewer_id = excluded.viewer_id,
+    viewer_email = excluded.viewer_email, viewer_password = excluded.viewer_password, updated_at = now();
+  delete from public.pin_attempts;
+end $$;
+
+-- Admin: turn the PIN off (everyone who used it is signed out).
+create or replace function public.admin_disable_pin()
+returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  delete from auth.users where id in (select user_id from public.viewers);
+  delete from public.site_pin;
+  delete from public.pin_attempts;
+end $$;
+
+-- Admin: is the PIN on, since when, and how many wrong tries lately.
+create or replace function public.admin_pin_status()
+returns table (enabled boolean, updated_at timestamptz, wrong_tries int)
+language plpgsql stable security definer set search_path = public
+as $$
+begin
+  perform public.require_admin();
+  return query select exists (select 1 from public.site_pin where viewer_id is not null),
+    (select s.updated_at from public.site_pin s where s.id = 1),
+    (select count(*)::int from public.pin_attempts where at > now() - interval '7 days');
+end $$;
 
 -- ---------- People ----------
 -- You (admin):

@@ -76,12 +76,14 @@ The site is **private**:
 | Who | Sees |
 |---|---|
 | Not signed in | Only a "private family page, please sign in" screen. No stories, no photos. |
-| Family (in the `family` table) | The whole timeline, read-only. |
+| Viewers with the site PIN | Everything family sees, but they can't heart, comment, write or share. Turn the PIN on, change it or turn it off in **🧰 Tools → Family**. |
+| Family (in the `family` table) | The whole timeline; can heart, comment, write letters and wishes, and share photos for approval. |
 | You (in the `admins` table) | Everything, plus the **Edit** button. |
 
 - This is enforced by the database and storage rules, not just by hiding things on the page.
 - Photos and videos are in a **private** bucket. Signed-in family get temporary links that expire after 12 hours, so a copied link stops working.
 - Search engines are told not to index the site.
+- **About the PIN:** a 4-digit PIN is a light lock, made for convenience. The database allows only 5 wrong tries per 15 minutes for the whole site, and the Family panel warns you about repeated wrong tries. The PIN is stored hashed, never in the site's code. Changing it signs out everyone who used the old one. Setting it needs "Allow new users to sign up" ON and "Confirm email" OFF, the same as invite links.
 
 ### Updating the database after a site update
 

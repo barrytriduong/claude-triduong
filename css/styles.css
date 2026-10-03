@@ -1044,3 +1044,25 @@ body:has(.yearbook) { overflow: hidden; }
   .flip-stage img { transition: none; }
 }
 body.birthday .hero-age { display: none; }
+
+/* ---------- View-only PIN ---------- */
+.pin-form { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px; }
+.pin-form[hidden] { display: none; }
+.pin-form label { font-weight: 700; }
+.pin-form input {
+  width: 8.5ch; text-align: center; font-family: var(--font-head); font-size: 34px; letter-spacing: .45em; padding: 10px 0 10px .45em;
+  border: 3px solid #f3e3ec; border-radius: 20px; background: #fff; color: var(--ink); outline: 0;
+}
+.pin-form input:focus { border-color: var(--pink); box-shadow: 0 0 0 5px #ffe4ee; }
+.pin-form input.shake { animation: shake .4s; border-color: var(--danger); }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.pin-form .btn { min-width: 160px; }
+.pin-or { margin-top: 8px; }
+.gate:has(.pin-form:not([hidden])) .gate-actions { margin-top: 4px; }
+.pin-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pin-box input { width: 7ch; text-align: center; font-size: 20px; letter-spacing: .3em; }
+/* PIN viewers only look: no writing buttons (the database refuses writes anyway). */
+body.viewer #btnWriteLetter, body.viewer .comment-form, body.viewer #wishesBody .section-head .btn,
+body.viewer .birthday-banner .btn, body.viewer #btnShare { display: none !important; }
+body.viewer .heart-btn { pointer-events: none; }
+.gate .btn-ghost { box-shadow: inset 0 0 0 2px #f3e3ec; }

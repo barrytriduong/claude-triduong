@@ -451,7 +451,7 @@ function renderToolbar() {
   $("#btnBulk").hidden = !on;
   const cloud = state.store.mode === "cloud";
   $("#btnFamily").hidden = !(on && cloud && state.access.admin);
-  $("#btnShare").hidden = !(cloud && state.access.family && !state.access.admin);
+  $("#btnShare").hidden = !(cloud && state.access.family && !state.access.admin && !state.access.viewer);
   const pending = state.access.admin ? countStatus("pending") : 0;
   $("#btnReview").hidden = !pending;
   $("#btnReview").replaceChildren("📬 ", h("span", {}, t("reviewBtn", { n: pending })));
@@ -472,9 +472,16 @@ async function updateAuthUI() {
   $("#btnSignOut").hidden = !(allowed && state.store.needsAuth);
   $("#btnGateLogin").hidden = !!state.user;
   $("#btnGateSignOut").hidden = !state.user;
-  $("#gateText").textContent = !state.user
-    ? t("gateText")
-    : state.access.setupNeeded ? t("gateSetup") : t("gateNoAccess", { email: state.user.email });
+  document.body.classList.toggle("viewer", !!state.access.viewer);
+  // Site PIN: offered to anyone who can't see the site yet (including someone whose old PIN was replaced).
+  const pin = !allowed && state.store.pinEnabled ? await state.store.pinEnabled() : false;
+  $("#pinForm").hidden = !pin;
+  $("#pinError").hidden = true;
+  $("#gateText").textContent = state.user && state.access.setupNeeded ? t("gateSetup")
+    : state.user && !pin ? t("gateNoAccess", { email: state.user.email })
+      : t(pin ? "gateTextPin" : "gateText");
+  if (pin) $("#btnGateLogin").hidden = false;
+  $("#btnGateLogin").className = `btn ${pin ? "btn-ghost" : "btn-primary"}`;
   if (!state.access.admin && state.editing) setEditing(false);
   return allowed;
 }
@@ -528,6 +535,37 @@ $("#btnSignOut").addEventListener("click", async () => {
   toast(t("signedOut"));
 });
 $("#btnGateSignOut").addEventListener("click", signOut);
+
+$("#pinForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = $("#pinInput");
+  const err = $("#pinError");
+  err.hidden = true;
+  $("#btnPin").disabled = true;
+  try {
+    await state.store.signInWithPin(input.value.trim());
+    input.value = "";
+    if (await updateAuthUI()) {
+      await loadAll();
+      toast(t("welcomeFamily"));
+    }
+  } catch (ex) {
+    err.textContent = ex.message === "pin-wrong" ? t("pinWrong") : ex.message === "pin-locked" ? t("pinLocked") : ex.message;
+    err.hidden = false;
+    input.value = "";
+    input.classList.remove("shake");
+    void input.offsetWidth;
+    input.classList.add("shake");
+    input.focus();
+  } finally {
+    $("#btnPin").disabled = false;
+  }
+});
+// Four digits typed → go.
+$("#pinInput").addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+  if (e.target.value.length === 4) $("#pinForm").requestSubmit();
+});
 
 $("#loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();

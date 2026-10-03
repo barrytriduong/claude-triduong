@@ -2,7 +2,7 @@
 // remove accounts. Plus the sign-up screen someone sees when they open an invite link.
 
 import { state } from "./state.js";
-import { $, h, openDialog, toast } from "./util.js";
+import { $, h, fill, openDialog, toast } from "./util.js";
 import { t, fmtDate } from "./i18n.js";
 
 const inviteUrl = (code) => `${location.origin}${location.pathname}#invite=${code}`;
@@ -17,9 +17,10 @@ export async function openFamily() {
 async function renderFamily() {
   const body = $("#familyBody");
   body.replaceChildren(h("p", { class: "muted" }, "…"));
-  let members, invites;
+  let members, invites, pin;
   try {
-    [members, invites] = await Promise.all([state.store.listMembers(), state.store.listInvites()]);
+    [members, invites, pin] = await Promise.all([state.store.listMembers(), state.store.listInvites(),
+      Promise.resolve().then(() => state.store.pinStatus()).catch(() => null)]); // null: database not updated yet
   } catch (ex) {
     body.replaceChildren(h("p", { class: "form-error" }, ex.message));
     return;
@@ -30,7 +31,8 @@ async function renderFamily() {
     onchange: (e) => run(() => state.store.setMemberRole(m.user_id, e.target.value), t("saved")),
   }, ["admin", "family", "none"].map((r) => h("option", { value: r, selected: m.role === r }, t(`role_${r}`))));
 
-  body.replaceChildren(
+  fill(body,
+    pin && pinSection(pin),
     // New invite
     h("form", { class: "invite-form", onsubmit: createInvite },
       h("h3", {}, t("famInviteTitle")),
@@ -82,6 +84,42 @@ async function renderFamily() {
           m.user_id !== state.user?.id && h("button", { type: "button", class: "link-btn", onclick: () => resetPassword(m) }, t("famResetPw")),
           m.user_id !== state.user?.id && h("button", { type: "button", class: "link-btn danger", onclick: () => removeMember(m) }, t("famRemove")))))),
   );
+}
+
+// ---------- View-only PIN ----------
+
+function pinSection(pin) {
+  return h("form", { class: "invite-form", onsubmit: savePin },
+    h("h3", {}, t("pinTitle")),
+    h("p", { class: "muted small" }, pin.enabled
+      ? t("pinOnHelp", { date: fmtDate(String(pin.updated_at).slice(0, 10)) })
+      : t("pinOffHelp")),
+    pin.wrong_tries >= 5 && h("p", { class: "form-error" }, t("pinWarn", { n: pin.wrong_tries })),
+    h("div", { class: "pin-box" },
+      h("input", { name: "pin", type: "text", inputmode: "numeric", pattern: "[0-9]{4}", maxlength: "4", required: true,
+        autocomplete: "off", placeholder: "••••", "aria-label": t("pinLabel"), title: t("pinFormat") }),
+      h("button", { class: "btn btn-primary", type: "submit" }, t(pin.enabled ? "pinChange" : "pinTurnOn")),
+      pin.enabled && h("button", { type: "button", class: "link-btn danger", onclick: disablePin }, t("pinTurnOff"))));
+}
+
+async function savePin(e) {
+  e.preventDefault();
+  const pin = e.target.pin.value.trim();
+  if (!/^\d{4}$/.test(pin)) return toast(t("pinFormat"));
+  const btn = e.target.querySelector("button[type=submit]");
+  btn.disabled = true;
+  try {
+    await state.store.setPin(pin);
+    toast(t("pinSaved", { pin }), 6000);
+  } catch (ex) {
+    toast(/signups? (are )?not allowed|disabled|Confirm email/i.test(ex.message) ? t("pinNeedsSettings") : ex.message, 10000);
+  }
+  await renderFamily();
+}
+
+async function disablePin() {
+  if (!confirm(t("pinOffConfirm"))) return;
+  await run(() => state.store.disablePin(), t("pinOff"));
 }
 
 async function run(action, okMsg) {

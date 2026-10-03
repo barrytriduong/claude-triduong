@@ -47,6 +47,13 @@
       <div class="gate-emoji">🔐</div>
       <h1 data-i18n="gateTitle"></h1>
       <p class="muted" id="gateText"></p>
+      <form class="pin-form" id="pinForm" hidden autocomplete="off">
+        <label for="pinInput" data-i18n="pinLabel"></label>
+        <input id="pinInput" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="off" data-i18n-placeholder="pinPh">
+        <button class="btn btn-primary" type="submit" id="btnPin" data-i18n="pinEnter"></button>
+        <p class="form-error" id="pinError" hidden></p>
+        <p class="muted small pin-or" data-i18n="pinOr"></p>
+      </form>
       <div class="gate-actions">
         <button class="btn btn-primary" id="btnGateLogin" data-i18n="gateSignIn"></button>
         <button class="btn btn-ghost" id="btnGateSignOut" hidden data-i18n="gateOther"></button>
