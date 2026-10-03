@@ -14,10 +14,12 @@ It sits in `experiments/` (not `public/`), so it is **not** published with the B
 ## How it works
 
 A WebGL shader warps the photo every frame. The head is treated as a ball: when the
-pointer moves, the middle of the face (and the nose, and the eyes) shift further than the
+pointer moves, the middle of the face and the nose shift further than the
 edges, the shoulders shift a little, and the background shifts the other way. That
 difference in movement makes a flat photo look like it is turning in 3D.
-Press **Show depth map** to see how much each part moves.
+The irises also slide inside the eye openings, and they react faster than the head, so
+the eyes lead and the head follows. Press **Show depth map** to see how much each part
+moves (the eye areas show in orange).
 
 The face positions are set by hand in `FACE` at the top of the script in `index.html`.
 To use another photo, replace `photo.jpg` and update those numbers.

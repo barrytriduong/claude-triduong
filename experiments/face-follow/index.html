@@ -46,12 +46,14 @@
 const FACE = {
   head:  { x: 720, y: 470, rx: 170, ry: 225 },   // ellipse around head + hair
   nose:  { x: 677, y: 535 },
-  eyeL:  { x: 637, y: 466 },                     // viewer's left
-  eyeR:  { x: 748, y: 474 },
+  eyeL:  { x: 641, y: 466, rx: 23, ry: 8 },      // eye opening, viewer's left
+  eyeR:  { x: 746, y: 473, rx: 24, ry: 9 },
   bodyTop: 690,                                  // where the shoulders start
 };
 // How far things move at full look (image pixels).
-const AMOUNT = { head: [30, 20], nose: [10, 7], eyes: [5, 2.5], body: [7, 3], bg: [-6, -3] };
+const AMOUNT = { head: [55, 32], nose: [16, 10], body: [10, 4], bg: [-9, -5] };
+// How far the irises slide inside the eyes, on top of the head turn.
+const GAZE = [7, 2.5];
 
 const canvas = document.getElementById('c');
 const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
@@ -73,13 +75,17 @@ uniform vec2 uLook;     // -1..1, where the face should look
 uniform float uDepth;   // 1 = show the depth map instead of the photo
 
 uniform vec4 uHead;     // cx, cy, rx, ry
-uniform vec2 uNose, uEyeL, uEyeR;
+uniform vec2 uNose;
+uniform vec4 uEyeL, uEyeR;  // cx, cy, rx, ry of each eye opening
+uniform vec2 uGaze;         // -1..1, where the eyes look (moves faster than the head)
+uniform vec2 aGaze;
 uniform float uBodyTop;
-uniform vec2 aHead, aNose, aEyes, aBody, aBg;
+uniform vec2 aHead, aNose, aBody, aBg;
 
-float eyeWeight(vec2 p, vec2 c) {
-  vec2 d = (p - c) / vec2(24.0, 13.0);
-  return 1.0 - smoothstep(0.35, 1.0, length(d));
+// 1 in the middle of the eye opening, fading to 0 at the eyelids.
+float eyeWeight(vec2 p, vec4 e) {
+  vec2 d = (p - e.xy) / e.zw;
+  return 1.0 - smoothstep(0.45, 1.0, length(d));
 }
 
 void main() {
@@ -97,20 +103,23 @@ void main() {
   vec2 dn = (p - uNose) / vec2(38.0, 55.0);
   float noseW = exp(-dot(dn, dn) * 1.5);
 
-  // Eyes get a little extra so the gaze leads the head.
-  float eyesW = max(eyeWeight(p, uEyeL), eyeWeight(p, uEyeR));
 
   // Shoulders follow a little; background moves the other way (parallax).
   float bodyW = smoothstep(uBodyTop - 40.0, uBodyTop + 120.0, p.y) * (1.0 - headW);
   float bgW = max(0.0, 1.0 - headW - bodyW);
 
-  vec2 shift = uLook * (aHead * headDepth + aNose * noseW + aEyes * eyesW
-                      + aBody * bodyW + aBg * bgW);
+  vec2 shift = uLook * (aHead * headDepth + aNose * noseW + aBody * bodyW + aBg * bgW);
+
+  // Irises slide inside the eye openings so the eyes follow the pointer too.
+  // The eye openings move with the head, so look them up where the head put them.
+  vec2 headShift = uLook * (aHead * 0.95 + aNose * 0.1);
+  float eyesW = max(eyeWeight(p - headShift, uEyeL), eyeWeight(p - headShift, uEyeR));
+  shift += uGaze * aGaze * eyesW;
 
   vec2 uv = (p - shift) / uSize;
   if (uDepth > 0.5) {
-    float d = clamp(headDepth + 0.6 * noseW + eyesW * 0.4, 0.0, 1.0) + bodyW * 0.3;
-    gl_FragColor = vec4(vec3(d), 1.0);
+    float d = clamp(headDepth + 0.6 * noseW, 0.0, 1.0) + bodyW * 0.3;
+    gl_FragColor = vec4(mix(vec3(d), vec3(0.95, 0.45, 0.2), eyesW), 1.0);
   } else {
     gl_FragColor = texture2D(uTex, uv);
   }
@@ -150,18 +159,18 @@ if (!gl) {
   const U = (n) => gl.getUniformLocation(prog, n);
   gl.uniform4f(U('uHead'), FACE.head.x, FACE.head.y, FACE.head.rx, FACE.head.ry);
   gl.uniform2f(U('uNose'), FACE.nose.x, FACE.nose.y);
-  gl.uniform2f(U('uEyeL'), FACE.eyeL.x, FACE.eyeL.y);
-  gl.uniform2f(U('uEyeR'), FACE.eyeR.x, FACE.eyeR.y);
+  gl.uniform4f(U('uEyeL'), FACE.eyeL.x, FACE.eyeL.y, FACE.eyeL.rx, FACE.eyeL.ry);
+  gl.uniform4f(U('uEyeR'), FACE.eyeR.x, FACE.eyeR.y, FACE.eyeR.rx, FACE.eyeR.ry);
+  gl.uniform2fv(U('aGaze'), GAZE);
   gl.uniform1f(U('uBodyTop'), FACE.bodyTop);
   gl.uniform2fv(U('aHead'), AMOUNT.head);
   gl.uniform2fv(U('aNose'), AMOUNT.nose);
-  gl.uniform2fv(U('aEyes'), AMOUNT.eyes);
   gl.uniform2fv(U('aBody'), AMOUNT.body);
   gl.uniform2fv(U('aBg'), AMOUNT.bg);
-  const uLook = U('uLook'), uDepth = U('uDepth'), uSize = U('uSize');
+  const uGaze = U('uGaze'), uLook = U('uLook'), uDepth = U('uDepth'), uSize = U('uSize');
 
   let imgW = 1, imgH = 1, ready = false, showDepth = false;
-  const target = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 }, look = { x: 0, y: 0 }, gaze = { x: 0, y: 0 };
 
   const img = new Image();
   img.onload = () => {
@@ -213,10 +222,14 @@ if (!gl) {
 
   (function frame() {
     // Ease toward the target so the head turns smoothly instead of snapping.
-    look.x += (target.x - look.x) * 0.08;
-    look.y += (target.y - look.y) * 0.08;
+    // The eyes get there first, then the head catches up.
+    gaze.x += (target.x - gaze.x) * 0.25;
+    gaze.y += (target.y - gaze.y) * 0.25;
+    look.x += (target.x - look.x) * 0.06;
+    look.y += (target.y - look.y) * 0.06;
     if (ready) {
       gl.uniform2f(uLook, look.x, look.y);
+      gl.uniform2f(uGaze, gaze.x, gaze.y);
       gl.uniform1f(uDepth, showDepth ? 1 : 0);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
