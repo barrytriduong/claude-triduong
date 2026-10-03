@@ -1,85 +1,211 @@
-// Background music: built-in music-box lullabies (synthesized in the browser, so
+// Background music: built-in soft piano pieces (composed live in the browser, so
 // nothing is downloaded) plus songs the admin uploads. One 🎵 button for everyone.
 
 import { state } from "./state.js";
 import { $, h, toast } from "./util.js";
 import { t } from "./i18n.js";
 
-// ---------- Built-in songs (public-domain melodies) ----------
-// Notes: name+octave, then length in beats. "r" is a rest.
-const SONGS = {
-  twinkle: { bpm: 100, notes: "C4 1 C4 1 G4 1 G4 1 A4 1 A4 1 G4 2 F4 1 F4 1 E4 1 E4 1 D4 1 D4 1 C4 2 G4 1 G4 1 F4 1 F4 1 E4 1 E4 1 D4 2 G4 1 G4 1 F4 1 F4 1 E4 1 E4 1 D4 2 C4 1 C4 1 G4 1 G4 1 A4 1 A4 1 G4 2 F4 1 F4 1 E4 1 E4 1 D4 1 D4 1 C4 2" },
-  brahms: { bpm: 84, notes: "E4 .5 E4 .5 G4 1.5 E4 .5 E4 1 G4 2 E4 .5 G4 .5 C5 1 B4 1.5 A4 .5 A4 1 G4 1 D4 .5 E4 .5 F4 1 D4 1 D4 .5 E4 .5 F4 2 D4 .5 F4 .5 B4 1 A4 1 G4 1 B4 1 C5 2 r 1" },
-  butterfly: { bpm: 112, notes: "C4 1 D4 1 E4 1 C4 1 C4 1 D4 1 E4 1 C4 1 E4 1 F4 1 G4 2 E4 1 F4 1 G4 2 G4 .5 A4 .5 G4 .5 F4 .5 E4 1 C4 1 G4 .5 A4 .5 G4 .5 F4 .5 E4 1 C4 1 C4 1 G3 1 C4 2 C4 1 G3 1 C4 2" },
-  lamb: { bpm: 110, notes: "E4 1 D4 1 C4 1 D4 1 E4 1 E4 1 E4 2 D4 1 D4 1 D4 2 E4 1 G4 1 G4 2 E4 1 D4 1 C4 1 D4 1 E4 1 E4 1 E4 1 E4 1 D4 1 D4 1 E4 1 D4 1 C4 4" },
-  birthday: { bpm: 96, notes: "G4 .75 G4 .25 A4 1 G4 1 C5 1 B4 2 G4 .75 G4 .25 A4 1 G4 1 D5 1 C5 2 G4 .75 G4 .25 G5 1 E5 1 C5 1 B4 1 A4 2 F5 .75 F5 .25 E5 1 C5 1 D5 1 C5 3" },
+// ---------- Built-in pieces ----------
+// Soft, emotional piano pieces composed live in the browser (nothing is downloaded):
+// a chord progression, a gentle arpeggio, a slow melody and a warm pad, with reverb.
+// Each repeat varies the melody a little, like someone improvising at the piano.
+const PIECES = {
+  firstLight: { bpm: 66, beats: 4, key: "C", prog: ["C", "G/B", "Am", "Em/G", "F", "C/E", "Dm7", "G"] },
+  canon: { bpm: 60, beats: 4, key: "D", prog: ["D", "A/C#", "Bm", "F#m/A", "G", "D/F#", "G", "A"] },
+  littleHands: { bpm: 62, beats: 4, key: "C", prog: ["Am", "F", "C", "G", "F", "C", "Dm7", "Esus4"] },
+  sleep: { bpm: 52, beats: 3, key: "F", prog: ["Fmaj7", "Am7", "Dm7", "Bbmaj7", "Gm7", "Am7", "Bbmaj7", "Csus4"] },
+  timeFlies: { bpm: 70, beats: 4, key: "G", prog: ["G", "D/F#", "Em", "C", "G", "D", "Cmaj7", "D"] },
 };
-export const BUILTIN = Object.keys(SONGS);
+export const BUILTIN = Object.keys(PIECES);
+const DEFAULT_SONG = "firstLight";
 
-const FREQ = (note) => {
-  const m = note.match(/^([A-G])(#?)(\d)$/);
-  const semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0) + (Number(m[3]) - 4) * 12 - 9;
-  return 440 * 2 ** (semis / 12);
+const PITCH = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const QUALITY = { "": [0, 4, 7], m: [0, 3, 7], maj7: [0, 4, 7, 11], m7: [0, 3, 7, 10], "7": [0, 4, 7, 10], sus4: [0, 5, 7], add9: [0, 4, 7, 14] };
+const SCALE = [0, 2, 4, 5, 7, 9, 11];
+const pc = (name) => (PITCH[name[0]] + (name[1] === "#" ? 1 : name[1] === "b" ? -1 : 0) + 12) % 12;
+
+function parseChord(sym) {
+  const [main, slash] = sym.split("/");
+  const m = main.match(/^([A-G][#b]?)(.*)$/);
+  const root = pc(m[1]);
+  return { root, tones: (QUALITY[m[2]] || QUALITY[""]).map((i) => (root + i) % 12), bass: slash ? pc(slash) : root };
+}
+
+/** Deterministic random numbers, so a piece sounds the same each time it starts. */
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const nearest = (pitchClass, around) => {
+  let best = null;
+  for (let n = around - 12; n <= around + 12; n++) if (n % 12 === pitchClass && (best === null || Math.abs(n - around) < Math.abs(best - around))) best = n;
+  return best;
 };
+const freq = (midi) => 440 * 2 ** ((midi - 69) / 12);
 
-let ctx, master, timer, audioEl;
-const player = { on: false, song: "twinkle", volume: 0.5 };
+let ctx, master, dry, wet, timer, audioEl;
+const player = { on: false, song: DEFAULT_SONG, volume: 0.5 };
 
 try {
-  Object.assign(player, JSON.parse(localStorage.getItem("music") || "{}"), { on: false });
-  player.wanted = JSON.parse(localStorage.getItem("music") || "{}").on === true;
+  const saved = JSON.parse(localStorage.getItem("music") || "{}");
+  Object.assign(player, saved, { on: false });
+  player.wanted = saved.on === true;
 } catch { /* storage blocked */ }
 const remember = () => {
   try { localStorage.setItem("music", JSON.stringify({ on: player.on, song: player.song, volume: player.volume })); } catch { /* ignore */ }
 };
 
-function audioCtx() {
-  if (!ctx) {
-    ctx = new AudioContext();
-    master = ctx.createGain();
-    // A little echo makes it sound like a music box in a room.
-    const delay = ctx.createDelay();
-    delay.delayTime.value = 0.18;
-    const fb = ctx.createGain();
-    fb.gain.value = 0.25;
-    delay.connect(fb).connect(delay);
-    master.connect(ctx.destination);
-    master.connect(delay).connect(ctx.destination);
+/** A soft room reverb made from fading noise. */
+function impulse(c, seconds = 3.2) {
+  const len = Math.floor(c.sampleRate * seconds);
+  const buf = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 3;
   }
-  master.gain.value = player.volume * 0.35;
+  return buf;
+}
+
+/** Builds the effects chain (compressor + reverb) on a context; sets the shared ctx/master. */
+function buildGraph(c) {
+  ctx = c;
+  {
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18;
+    comp.ratio.value = 3;
+    comp.connect(ctx.destination);
+    master = ctx.createGain();
+    dry = ctx.createGain();
+    dry.gain.value = 0.75;
+    wet = ctx.createGain();
+    wet.gain.value = 0.45;
+    const verb = ctx.createConvolver();
+    verb.buffer = impulse(ctx);
+    master.connect(dry).connect(comp);
+    master.connect(verb).connect(wet).connect(comp);
+  }
+  master.gain.value = player.volume * 2.4;
   return ctx;
 }
 
-function chime(time, freq, dur) {
-  for (const [mult, gain] of [[1, 0.6], [2, 0.18], [3, 0.06]]) {
+function audioCtx() {
+  return ctx || buildGraph(new AudioContext());
+}
+
+/** A warm, soft piano note. */
+function piano(time, midi, dur, vel) {
+  const f = freq(midi);
+  const decay = Math.min(3.2, Math.max(0.9, 3 - (midi - 40) * 0.035));
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 1400 + vel * 2600;
+  lp.connect(master);
+  const end = time + dur;
+  [[1, 1], [2, 0.42], [3, 0.16], [4, 0.08], [6, 0.03]].forEach(([mult, amp], k) => {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = freq * mult;
+    o.frequency.value = f * mult * (1 + (k ? 0.0008 * k : 0));
+    const peak = vel * amp * 0.22;
     g.gain.setValueAtTime(0.0001, time);
-    g.gain.exponentialRampToValueAtTime(gain, time + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.0001, time + Math.max(dur, 0.25) * 2.2);
-    o.connect(g).connect(master);
+    g.gain.exponentialRampToValueAtTime(peak, time + 0.006);
+    g.gain.setTargetAtTime(0.0001, time + 0.006, decay / (1 + k * 0.8) / 3);
+    g.gain.setTargetAtTime(0.0001, end, 0.18); // damper
+    o.connect(g).connect(lp);
     o.start(time);
-    o.stop(time + Math.max(dur, 0.25) * 2.3);
+    o.stop(end + 1.2);
+  });
+}
+
+/** A quiet sustained chord underneath, for warmth. */
+function pad(time, notes, dur) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.linearRampToValueAtTime(0.03, time + dur * 0.4);
+  g.gain.linearRampToValueAtTime(0.0001, time + dur + 0.6);
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 900;
+  g.connect(lp).connect(master);
+  for (const n of notes) {
+    const o = ctx.createOscillator();
+    o.type = "triangle";
+    o.frequency.value = freq(n);
+    o.connect(g);
+    o.start(time);
+    o.stop(time + dur + 0.8);
   }
 }
 
-function playBuiltin(id) {
-  const song = SONGS[id];
-  const beat = 60 / song.bpm;
-  const tokens = song.notes.split(" ");
-  const loop = () => {
-    let at = audioCtx().currentTime + 0.1;
-    for (let i = 0; i < tokens.length; i += 2) {
-      const len = Number(tokens[i + 1]) * beat;
-      if (tokens[i] !== "r") chime(at, FREQ(tokens[i]), len);
-      at += len;
+const RHYTHMS = { 4: [[2, 2], [3, 1], [1, 1, 2], [4], [1.5, 0.5, 2], [2, 1, 1]], 3: [[3], [2, 1], [1, 1, 1], [1.5, 1.5]] };
+
+/** Returns a function that schedules the next bar of the piece and returns its end time. */
+function composer(id, startAt) {
+  const piece = PIECES[id];
+  const beat = 60 / piece.bpm;
+  const keyPc = pc(piece.key);
+  const scale = SCALE.map((i) => (keyPc + i) % 12);
+  const chords = piece.prog.map(parseChord);
+  let bar = 0;
+  let loop = 0;
+  let rand = rng(7);
+  let last = 72; // the melody starts around C5
+  let next = startAt;
+
+  const scheduleBar = () => {
+    const c = chords[bar];
+    const t0 = next;
+    const barLen = piece.beats * beat;
+    // Left hand: low bass note, then a flowing arpeggio of the chord.
+    const bass = nearest(c.bass, 43);
+    piano(t0, bass, barLen, 0.5);
+    const voicing = c.tones.map((p, i) => nearest(p, 55 + i * 4)).sort((a, b) => a - b);
+    const arp = [voicing[0], voicing[1], voicing[2], voicing[voicing.length - 1] + (voicing.length > 3 ? 0 : 12), voicing[2], voicing[1]];
+    const steps = piece.beats * 2;
+    for (let i = 1; i < steps; i++) piano(t0 + i * beat / 2, arp[i % arp.length], beat * 1.2, 0.22 + rand() * 0.06);
+    pad(t0, voicing, barLen);
+    // Right hand: a slow, singing melody — chord tones on strong beats, steps in between.
+    // The first time through it's always the same; later repeats vary gently.
+    const pattern = RHYTHMS[piece.beats][Math.floor(rand() * RHYTHMS[piece.beats].length)];
+    let at = t0;
+    pattern.forEach((len, i) => {
+      if (!(i > 0 && rand() < 0.15)) {
+        let note;
+        if (i === 0) note = nearest(c.tones[Math.floor(rand() * c.tones.length)], last);
+        else {
+          const stepped = last + (rand() < 0.5 ? -1 : 1) * (rand() < 0.7 ? 1 : 2);
+          note = [stepped, stepped + 1, stepped - 1].find((n) => scale.includes(((n % 12) + 12) % 12)) ?? last;
+        }
+        while (note > 81) note -= 12;
+        while (note < 64) note += 12;
+        piano(at, note, len * beat * 0.95, 0.42 + rand() * 0.1);
+        last = note;
+      }
+      at += len * beat;
+    });
+    next += barLen;
+    bar++;
+    if (bar === chords.length) {
+      bar = 0;
+      loop++;
+      rand = rng(7 + loop); // a new variation each time round
     }
-    const total = at - ctx.currentTime + beat * 2; // short pause between repeats
-    timer = setTimeout(loop, total * 1000);
+    return next;
   };
-  loop();
+  return scheduleBar;
+}
+
+function playBuiltin(id) {
+  const scheduleBar = composer(id, audioCtx().currentTime + 0.15);
+  let next = 0;
+  const tick = () => {
+    while (ctx && next < ctx.currentTime + 1.5) next = scheduleBar();
+  };
+  tick();
+  timer = setInterval(tick, 250);
 }
 
 async function playCustom(song) {
@@ -93,7 +219,7 @@ async function playCustom(song) {
 }
 
 function stopAll() {
-  clearTimeout(timer);
+  clearInterval(timer);
   timer = null;
   if (ctx) ctx.close();
   ctx = null;
@@ -101,12 +227,12 @@ function stopAll() {
 }
 
 const customSongs = () => state.settings.songs || [];
-const songLabel = (id) => (SONGS[id] ? t(`song_${id}`) : customSongs().find((s) => s.id === id)?.name || "🎵");
+const songLabel = (id) => (PIECES[id] ? t(`song_${id}`) : customSongs().find((s) => s.id === id)?.name || "🎵");
 
 export async function startMusic() {
   stopAll();
   const custom = customSongs().find((s) => s.id === player.song);
-  if (!SONGS[player.song] && !custom) player.song = "twinkle";
+  if (!PIECES[player.song] && !custom) player.song = DEFAULT_SONG;
   try {
     if (custom) await playCustom(custom);
     else playBuiltin(player.song);
@@ -128,6 +254,20 @@ export function stopMusic() {
 }
 
 export const musicOn = () => player.on;
+
+/** Renders a piece to an AudioBuffer (used to make preview recordings). */
+export async function renderPiece(id, seconds = 40, sampleRate = 44100) {
+  const saved = { ctx, master, dry, wet };
+  const off = new OfflineAudioContext(2, sampleRate * seconds, sampleRate);
+  buildGraph(off);
+  master.gain.value = 0.5 * 2.4;
+  const scheduleBar = composer(id, 0.1);
+  let end = 0;
+  while (end < seconds - 2) end = scheduleBar();
+  const buffer = await off.startRendering();
+  ({ ctx, master, dry, wet } = saved);
+  return buffer;
+}
 
 // ---------- UI ----------
 
@@ -159,7 +299,7 @@ function renderPanel() {
         type: "range", min: "0", max: "1", step: "0.05", value: String(player.volume), "aria-label": t("musicVolume"),
         oninput: (e) => {
           player.volume = Number(e.target.value);
-          if (master) master.gain.value = player.volume * 0.35;
+          if (master) master.gain.value = player.volume * 2.4;
           if (audioEl) audioEl.volume = player.volume;
           remember();
         },
@@ -195,7 +335,7 @@ async function removeSong(id) {
   state.settings = { ...state.settings, songs: customSongs().filter((s) => s.id !== id) };
   await state.store.saveSettings(state.settings);
   await state.store.deleteFile(song.path).catch(() => {});
-  if (player.song === id) { player.song = "twinkle"; if (player.on) await startMusic(); }
+  if (player.song === id) { player.song = DEFAULT_SONG; if (player.on) await startMusic(); }
   renderPanel();
 }
 

@@ -4,6 +4,7 @@ import { state, hooks } from "./state.js";
 import { $, h, openDialog } from "./util.js";
 import { t } from "./i18n.js";
 import { startMusic, stopMusic, musicOn } from "./music.js";
+import { pauseGlide } from "./smooth.js";
 
 const SPEEDS = { slow: 28, normal: 55, fast: 100 }; // pixels per second
 
@@ -43,6 +44,7 @@ async function start() {
   const first = $(".year-marker") || $("#timeline");
   window.scrollTo({ top: first.getBoundingClientRect().top + window.scrollY - 40, behavior: "instant" });
   show.running = true;
+  pauseGlide(true);
   show.paused = false;
   show.last = 0;
   show.carry = 0;
@@ -80,6 +82,7 @@ function step(ts) {
 export function stop() {
   if (!show.running) return;
   show.running = false;
+  pauseGlide(false);
   show.bar?.remove();
   show.bar = null;
   show.lock?.release?.().catch(() => {});

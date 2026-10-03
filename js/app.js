@@ -17,6 +17,8 @@ import { initMusic, stopMusic } from "./music.js";
 import { renderAvatar, initProfileFields, commitProfile } from "./profile.js";
 import { setCuteCursor } from "./cursor.js";
 import { photoDateInfo } from "./exif.js";
+import { celebrate } from "./fireworks.js";
+import { glideTo } from "./smooth.js";
 
 const tagLabel = (tag) => (PRESET_TAGS.includes(tag) ? t(`tag_${tag}`) : `🏷️ ${tag}`);
 
@@ -198,7 +200,7 @@ function renderTimeline({ keepScroll = false } = {}) {
     }
     const age = ageLabel(state.settings.birthday, ev.date);
     container.append(h("article", {
-      class: `event ${i % 2 ? "right" : "left"}${keepScroll ? " visible" : ""}`, id: `ev-${ev.id}`,
+      class: `event ${i % 2 ? "right" : "left"}${keepScroll ? " visible" : ""}${ev.tags?.includes("celebrate") ? " celebrate" : ""}`, id: `ev-${ev.id}`,
       "data-color": ev.color || COLOR_KEYS[i % COLOR_KEYS.length],
     },
       h("div", { class: "event-dot" }, ev.emoji || "⭐"),
@@ -220,6 +222,7 @@ function renderTimeline({ keepScroll = false } = {}) {
   });
 
   observeReveal();
+  document.querySelectorAll(".event.celebrate").forEach((el) => fireObserver.observe(el));
   if (keepScroll) window.scrollTo(0, y);
   updateLineFill();
 }
@@ -293,10 +296,27 @@ async function reject(ev) {
 hooks.renderGrowth = renderGrowth;
 hooks.renderLetters = renderLetters;
 
-function scrollToEl(el) {
+function scrollToEl(el, tries = 3) {
   if (!el) return;
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+  glideTo(el.getBoundingClientRect().top + window.scrollY - 80);
+  // Far-away memories are only measured once drawn, so check the landing and adjust.
+  if (tries > 1) setTimeout(() => {
+    if (Math.abs(el.getBoundingClientRect().top - 80) > 12) scrollToEl(el, tries - 1);
+  }, 900);
 }
+
+// 🎆 Memories tagged "Celebration" get fireworks the first time they scroll into view.
+const celebrated = new Set();
+const fireObserver = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting || celebrated.has(e.target.id)) continue;
+    celebrated.add(e.target.id);
+    fireObserver.unobserve(e.target);
+    setTimeout(() => celebrate(e.target.querySelector(".card")), 350);
+  }
+}, { threshold: 0.55 });
+
+$("#btnTop").addEventListener("click", () => glideTo(0));
 
 function flash(id) {
   const el = $(`#ev-${CSS.escape(id)}`);
@@ -317,13 +337,18 @@ function observeReveal() {
   document.querySelectorAll(".event:not(.visible)").forEach((el) => revealObserver.observe(el));
 }
 
-// The center line fills with color as you scroll.
+// The center line fills with color as you scroll (a transform, so the browser
+// doesn't need to re-layout the page on every scroll step).
 function updateLineFill() {
+  lineQueued = false;
   const rect = $("#timeline").getBoundingClientRect();
   const progress = Math.min(Math.max(window.innerHeight * 0.6 - rect.top, 0), rect.height);
-  $("#lineFill").style.height = `${progress}px`;
+  $("#lineFill").style.transform = `scaleY(${rect.height ? progress / rect.height : 0})`;
 }
-window.addEventListener("scroll", () => requestAnimationFrame(updateLineFill), { passive: true });
+let lineQueued = false;
+window.addEventListener("scroll", () => {
+  if (!lineQueued) { lineQueued = true; requestAnimationFrame(updateLineFill); }
+}, { passive: true });
 window.addEventListener("resize", updateLineFill);
 
 // ---------- Edit mode ----------

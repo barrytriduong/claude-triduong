@@ -27,7 +27,8 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 | 📁 **Folder upload & drafts** | On a computer, pick a whole folder (e.g. 100 photos and videos). They're sorted by the date taken and saved as drafts that only you see; add stories, then Publish. |
 | 📬 **Family sharing** | Family members can share a memory with photos; it waits for your approval (📬 button) before it appears. |
 | 🖼️ **Her photo** | Her photo at the top in a round frame, with a cute decoration (bow, crown, flowers, stars, hearts, bunny). |
-| 🎵 **Music** | Music-box lullabies made right in the browser (nothing to download), or upload your own songs. Optional during the slideshow. |
+| 🎵 **Music** | Soft, emotional piano pieces composed live in the browser (nothing to download), or upload your own songs. Optional during the slideshow. |
+| 🎆 **Celebration tag** | Memories with this tag glow gold and burst into pastel fireworks when scrolled into view. |
 | 📅 **Quick date fixes** | Change a memory's date right on its card; dates are read from photos, videos and file names. |
 | 🏷️ **Delete tags** | Remove a tag made by mistake from every memory at once. |
 | ✨ **Cute pointer** | A pink pointer and magic wand with a sparkle trail on computers (can be turned off). |

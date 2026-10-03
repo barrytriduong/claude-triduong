@@ -23,13 +23,7 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 10% 0%, #ffe3ee 0, transparent 40%),
-    radial-gradient(circle at 90% 20%, #e3f3ff 0, transparent 35%),
-    radial-gradient(circle at 20% 80%, #e6fbf3 0, transparent 35%),
-    radial-gradient(circle at 85% 90%, #fff2cc 0, transparent 35%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 17px;
@@ -40,6 +34,16 @@ body {
 h1, h2, h3 { font-family: var(--font-head); font-weight: 600; margin: 0; }
 
 button, input, textarea { font: inherit; color: inherit; }
+
+/* The soft color washes sit on their own fixed layer, so scrolling never has to repaint them. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; will-change: transform;
+  background:
+    radial-gradient(circle at 10% 0%, #ffe3ee 0, transparent 40%),
+    radial-gradient(circle at 90% 20%, #e3f3ff 0, transparent 35%),
+    radial-gradient(circle at 20% 80%, #e6fbf3 0, transparent 35%),
+    radial-gradient(circle at 85% 90%, #fff2cc 0, transparent 35%);
+}
 
 /* ---------- Floating sky decorations ---------- */
 .sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
@@ -138,9 +142,9 @@ main { position: relative; z-index: 1; padding: 20px 20px 80px; }
   border-radius: 8px;
 }
 .timeline-line-fill {
-  position: absolute; top: 0; left: 0; right: 0; height: 0;
+  position: absolute; top: 0; left: 0; right: 0; height: 100%; transform: scaleY(0); transform-origin: top;
   background: linear-gradient(to bottom, var(--pink), var(--peach), var(--lemon), var(--mint), var(--sky), var(--lavender));
-  border-radius: 8px; transition: height .1s linear;
+  border-radius: 8px; will-change: transform;
 }
 
 .year-marker {
@@ -401,7 +405,7 @@ body.editing .card-edit { display: inline-flex; }
 .jumpbar {
   position: sticky; top: 8px; z-index: 15; max-width: max-content; margin: 0 auto 12px;
   display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none;
-  padding: 6px 8px; border-radius: 99px; background: rgba(255, 255, 255, .92); backdrop-filter: blur(6px);
+  padding: 6px 8px; border-radius: 99px; background: rgba(255, 255, 255, .96);
   box-shadow: 0 4px 14px rgba(90, 70, 96, .12);
 }
 .jumpbar::-webkit-scrollbar { display: none; }
@@ -716,3 +720,30 @@ body.editing .status-bar { margin-top: 28px; }
   .avatar-ring, .avatar .deco, .hero-avatar { animation: none !important; }
   .frame-hearts .deco { opacity: 1; }
 }
+
+/* =====================================================================
+   v5: smoother scrolling, celebration tag, back to top
+   ===================================================================== */
+
+/* Smoother scrolling: skip drawing photo galleries that are far off screen, keep the
+   floating clouds on their own layer, and let our own glide handle smoothness. */
+html { scroll-behavior: auto; }
+.gallery { content-visibility: auto; contain-intrinsic-size: auto 320px; }
+.cloud, .sparkle { will-change: transform; }
+
+/* 🎆 Celebration memories: a golden glow and a little shimmer. */
+.event.celebrate .card {
+  border-top: 6px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(90deg, #ffd66b, #ff8fb1, #b8a2ff, #ffd66b) border-box;
+  box-shadow: 0 0 0 2px rgba(255, 214, 107, .35), 0 14px 36px rgba(255, 190, 80, .28);
+}
+.event.celebrate .card::before {
+  content: "🎆"; position: absolute; top: -18px; left: -14px; font-size: 30px; transform: rotate(-12deg);
+  filter: drop-shadow(0 3px 6px rgba(255, 170, 60, .35));
+}
+.event.celebrate .event-dot { border-color: #f5bf2c; box-shadow: 0 0 0 6px rgba(255, 214, 107, .3), 0 6px 14px rgba(90, 70, 96, .12); }
+.fireworks { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 18; pointer-events: none; }
+
+/* ⬆️ Back to the beginning */
+.back-top { display: flex; justify-content: center; position: relative; z-index: 1; margin: 10px 0 -10px; }
+.back-top .btn { font-size: 16px; }

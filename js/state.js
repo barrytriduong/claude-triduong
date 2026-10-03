@@ -23,7 +23,7 @@ export const COLORS = {
 export const COLOR_KEYS = Object.keys(COLORS);
 
 /** Built-in tags; their labels come from i18n ("tag_<key>"). Anything else is a custom tag shown as typed. */
-export const PRESET_TAGS = ["firsts", "birthday", "trip", "funny", "family", "health", "school", "holiday"];
+export const PRESET_TAGS = ["celebrate", "firsts", "birthday", "trip", "funny", "family", "health", "school", "holiday"];
 
 /** Re-render hooks, registered by app.js so modules can ask for a refresh without importing it. */
 export const hooks = {
