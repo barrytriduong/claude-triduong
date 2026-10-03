@@ -25,10 +25,16 @@
     <button class="btn btn-ghost" id="btnLang" data-i18n-title="langToggle">🌐 <span data-i18n="langToggle"></span></button>
     <button class="btn btn-primary" id="btnReview" hidden></button>
     <button class="btn btn-ghost" id="btnShare" data-i18n-title="shareBtn" hidden>📷 <span data-i18n="shareBtn"></span></button>
-    <button class="btn btn-ghost" id="btnFamily" data-i18n-title="familyBtn" hidden>👨‍👩‍👧 <span data-i18n="familyBtn"></span></button>
-    <button class="btn btn-ghost" id="btnBulk" data-i18n-title="bulkBtn" hidden>🖼️ <span data-i18n="bulkBtn"></span></button>
-    <button class="btn btn-ghost" id="btnSettings" data-i18n-title="settings" hidden>⚙️ <span data-i18n="settings"></span></button>
-    <button class="btn btn-ghost" id="btnBackup" data-i18n-title="backup" hidden>💾 <span data-i18n="backup"></span></button>
+    <div class="tools-wrap">
+      <button class="btn btn-ghost" id="btnTools" data-i18n-title="toolsBtn" hidden aria-haspopup="true">🧰 <span data-i18n="toolsBtn"></span></button>
+      <div class="tools-menu" id="toolsMenu" hidden>
+        <button type="button" id="btnBulk">🖼️ <span data-i18n="bulkBtn"></span></button>
+        <button type="button" id="btnFamily">👨‍👩‍👧 <span data-i18n="familyBtn"></span></button>
+        <button type="button" id="btnSettings">⚙️ <span data-i18n="settings"></span></button>
+        <button type="button" id="btnBackup">💾 <span data-i18n="backup"></span></button>
+        <button type="button" id="btnReminder">📅 <span data-i18n="reminderBtn"></span></button>
+      </div>
+    </div>
     <button class="btn btn-ghost" id="btnSignOut" data-i18n-title="signOut" hidden>👋 <span data-i18n="signOut"></span></button>
     <button class="btn btn-primary" id="btnEditMode" hidden></button>
   </div>
@@ -55,22 +61,30 @@
       <h1 id="heroName"></h1>
       <p class="hero-tagline" id="heroTagline"></p>
       <p class="hero-age" id="heroAge"></p>
+      <div class="birthday-banner" id="birthdayBanner" hidden></div>
       <span class="badge-mode" id="modeBadge" hidden data-i18n="localBadge"></span>
       <div class="scroll-hint" aria-hidden="true"><span data-i18n="scrollDown"></span> <b>↓</b></div>
     </header>
 
     <nav class="tabs" id="tabs">
       <a href="#timeline" data-view="timeline" data-i18n="tabTimeline"></a>
-      <a href="#growth" data-view="growth" data-i18n="tabGrowth"></a>
-      <a href="#letters" data-view="letters" data-i18n="tabLetters"></a>
+      <a href="#growing" data-view="growing" data-i18n="tabGrowing"></a>
+      <a href="#words" data-view="words" data-i18n="tabWords"></a>
+      <a href="#world" data-view="world" data-i18n="tabWorld"></a>
     </nav>
 
     <!-- ===== Timeline ===== -->
     <main class="view" id="viewTimeline">
+      <div class="nudges" id="nudges" hidden></div>
       <section class="on-this-day" id="onThisDay" hidden></section>
       <div class="jumpbar" id="jumpbar" hidden></div>
-      <div class="timeline-tools"><button class="btn btn-ghost" id="btnSlideshow" hidden>▶️ <span data-i18n="slideshow"></span></button></div>
+      <div class="timeline-tools">
+        <label class="search"><span aria-hidden="true">🔍</span><input type="search" id="searchInput" data-i18n-placeholder="searchPh" data-i18n-title="searchPh"></label>
+        <button class="btn btn-ghost" id="btnSlideshow" hidden>▶️ <span data-i18n="slideshow"></span></button>
+        <button class="btn btn-ghost" id="btnYearbook" hidden>📖 <span data-i18n="ybBtn"></span></button>
+      </div>
       <div class="filters" id="filters" hidden></div>
+      <p class="search-count muted" id="searchCount" hidden></p>
       <div class="timeline" id="timeline">
         <div class="timeline-line" aria-hidden="true"><div class="timeline-line-fill" id="lineFill"></div></div>
         <div id="events"></div>
@@ -83,23 +97,54 @@
       </div>
     </main>
 
-    <!-- ===== Growth ===== -->
-    <main class="view" id="viewGrowth" hidden>
-      <div class="view-head">
-        <h2 data-i18n="growthTitle"></h2>
-        <button class="btn btn-primary" id="btnAddMeasurement" hidden data-i18n="addMeasurement"></button>
-      </div>
-      <div id="growthBody"></div>
+    <!-- ===== Growing ===== -->
+    <main class="view" id="viewGrowing" hidden>
+      <nav class="subnav" data-view="growing">
+        <button type="button" data-sub="flipbook" data-i18n="subFlipbook"></button>
+        <button type="button" data-sub="milestones" data-i18n="subMilestones"></button>
+        <button type="button" data-sub="height" data-i18n="subHeight"></button>
+        <button type="button" data-sub="about" data-i18n="subAbout"></button>
+        <button type="button" data-sub="health" data-i18n="subHealth" data-admin></button>
+      </nav>
+      <section class="subpanel" data-sub="flipbook" id="flipBody"></section>
+      <section class="subpanel" data-sub="milestones" id="milestonesBody"></section>
+      <section class="subpanel" data-sub="height">
+        <div class="section-head">
+          <p class="muted" data-i18n="heightIntro"></p>
+          <button class="btn btn-primary" id="btnAddMeasurement" hidden data-i18n="addMeasurement"></button>
+        </div>
+        <div id="growthBody"></div>
+      </section>
+      <section class="subpanel" data-sub="about" id="aboutBody"></section>
+      <section class="subpanel" data-sub="health" id="healthBody"></section>
     </main>
 
-    <!-- ===== Letters ===== -->
-    <main class="view" id="viewLetters" hidden>
-      <div class="view-head">
-        <h2 data-i18n="lettersTitle"></h2>
-        <button class="btn btn-primary" id="btnWriteLetter" data-i18n="writeLetter"></button>
-      </div>
-      <p class="muted view-intro" data-i18n="lettersIntro"></p>
-      <div class="letters" id="lettersBody"></div>
+    <!-- ===== Words ===== -->
+    <main class="view" id="viewWords" hidden>
+      <nav class="subnav" data-view="words">
+        <button type="button" data-sub="sayings" data-i18n="subSayings"></button>
+        <button type="button" data-sub="letters" data-i18n="subLetters"></button>
+        <button type="button" data-sub="wishes" data-i18n="subWishes"></button>
+      </nav>
+      <section class="subpanel" data-sub="sayings" id="sayingsBody"></section>
+      <section class="subpanel" data-sub="letters">
+        <div class="section-head">
+          <p class="muted" data-i18n="lettersIntro"></p>
+          <button class="btn btn-primary" id="btnWriteLetter" data-i18n="writeLetter"></button>
+        </div>
+        <div class="letters" id="lettersBody"></div>
+      </section>
+      <section class="subpanel" data-sub="wishes" id="wishesBody"></section>
+    </main>
+
+    <!-- ===== Her world ===== -->
+    <main class="view" id="viewWorld" hidden>
+      <nav class="subnav" data-view="world">
+        <button type="button" data-sub="people" data-i18n="subPeople"></button>
+        <button type="button" data-sub="places" data-i18n="subPlaces"></button>
+      </nav>
+      <section class="subpanel" data-sub="people" id="peopleBody"></section>
+      <section class="subpanel" data-sub="places" id="placesBody"></section>
     </main>
 
     <div class="back-top"><button class="btn btn-ghost" id="btnTop">⬆️ <span data-i18n="backToTop"></span></button></div>
@@ -132,17 +177,25 @@
       <label class="field"><span data-i18n="fStory"></span>
         <textarea name="description" rows="5" data-i18n-placeholder="fStoryPh"></textarea>
       </label>
-      <div class="field" id="tagField"><span data-i18n="fTags"></span>
-        <div class="tag-picker" id="tagPicker"></div>
-        <input id="tagCustom" maxlength="30" data-i18n-placeholder="fTagCustomPh">
-      </div>
+      <details class="more-details" id="moreDetails">
+        <summary data-i18n="moreDetails"></summary>
+        <div class="field" id="peopleField"><span data-i18n="fPeople"></span><div id="peoplePickerSlot"></div></div>
+        <div class="field" id="placeFieldWrap"><span data-i18n="placeLabel"></span><div id="placeSlot"></div></div>
+        <div class="field" id="tagField"><span data-i18n="fTags"></span>
+          <div class="tag-picker" id="tagPicker"></div>
+          <input id="tagCustom" maxlength="30" data-i18n-placeholder="fTagCustomPh">
+        </div>
+      </details>
 
       <div class="field"><span data-i18n="fMedia"></span>
         <div class="media-edit" id="mediaEdit"></div>
         <div class="media-add">
-          <label class="btn btn-ghost file-btn"><span data-i18n="addMedia"></span>
-            <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
-          </label>
+          <div class="row">
+            <label class="btn btn-ghost file-btn"><span data-i18n="addMedia"></span>
+              <input type="file" id="fileInput" accept="image/*,video/*,audio/*" multiple hidden>
+            </label>
+            <span id="voiceSlot"></span>
+          </div>
           <div class="link-add">
             <input type="url" id="linkInput" data-i18n-placeholder="linkPh">
             <button type="button" class="btn btn-ghost" id="btnAddLink" data-i18n="addLink"></button>
@@ -395,6 +448,9 @@
       </div>
     </div>
   </dialog>
+
+  <!-- Reusable form (sayings, people, cards, milestones, wishes, health, year book) -->
+  <dialog class="modal" id="formDialog"></dialog>
 
   <!-- Lightbox -->
   <div class="lightbox" id="lightbox" hidden>

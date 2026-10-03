@@ -2,8 +2,9 @@
 // Media files are stored as Blobs, separate from the event records.
 
 const DB_NAME = "little-timeline";
-const DB_VERSION = 2;
-const COLLECTIONS = ["measurements", "letters", "comments", "reactions"];
+const DB_VERSION = 3;
+const COLLECTIONS = ["measurements", "letters", "comments", "reactions", "sayings", "people", "portraits", "about_cards", "wishes", "health"];
+const KEYED = { milestones: "key" }; // collections whose key isn't "id"
 const LOCAL_USER = { id: "local", email: "local" };
 
 function promisify(req) {
@@ -34,6 +35,9 @@ export class LocalStore {
       const db = req.result;
       for (const name of ["events", ...COLLECTIONS]) {
         if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: "id" });
+      }
+      for (const [name, keyPath] of Object.entries(KEYED)) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath });
       }
       for (const name of ["media", "settings"]) {
         if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
@@ -109,6 +113,8 @@ export class LocalStore {
       emoji: event.emoji,
       color: event.color,
       tags: event.tags || [],
+      people: event.people || [],
+      place: event.place || null,
       status: event.status || "published",
       submitted_name: previous?.submitted_name || "",
       media,
@@ -139,6 +145,28 @@ export class LocalStore {
     return path;
   }
   async fileUrl(path) { return this.#mediaUrl(path); }
+  async fileUrls(paths) {
+    const out = new Map();
+    for (const p of new Set(paths.filter(Boolean))) out.set(p, await this.#mediaUrl(p));
+    return out;
+  }
+
+  // Simple collections (sayings, people, portraits, cards, milestones, wishes, health)
+  listRows(table) { return this.#all(table); }
+  async insertRow(table, row) {
+    const key = KEYED[table] || "id";
+    await this.#put(table, { id: crypto.randomUUID(), user_id: LOCAL_USER.id, created_at: new Date().toISOString(), ...row, [key]: row[key] || crypto.randomUUID() });
+  }
+  async updateRow(table, key, fields) {
+    const rec = await this.#get(table, key);
+    if (rec) await this.#put(table, { ...rec, ...fields });
+  }
+  async upsertRow(table, row) {
+    const key = KEYED[table] || "id";
+    const rec = await this.#get(table, row[key]);
+    await this.#put(table, { ...rec, ...row });
+  }
+  deleteRow(table, key) { return this.#del(table, key); }
   async deleteFile(path) { await this.#deleteMedia([{ mediaId: path }]); }
 
   async setEventStatus(id, status) {
@@ -213,8 +241,18 @@ export class LocalStore {
         if (blob) media[m.mediaId] = await blobToDataURL(blob);
       }
     }
-    const data = { app: "little-timeline", version: 2, exportedAt: new Date().toISOString(), settings: await this.getSettings(), events, media };
-    for (const name of COLLECTIONS) data[name] = await this.#all(name);
+    // Files used outside memories: her photo, songs, people, portraits, voice sayings.
+    const settings = await this.getSettings();
+    const extra = [settings?.photo, ...(settings?.songs || []).map((x) => x.path)];
+    for (const p of await this.#all("people")) extra.push(p.photo);
+    for (const p of await this.#all("portraits")) extra.push(p.path);
+    for (const p of await this.#all("sayings")) extra.push(p.audio);
+    for (const path of extra.filter(Boolean)) {
+      const blob = await this.#get("media", path);
+      if (blob) media[path] = await blobToDataURL(blob);
+    }
+    const data = { app: "little-timeline", version: 3, exportedAt: new Date().toISOString(), settings: await this.getSettings(), events, media };
+    for (const name of [...COLLECTIONS, ...Object.keys(KEYED)]) data[name] = await this.#all(name);
     return data;
   }
 
@@ -224,7 +262,7 @@ export class LocalStore {
       await this.#put("media", await (await fetch(dataUrl)).blob(), id);
     }
     for (const ev of data.events || []) await this.#put("events", ev);
-    for (const name of COLLECTIONS) for (const row of data[name] || []) await this.#put(name, row);
+    for (const name of [...COLLECTIONS, ...Object.keys(KEYED)]) for (const row of data[name] || []) await this.#put(name, row);
     if (data.settings) await this.saveSettings(data.settings);
   }
 }

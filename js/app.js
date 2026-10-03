@@ -19,6 +19,13 @@ import { setCuteCursor } from "./cursor.js";
 import { photoDateInfo } from "./exif.js";
 import { celebrate } from "./fireworks.js";
 import { glideTo } from "./smooth.js";
+import { loadRows } from "./collections.js";
+import { renderSayings, renderWishes } from "./words.js";
+import { renderFlipbook, renderMilestones, renderAbout, renderHealth } from "./growing.js";
+import { renderPeople, renderPlaces, peoplePicker, placeField, personById, personAvatar } from "./world.js";
+import { openYearbook } from "./yearbook.js";
+import { renderNudges, renderBirthday, downloadReminder } from "./nudges.js";
+import { recorderButton, voicePlayer } from "./voice.js";
 
 const tagLabel = (tag) => (PRESET_TAGS.includes(tag) ? t(`tag_${tag}`) : `🏷️ ${tag}`);
 
@@ -43,23 +50,57 @@ function renderHero() {
 
 // ---------- Views (tabs) ----------
 
-const VIEWS = ["timeline", "growth", "letters"];
+// Four tabs; three of them have small sub-sections so only one thing shows at a time.
+const VIEWS = ["timeline", "growing", "words", "world"];
+const SUBS = {
+  growing: { flipbook: renderFlipbook, milestones: renderMilestones, height: renderGrowth, about: renderAbout, health: renderHealth },
+  words: { sayings: renderSayings, letters: renderLetters, wishes: renderWishes },
+  world: { people: renderPeople, places: renderPlaces },
+};
+const OLD_HASHES = { growth: "growing/height", letters: "words/letters" };
+const sub = { growing: "flipbook", words: "sayings", world: "people" };
 
-function setView(view) {
+function parseHash() {
+  const raw = location.hash.slice(1);
+  const [view, part] = (OLD_HASHES[raw] || raw).split("/");
+  return VIEWS.includes(view) ? { view, part } : null;
+}
+
+function setView(view, part) {
   state.view = VIEWS.includes(view) ? view : "timeline";
+  if (part && SUBS[state.view]?.[part]) sub[state.view] = part;
   for (const v of VIEWS) $(`#view${v[0].toUpperCase()}${v.slice(1)}`).hidden = v !== state.view;
   document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("active", a.dataset.view === state.view));
   $("#fabAdd").hidden = !(state.editing && state.view === "timeline");
-  if (state.view === "growth") renderGrowth();
-  if (state.view === "letters") renderLetters();
   if (state.view === "timeline") updateLineFill();
+  else showSub(state.view);
 }
+
+function showSub(view) {
+  if (sub[view] === "health" && !state.access.admin) sub[view] = "flipbook";
+  const current = sub[view];
+  const root = $(`#view${view[0].toUpperCase()}${view.slice(1)}`);
+  root.querySelectorAll(".subnav button").forEach((b) => {
+    b.hidden = b.hasAttribute("data-admin") && !state.access.admin;
+    b.classList.toggle("on", b.dataset.sub === current);
+    b.setAttribute("aria-pressed", String(b.dataset.sub === current));
+  });
+  root.querySelectorAll(".subpanel").forEach((p) => { p.hidden = p.dataset.sub !== current; });
+  Promise.resolve(SUBS[view][current]()).catch((ex) => console.warn(ex));
+}
+
+document.querySelectorAll(".subnav button").forEach((b) => b.addEventListener("click", () => {
+  const view = b.closest(".subnav").dataset.view;
+  history.replaceState(null, "", `#${view}/${b.dataset.sub}`);
+  sub[view] = b.dataset.sub;
+  showSub(view);
+}));
 
 window.addEventListener("hashchange", () => {
   if (location.hash.startsWith("#invite=")) return openInvite();
-  const view = location.hash.slice(1);
-  if (VIEWS.includes(view)) {
-    setView(view);
+  const target = parseHash();
+  if (target) {
+    setView(target.view, target.part);
     $("#tabs").scrollIntoView({ behavior: "smooth" });
   }
 });
@@ -79,15 +120,38 @@ function visibleEvents() {
     const { from, to } = state.range;
     list = list.filter((ev) => statusOf(ev) === "published" && (!from || ev.date >= from) && (!to || ev.date <= to));
   }
+  const q = plain(state.search.trim());
+  if (q) list = list.filter((ev) => searchText(ev).includes(q));
   if (state.filterTag === "__draft") return list.filter((ev) => statusOf(ev) === "draft");
   if (state.filterTag === "__pending") return list.filter((ev) => statusOf(ev) === "pending");
+  if (state.filterTag?.startsWith("person:")) return list.filter((ev) => ev.people?.includes(state.filterTag.slice(7)));
   return state.filterTag ? list.filter((ev) => ev.tags?.includes(state.filterTag)) : list;
 }
 
+/** Everything a search can match: title, story, tags, people and place. */
+function searchText(ev) {
+  return plain([ev.title, ev.description, ev.place?.name, ...(ev.tags || []).map(tagLabel),
+    ...(ev.people || []).map((id) => personById(id)?.name)].filter(Boolean).join(" "));
+}
+
+/** Lower-case without accents, so "da lat" finds "Đà Lạt". */
+const plain = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase();
+
+let searchTimer;
+$("#searchInput").addEventListener("input", (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { state.search = e.target.value; renderTimeline(); }, 200);
+});
+
 const countStatus = (status) => state.events.filter((ev) => statusOf(ev) === status).length;
 
+function renderVoices(ev) {
+  const clips = (ev.media || []).filter((m) => m.type === "audio" && m.src);
+  return clips.length ? h("div", { class: "card-voices" }, clips.map((m) => voicePlayer(m.src, t("voiceClip")))) : null;
+}
+
 function renderGallery(ev) {
-  const media = (ev.media || []).map((m) => (m.type === "link" ? hydrateLink(m) : m));
+  const media = (ev.media || []).filter((m) => m.type !== "audio").map((m) => (m.type === "link" ? hydrateLink(m) : m));
   if (!media.length) return null;
   const viewable = media.filter((m) => m.type === "image" || m.type === "video");
   const cls = media.length === 1 ? "one" : media.length === 2 ? "two" : "";
@@ -115,15 +179,18 @@ function renderFilters() {
   const drafts = state.access.admin ? countStatus("draft") : 0;
   const pending = state.access.admin ? countStatus("pending") : 0;
   const special = { __draft: drafts, __pending: pending };
-  if (state.filterTag && !counts.has(state.filterTag) && !special[state.filterTag]) state.filterTag = null;
+  const person = state.filterTag?.startsWith("person:") ? personById(state.filterTag.slice(7)) : null;
+  if (state.filterTag && !counts.has(state.filterTag) && !special[state.filterTag] && !person) state.filterTag = null;
   const bar = $("#filters");
-  bar.hidden = counts.size === 0 && !drafts && !pending;
+  bar.hidden = counts.size === 0 && !drafts && !pending && !person;
   const chip = (tag, label) => h("button", {
     type: "button", class: `filter-chip${state.filterTag === tag ? " on" : ""}`, "aria-pressed": String(state.filterTag === tag),
     onclick: () => { state.filterTag = tag; renderTimeline(); },
   }, label);
   const ordered = [...counts.keys()].sort((a, b) => (PRESET_TAGS.indexOf(a) + 1 || 99) - (PRESET_TAGS.indexOf(b) + 1 || 99) || a.localeCompare(b));
   bar.replaceChildren(...[chip(null, t("filterAll")),
+    person && h("span", { class: "chip-wrap" }, chip(state.filterTag, [personAvatar(person, "tiny"), " ", person.name]),
+      h("button", { type: "button", class: "chip-x", "aria-label": t("close"), onclick: () => { state.filterTag = null; renderTimeline(); } }, "✕")),
     pending > 0 && chip("__pending", `📬 ${t("filterPending")} · ${pending}`),
     drafts > 0 && chip("__draft", `📝 ${t("filterDrafts")} · ${drafts}`),
     ...ordered.map((tag) => {
@@ -176,12 +243,16 @@ function renderTimeline({ keepScroll = false } = {}) {
   const y = window.scrollY;
   renderFilters();
   renderOnThisDay();
+  refreshNudges();
   const events = visibleEvents();
   renderJumpbar(events);
 
   const container = $("#events");
   container.replaceChildren();
   const noneAtAll = state.events.length === 0;
+  $("#searchCount").hidden = !state.search.trim();
+  $("#searchCount").textContent = t("searchCount", { n: events.length });
+  $("#btnYearbook").hidden = !state.events.some((ev) => statusOf(ev) === "published");
   $("#emptyState").hidden = events.length > 0;
   $("#emptyText").textContent = noneAtAll ? t("emptyText") : t("emptyFiltered");
   $("#timeline").hidden = events.length === 0;
@@ -215,6 +286,12 @@ function renderTimeline({ keepScroll = false } = {}) {
         h("h3", {}, ev.title),
         ev.description && h("p", { class: "desc" }, ev.description),
         renderGallery(ev),
+        renderVoices(ev),
+        (ev.place || ev.people?.length > 0) && h("div", { class: "card-who" },
+          (ev.people || []).map(personById).filter(Boolean).map((p) => h("button", {
+            type: "button", class: "who-chip", title: p.name, onclick: () => { state.filterTag = `person:${p.id}`; renderTimeline(); scrollToEl($("#filters")); },
+          }, personAvatar(p, "tiny"), p.name)),
+          ev.place && h("span", { class: "chip place-chip" }, `📍 ${ev.place.name}`)),
         ev.tags?.length > 0 && h("div", { class: "card-tags" }, ev.tags.map((tag) => h("button", {
           type: "button", class: "tag-chip", onclick: () => { state.filterTag = tag; renderTimeline(); scrollToEl($("#filters")); },
         }, tagLabel(tag)))),
@@ -227,6 +304,7 @@ function renderTimeline({ keepScroll = false } = {}) {
   updateLineFill();
 }
 hooks.renderTimeline = renderTimeline;
+hooks.flash = (id) => flash(id);
 
 /** Edit mode: change a memory's date right on its card. */
 async function changeDate(ev, date) {
@@ -365,6 +443,9 @@ function setEditing(on) {
 function renderToolbar() {
   const on = state.editing;
   $("#btnEditMode").replaceChildren(on ? "✅ " : "✏️ ", h("span", {}, t(on ? "done" : "edit")));
+  $("#btnTools").hidden = !on;
+  if (!on) $("#toolsMenu").hidden = true;
+  $("#btnReminder").hidden = !state.settings.birthday;
   $("#btnSettings").hidden = !on;
   $("#btnBackup").hidden = !on;
   $("#btnBulk").hidden = !on;
@@ -405,7 +486,7 @@ async function loadAll() {
   state.myName = myName;
   initMusic();
   // Each extra feature loads on its own, so one missing table can't take down the timeline.
-  await Promise.all([loadSocial(), loadGrowth(), loadLetters()].map((p) => p.catch((ex) => console.warn(ex))));
+  await Promise.all([loadSocial(), loadGrowth(), loadLetters(), loadRows()].map((p) => p.catch((ex) => console.warn(ex))));
   renderAll();
   if (state.access.outdated && state.access.admin) toast(t("gateSetup"), 12000);
 }
@@ -414,8 +495,13 @@ function renderAll() {
   applyI18n();
   renderHero();
   renderToolbar();
+  renderBirthday({ onWish: () => { location.hash = "#words/wishes"; } });
   renderTimeline();
   setView(state.view);
+}
+
+function refreshNudges() {
+  renderNudges({ onAdd: () => openEditor(), onBackup: openBackup });
 }
 
 async function reloadEvents() {
@@ -432,7 +518,8 @@ async function signOut() {
   $("#btnMusic").hidden = true;
   await state.store.signOut();
   setEditing(false);
-  Object.assign(state, { events: [], comments: [], reactions: [], measurements: [], letters: [], myName: "", settings: { ...config.defaults } });
+  Object.assign(state, { events: [], comments: [], reactions: [], measurements: [], letters: [], myName: "", settings: { ...config.defaults }, search: "" });
+  for (const k of Object.keys(state.rows)) state.rows[k] = [];
   await updateAuthUI();
 }
 
@@ -485,6 +572,7 @@ function openEditor(ev = null, { submit = false } = {}) {
   $("#eventDialogTitle").textContent = t(submit ? "shareTitle" : ev ? "editMemory" : "newMemory");
   $("#btnDelete").hidden = !ev || submit;
   $("#tagField").hidden = submit;
+  $("#moreDetails").open = !!(ev?.people?.length || ev?.place || ev?.tags?.length);
   $("#visibleRow").hidden = submit;
   $("#btnSave").textContent = t(submit ? "shareSend" : "saveMemory");
   f.published.checked = !ev || statusOf(ev) === "published";
@@ -501,7 +589,12 @@ function openEditor(ev = null, { submit = false } = {}) {
     media: (ev?.media || []).map((m) => ({ ...m })),
     status: ev ? statusOf(ev) : "published",
     submit,
+    people: [...(ev?.people || [])],
+    place: ev?.place || null,
   };
+  $("#peopleField").hidden = !state.rows.people.length;
+  $("#peoplePickerSlot").replaceChildren(peoplePicker(draft.people, (list) => { draft.people = list; }));
+  $("#placeSlot").replaceChildren(placeField(draft.place, (place) => { draft.place = place; }));
   renderSwatches();
   renderTagPicker();
   renderMediaEdit();
@@ -555,6 +648,7 @@ function renderMediaEdit() {
     let body;
     if (m.type === "image") body = h("img", { src, alt: "" });
     else if (m.type === "video") body = h("video", { src: `${src}#t=0.1`, muted: true, preload: "metadata" });
+    else if (m.type === "audio") body = h("span", { class: "thumb-voice" }, "🎙️");
     else body = h("span", {}, "🔗 ", hydrateLink(m).type === "embed" ? t("mediaVideoLink") : t("mediaLink"));
     return h("div", { class: "media-thumb" }, body,
       h("span", { class: "tag" }, m.file ? t("mediaNew") : m.type === "link" ? t("mediaLink") : m.type),
@@ -587,7 +681,7 @@ async function suggestPhotoDate(files) {
 $("#fileInput").addEventListener("change", (e) => {
   suggestPhotoDate([...e.target.files]);
   for (const file of e.target.files) {
-    const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
+    const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : null;
     if (!type) continue;
     if (type === "video" && file.size > config.maxVideoMB * 1024 * 1024) {
       toast(t("videoTooBig", { name: file.name, mb: config.maxVideoMB }), 6000);
@@ -609,6 +703,10 @@ function addLink() {
   renderMediaEdit();
 }
 $("#btnAddLink").addEventListener("click", addLink);
+$("#voiceSlot").replaceChildren(recorderButton((file) => {
+  draft.media.push({ type: "audio", file, preview: URL.createObjectURL(file) });
+  renderMediaEdit();
+}));
 $("#linkInput").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } });
 
 $("#eventForm").addEventListener("submit", async (e) => {
@@ -637,6 +735,8 @@ $("#eventForm").addEventListener("submit", async (e) => {
       description: f.description.value.trim(),
       color: draft.color,
       tags: draft.tags,
+      people: draft.people,
+      place: draft.place,
       media,
       // Unticking "visible to family" makes a draft; a submission keeps waiting until approved.
       status: f.published.checked ? "published" : draft.status === "pending" ? "pending" : "draft",
@@ -681,6 +781,18 @@ $("#btnDelete").addEventListener("click", async () => {
 $("#fabAdd").addEventListener("click", () => openEditor());
 $("#btnBulk").addEventListener("click", openBulk);
 $("#btnBackup").addEventListener("click", openBackup);
+$("#btnReminder").addEventListener("click", downloadReminder);
+$("#btnYearbook").addEventListener("click", openYearbook);
+
+// 🧰 Tools menu: opens on tap, closes after choosing or tapping elsewhere.
+$("#btnTools").addEventListener("click", (e) => {
+  e.stopPropagation();
+  $("#toolsMenu").hidden = !$("#toolsMenu").hidden;
+});
+$("#toolsMenu").addEventListener("click", () => { $("#toolsMenu").hidden = true; });
+document.addEventListener("pointerdown", (e) => {
+  if (!$("#toolsMenu").hidden && !e.target.closest(".tools-wrap")) $("#toolsMenu").hidden = true;
+});
 $("#btnFamily").addEventListener("click", openFamily);
 $("#btnSlideshow").addEventListener("click", openSlideshow);
 $("#btnShare").addEventListener("click", () => openEditor(null, { submit: true }));
@@ -852,7 +964,9 @@ function openInvite() {
 
 async function boot() {
   setLang(lang);
-  state.view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "timeline";
+  const target = parseHash();
+  state.view = target?.view || "timeline";
+  if (target?.part && SUBS[target.view]?.[target.part]) sub[target.view] = target.part;
   const cloud = config.supabase.url && config.supabase.anonKey;
   if (cloud) {
     const { SupabaseStore } = await import("./store-supabase.js");

@@ -15,6 +15,12 @@ export function h(tag, attrs = {}, ...children) {
   return el;
 }
 
+/** Like el.replaceChildren(), but nested lists are flattened and false/null skipped. */
+export function fill(el, ...children) {
+  el.replaceChildren(...children.flat(Infinity).filter((c) => c != null && c !== false));
+  return el;
+}
+
 const SVG_NS = "http://www.w3.org/2000/svg";
 /** Same as h() but for SVG elements. */
 export function s(tag, attrs = {}, ...children) {

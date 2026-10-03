@@ -25,6 +25,10 @@ $("#btnExport").addEventListener("click", async (e) => {
       await cloudZip();
     }
     toast(t("backupDone"));
+    if (state.access.admin) {
+      state.settings = { ...state.settings, lastBackup: new Date().toISOString() };
+      await state.store.saveSettings(state.settings).catch(() => {});
+    }
   } catch (ex) {
     console.error(ex);
     toast(ex.message, 6000);
@@ -49,15 +53,21 @@ async function cloudZip() {
     if (res.ok) zip.file(`media/${m.path}`, await res.blob());
     done++;
   }
-  // Her profile photo and any uploaded songs.
-  for (const path of [settings?.photo, ...(settings?.songs || []).map((x) => x.path)].filter(Boolean)) {
+  const tables = {};
+  for (const name of ["sayings", "people", "portraits", "about_cards", "milestones", "wishes", "health"]) {
+    tables[name] = await s.listRows(name).catch(() => []);
+  }
+  // Her profile photo, uploaded songs, people photos, portraits and voice sayings.
+  const extra = [settings?.photo, ...(settings?.songs || []).map((x) => x.path),
+    ...tables.people.map((x) => x.photo), ...tables.portraits.map((x) => x.path), ...tables.sayings.map((x) => x.audio)];
+  for (const path of extra.filter(Boolean)) {
     const res = await fetch(await s.fileUrl(path)).catch(() => null);
     if (res?.ok) zip.file(`media/${path}`, await res.blob());
   }
   const clean = events.map(({ updatedAt, ...ev }) => ({ ...ev, media: ev.media.map(({ src, ...m }) => m) }));
   zip.file("data.json", JSON.stringify({
-    app: "little-timeline", version: 2, exportedAt: new Date().toISOString(),
-    settings, events: clean, measurements, letters, comments, reactions,
+    app: "little-timeline", version: 3, exportedAt: new Date().toISOString(),
+    settings, events: clean, measurements, letters, comments, reactions, ...tables,
   }, null, 2));
   zip.file("README.txt", "Backup of the family timeline.\n\ndata.json  - every memory, letter, comment, heart and measurement\nmedia/     - the photos and videos, in folders named after each memory's id\n");
   download(await zip.generateAsync({ type: "blob" }), `timeline-backup-${todayISO()}.zip`);

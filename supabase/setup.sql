@@ -92,7 +92,7 @@ create policy "parents delete media" on storage.objects
 -- ---------- Features added in version 2 ----------
 
 -- Lets the website know this script is up to date. Bump together with SCHEMA_VERSION in js/store-supabase.js.
-create or replace function public.schema_version() returns int language sql immutable as $$ select 3 $$;
+create or replace function public.schema_version() returns int language sql immutable as $$ select 4 $$;
 
 -- Tags on memories ("firsts", "birthday", or your own).
 alter table public.events add column if not exists tags text[] not null default '{}';
@@ -328,6 +328,106 @@ begin
   if target = auth.uid() then raise exception 'You cannot remove yourself.'; end if;
   delete from auth.users where id = target;
 end $$;
+
+-- ---------- Features added in version 4 ----------
+
+-- Who's in a memory, and where it happened.
+alter table public.events add column if not exists people text[] not null default '{}';
+alter table public.events add column if not exists place jsonb;
+
+-- Helper: family can read, admins can change. Used for the simple tables below.
+create or replace function public.family_read_admin_write(tbl text) returns void language plpgsql as $$
+begin
+  execute format('alter table public.%I enable row level security', tbl);
+  execute format('drop policy if exists "family read" on public.%I', tbl);
+  execute format('drop policy if exists "admin write" on public.%I', tbl);
+  execute format('create policy "family read" on public.%I for select to authenticated using (public.is_family())', tbl);
+  execute format('create policy "admin write" on public.%I for all to authenticated using (public.is_admin()) with check (public.is_admin())', tbl);
+end $$;
+
+-- 💬 Things she said
+create table if not exists public.sayings (
+  id uuid primary key default gen_random_uuid(),
+  date date not null,
+  text text not null,
+  note text not null default '',
+  audio text,
+  created_at timestamptz not null default now()
+);
+select public.family_read_admin_write('sayings');
+
+-- 👨‍👩‍👧 People in her life
+create table if not exists public.people (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  relation text not null default '',
+  photo text,
+  sort int not null default 0,
+  created_at timestamptz not null default now()
+);
+select public.family_read_admin_write('people');
+
+-- 📸 Watch her grow (one portrait at a time)
+create table if not exists public.portraits (
+  id uuid primary key default gen_random_uuid(),
+  date date not null,
+  path text not null,
+  created_at timestamptz not null default now()
+);
+select public.family_read_admin_write('portraits');
+
+-- 🧸 "All about me" cards
+create table if not exists public.about_cards (
+  id uuid primary key default gen_random_uuid(),
+  date date not null,
+  answers jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+select public.family_read_admin_write('about_cards');
+
+-- ✅ Milestones (built-in ones use a fixed key; your own get a random one)
+create table if not exists public.milestones (
+  key text primary key,
+  date date,
+  note text not null default '',
+  label text not null default '',
+  emoji text not null default '',
+  created_at timestamptz not null default now()
+);
+select public.family_read_admin_write('milestones');
+
+-- 🎂 Birthday wishes: everyone in the family can write one
+create table if not exists public.wishes (
+  id uuid primary key default gen_random_uuid(),
+  year int not null,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  author_name text not null default '',
+  body text not null check (char_length(body) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+alter table public.wishes enable row level security;
+drop policy if exists "family read wishes"  on public.wishes;
+drop policy if exists "family add wishes"   on public.wishes;
+drop policy if exists "delete own wishes"   on public.wishes;
+create policy "family read wishes" on public.wishes for select to authenticated using (public.is_family());
+create policy "family add wishes"  on public.wishes for insert to authenticated with check (public.is_family() and user_id = auth.uid());
+create policy "delete own wishes"  on public.wishes for delete to authenticated using (user_id = auth.uid() or public.is_admin());
+
+-- 🩺 Health record: parents only
+create table if not exists public.health (
+  id uuid primary key default gen_random_uuid(),
+  date date not null,
+  kind text not null default 'other',
+  title text not null,
+  notes text not null default '',
+  created_at timestamptz not null default now()
+);
+alter table public.health enable row level security;
+drop policy if exists "admins only" on public.health;
+create policy "admins only" on public.health for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- The setup helper is only needed while this script runs.
+drop function if exists public.family_read_admin_write(text);
 
 -- ---------- People ----------
 -- You (admin):

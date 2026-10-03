@@ -13,6 +13,9 @@ export const state = {
   user: null,
   myName: "",
   access: { admin: false, family: false },
+  // Extra collections, each row may carry `_url` for its photo/recording.
+  rows: { sayings: [], people: [], portraits: [], about_cards: [], milestones: [], wishes: [], health: [] },
+  search: "",
   view: "timeline",
   filterTag: null,
 };

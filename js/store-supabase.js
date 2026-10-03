@@ -5,7 +5,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 // Bump together with public.schema_version() in supabase/setup.sql.
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 /** Throw Supabase errors instead of returning them. */
 function check({ data, error }) {
@@ -140,6 +140,8 @@ export class SupabaseStore {
       emoji: event.emoji,
       color: event.color,
       tags: event.tags || [],
+      people: event.people || [],
+      place: event.place || null,
       media,
       updated_at: new Date().toISOString(),
     };
@@ -193,6 +195,33 @@ export class SupabaseStore {
     const { data, error } = await this.#sb.storage.from(this.#bucket).createSignedUrl(path, 60 * 60 * 12);
     if (error) throw error;
     return data.signedUrl;
+  }
+
+  /** Temporary links for many stored files at once: Map(path → url). */
+  async fileUrls(paths) {
+    const list = [...new Set(paths.filter(Boolean))];
+    if (!list.length) return new Map();
+    const { data, error } = await this.#sb.storage.from(this.#bucket).createSignedUrls(list, 60 * 60 * 12);
+    if (error) throw error;
+    return new Map(data.map((d) => [d.path, d.signedUrl]));
+  }
+
+  // ---------- Simple collections (sayings, people, portraits, cards, milestones, wishes, health) ----------
+
+  async listRows(table) {
+    return check(await this.#sb.from(table).select("*"));
+  }
+  async insertRow(table, row) {
+    check(await this.#sb.from(table).insert(row));
+  }
+  async updateRow(table, key, fields, keyCol = "id") {
+    check(await this.#sb.from(table).update(fields).eq(keyCol, key));
+  }
+  async upsertRow(table, row, keyCol = "id") {
+    check(await this.#sb.from(table).upsert(row, { onConflict: keyCol }));
+  }
+  async deleteRow(table, key, keyCol = "id") {
+    check(await this.#sb.from(table).delete().eq(keyCol, key));
   }
 
   async deleteFile(path) {

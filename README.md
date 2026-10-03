@@ -16,11 +16,18 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 | 🗓️ **On this day** | A banner shows what happened on today's date in earlier years. |
 | 🧭 **Jump bar** | A sticky bar to jump to any year, with her age that year. |
 | ❤️ **Hearts & comments** | Family can heart and comment on memories. People can delete their own comments; you can delete any. |
-| 📏 **Growth** | Height & weight over time: latest values, a chart for each, and a full table. Only you can add measurements. |
-| 💌 **Letters to her** | Anyone in the family can write her a letter, optionally **sealed until a date**. Before then, others only see the envelope. |
+| 🔍 **Search** | Find any memory by a word in its title or story, a tag, a person or a place (accents optional: "da lat" finds "Đà Lạt"). |
+| 🌱 **Growing tab** | 📸 *Watch her grow* (one photo a month or a year, played as a flipbook) · ✅ *Milestones* (first smile, first steps… or your own) · 📏 *Height & weight* charts · 🧸 *All about me* (a yearly card: favourite food, toy, friend…) · 🩺 *Health* (vaccines, check-ups, allergies; **parents only**). |
+| 💌 **Words tab** | 💬 *Things she said*, optionally in her own recorded voice · 💌 *Letters to her*, optionally **sealed until a date** · 🎂 *Birthday wishes* from the family, collected for each birthday. |
+| 🌍 **Her world tab** | 👨‍👩‍👧 *People* who love her (tap someone to see every memory with them) · 🗺️ *Places* on a map. |
+| 🎙️ **Voice memories** | Record sound right on the site (or upload an audio file) for a memory or a saying. |
+| 👥 **Who & where** | Tag the people in a memory and where it happened (place search by OpenStreetMap). |
+| 🎂 **Birthday mode** | On her birthday: balloons, fireworks and a "write a birthday wish" button for everyone. |
+| 📖 **Year book** | Turn a year into printable pages: cover, month by month, milestones, sayings, growth. Print or "Save as PDF" for a photo book. |
+| 🔔 **Gentle reminders** | A small note for parents on her "month-day" if nothing was added lately, a backup reminder, and a monthly calendar reminder to download. |
 | 🖼️ **Many photos** | Pick a batch of photos; they're grouped by the day they were taken (read from the photo), one memory per day or per photo. |
 | 📧 **Email the family** | After you add memories, one tap opens your email app with a message to every family member. |
-| 💾 **Backup** | Downloads a .zip of everything: memories, photos, videos, letters, comments and measurements. |
+| 💾 **Backup** | Downloads a .zip of everything: memories, photos, videos, voices, letters, sayings, people, milestones, wishes, comments and measurements. |
 | 🌐 **Tiếng Việt / English** | Switch language with the 🌐 button; everyone's choice is remembered on their device. |
 | 😊 **Emoji picker** | A 😊 button next to titles, stories, letters and comments; the memory's bubble emoji is a dropdown. |
 | ▶️ **Slideshow** | Pick a date range and a speed; the timeline scrolls by itself (tap to pause). Great on a TV. |
@@ -121,8 +128,17 @@ css/styles.css          the bright & cute theme
 js/config.js            ← your settings (Supabase keys, upload limits)
 js/app.js               timeline, filters, jump bar, editor, settings, lightbox
 js/social.js            hearts, comments, "what should we call you?"
-js/growth.js            growth tab: tiles, charts, measurements table
-js/letters.js           letters tab (with sealed letters)
+js/growth.js            height & weight: tiles, charts, measurements table
+js/letters.js           letters (with sealed letters)
+js/growing.js           flipbook, milestones, "All about me" cards, health
+js/words.js             things she said, birthday wishes
+js/world.js             people, place search, places map
+js/yearbook.js          printable year book
+js/nudges.js            reminders, calendar file, birthday mode
+js/voice.js             voice recorder & player
+js/form.js              the small pop-up forms
+js/collections.js       loads sayings, people, milestones…
+vendor/leaflet/         map library (Leaflet, BSD-2 licence)
 js/bulk.js              "Many photos" bulk upload
 js/exif.js              reads the date a photo was taken
 js/backup.js            .zip / .json backup
