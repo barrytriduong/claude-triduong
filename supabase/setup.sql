@@ -576,7 +576,7 @@ begin
   values (1, extensions.crypt(new_pin, extensions.gen_salt('bf')), viewer, email, password, now())
   on conflict (id) do update set pin_hash = excluded.pin_hash, viewer_id = excluded.viewer_id,
     viewer_email = excluded.viewer_email, viewer_password = excluded.viewer_password, updated_at = now();
-  delete from public.pin_attempts;
+  delete from public.pin_attempts where true;
 end $$;
 
 -- Admin: turn the PIN off (everyone who used it is signed out).
@@ -586,8 +586,8 @@ as $$
 begin
   perform public.require_admin();
   delete from auth.users where id in (select user_id from public.viewers);
-  delete from public.site_pin;
-  delete from public.pin_attempts;
+  delete from public.site_pin where true;
+  delete from public.pin_attempts where true;
 end $$;
 
 -- Admin: is the PIN on, since when, and how many wrong tries lately.
