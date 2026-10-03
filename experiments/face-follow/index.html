@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Face Follows Cursor</title>
+<style>
+  :root {
+    --bg: #f4efe8;
+    --fg: #2b2622;
+    --muted: #7a7068;
+    --chip: #ffffffcc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #171412; --fg: #efe7de; --muted: #a39789; --chip: #2a2420cc; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: grid; place-items: center; }
+  canvas, #fallback { display: block; max-width: 100vw; max-height: 100vh; border-radius: 4px;
+    box-shadow: 0 10px 40px #0003; }
+  #fallback { display: none; }
+  #ui { position: fixed; left: 16px; bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  #ui button { font: inherit; border: 0; padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    background: var(--chip); color: var(--fg); backdrop-filter: blur(6px); }
+  #hint { position: fixed; top: 16px; left: 0; right: 0; text-align: center; color: var(--muted);
+    pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="hint">Move your mouse (or finger) around the page</div>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <img id="fallback" src="photo.jpg" alt="Portrait photo">
+</div>
+<div id="ui">
+  <button id="depthBtn" type="button">Show depth map</button>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Where things are in photo.jpg (1126 x 2000), in image pixels.
+// Change these if you use a different photo.
+// ---------------------------------------------------------------------------
+const FACE = {
+  head:  { x: 720, y: 470, rx: 170, ry: 225 },   // ellipse around head + hair
+  nose:  { x: 677, y: 535 },
+  eyeL:  { x: 637, y: 466 },                     // viewer's left
+  eyeR:  { x: 748, y: 474 },
+  bodyTop: 690,                                  // where the shoulders start
+};
+// How far things move at full look (image pixels).
+const AMOUNT = { head: [30, 20], nose: [10, 7], eyes: [5, 2.5], body: [7, 3], bg: [-6, -3] };
+
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+
+const VERT = `
+attribute vec2 aPos;
+varying vec2 vUv;
+void main() {
+  vUv = vec2(aPos.x * 0.5 + 0.5, 0.5 - aPos.y * 0.5); // top-left = (0,0)
+  gl_Position = vec4(aPos, 0.0, 1.0);
+}`;
+
+const FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uTex;
+uniform vec2 uSize;     // image size in px
+uniform vec2 uLook;     // -1..1, where the face should look
+uniform float uDepth;   // 1 = show the depth map instead of the photo
+
+uniform vec4 uHead;     // cx, cy, rx, ry
+uniform vec2 uNose, uEyeL, uEyeR;
+uniform float uBodyTop;
+uniform vec2 aHead, aNose, aEyes, aBody, aBg;
+
+float eyeWeight(vec2 p, vec2 c) {
+  vec2 d = (p - c) / vec2(24.0, 13.0);
+  return 1.0 - smoothstep(0.35, 1.0, length(d));
+}
+
+void main() {
+  vec2 p = vUv * uSize;
+
+  // Head: treat it like a ball. The middle of the ball moves more than the
+  // edges when it turns, which is what sells the 3D effect.
+  vec2 q = (p - uHead.xy) / uHead.zw;
+  float r = length(q);
+  float sphere = sqrt(max(1.0 - r * r, 0.0));
+  float headW = 1.0 - smoothstep(0.6, 1.3, r);          // soft falloff past the hairline
+  float headDepth = headW * (0.45 + 0.55 * sphere);
+
+  // Nose sticks out further than the rest of the face.
+  vec2 dn = (p - uNose) / vec2(38.0, 55.0);
+  float noseW = exp(-dot(dn, dn) * 1.5);
+
+  // Eyes get a little extra so the gaze leads the head.
+  float eyesW = max(eyeWeight(p, uEyeL), eyeWeight(p, uEyeR));
+
+  // Shoulders follow a little; background moves the other way (parallax).
+  float bodyW = smoothstep(uBodyTop - 40.0, uBodyTop + 120.0, p.y) * (1.0 - headW);
+  float bgW = max(0.0, 1.0 - headW - bodyW);
+
+  vec2 shift = uLook * (aHead * headDepth + aNose * noseW + aEyes * eyesW
+                      + aBody * bodyW + aBg * bgW);
+
+  vec2 uv = (p - shift) / uSize;
+  if (uDepth > 0.5) {
+    float d = clamp(headDepth + 0.6 * noseW + eyesW * 0.4, 0.0, 1.0) + bodyW * 0.3;
+    gl_FragColor = vec4(vec3(d), 1.0);
+  } else {
+    gl_FragColor = texture2D(uTex, uv);
+  }
+}`;
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+
+function useFallback() {
+  canvas.style.display = 'none';
+  document.getElementById('fallback').style.display = 'block';
+  document.getElementById('ui').style.display = 'none';
+  document.getElementById('hint').textContent = 'Your browser does not support WebGL, so the photo is shown as is.';
+}
+
+if (!gl) {
+  useFallback();
+} else {
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, 'aPos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const U = (n) => gl.getUniformLocation(prog, n);
+  gl.uniform4f(U('uHead'), FACE.head.x, FACE.head.y, FACE.head.rx, FACE.head.ry);
+  gl.uniform2f(U('uNose'), FACE.nose.x, FACE.nose.y);
+  gl.uniform2f(U('uEyeL'), FACE.eyeL.x, FACE.eyeL.y);
+  gl.uniform2f(U('uEyeR'), FACE.eyeR.x, FACE.eyeR.y);
+  gl.uniform1f(U('uBodyTop'), FACE.bodyTop);
+  gl.uniform2fv(U('aHead'), AMOUNT.head);
+  gl.uniform2fv(U('aNose'), AMOUNT.nose);
+  gl.uniform2fv(U('aEyes'), AMOUNT.eyes);
+  gl.uniform2fv(U('aBody'), AMOUNT.body);
+  gl.uniform2fv(U('aBg'), AMOUNT.bg);
+  const uLook = U('uLook'), uDepth = U('uDepth'), uSize = U('uSize');
+
+  let imgW = 1, imgH = 1, ready = false, showDepth = false;
+  const target = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+
+  const img = new Image();
+  img.onload = () => {
+    imgW = img.naturalWidth; imgH = img.naturalHeight;
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.uniform2f(uSize, imgW, imgH);
+    ready = true;
+    resize();
+  };
+  img.onerror = useFallback;
+  img.src = 'photo.jpg';
+
+  // Fit the photo inside the window, keeping its shape.
+  function resize() {
+    const scale = Math.min(innerWidth / imgW, innerHeight / imgH);
+    const cssW = Math.round(imgW * scale), cssH = Math.round(imgH * scale);
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  addEventListener('resize', resize);
+
+  // Turn the pointer position into a look direction, measured from the face.
+  function aim(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const fx = rect.left + (FACE.head.x / imgW) * rect.width;
+    const fy = rect.top + (FACE.head.y / imgH) * rect.height;
+    const reach = Math.max(innerWidth, innerHeight) * 0.45;
+    target.x = Math.tanh((clientX - fx) / reach * 1.4);
+    target.y = Math.tanh((clientY - fy) / reach * 1.4);
+  }
+  addEventListener('pointermove', (e) => aim(e.clientX, e.clientY));
+  addEventListener('touchmove', (e) => aim(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+  document.addEventListener('pointerleave', () => { target.x = 0; target.y = 0; });
+
+  document.getElementById('depthBtn').addEventListener('click', (e) => {
+    showDepth = !showDepth;
+    e.currentTarget.textContent = showDepth ? 'Show photo' : 'Show depth map';
+  });
+
+  (function frame() {
+    // Ease toward the target so the head turns smoothly instead of snapping.
+    look.x += (target.x - look.x) * 0.08;
+    look.y += (target.y - look.y) * 0.08;
+    if (ready) {
+      gl.uniform2f(uLook, look.x, look.y);
+      gl.uniform1f(uDepth, showDepth ? 1 : 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    requestAnimationFrame(frame);
+  })();
+}
+</script>
+</body>
+</html>
