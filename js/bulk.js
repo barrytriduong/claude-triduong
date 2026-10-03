@@ -6,7 +6,7 @@ import { state, hooks, COLOR_KEYS } from "./state.js";
 import { $, h, openDialog, toast } from "./util.js";
 import { t, fmtDate } from "./i18n.js";
 import { compressImage, mediaKind } from "./media.js";
-import { photoDate } from "./exif.js";
+import { photoDateInfo } from "./exif.js";
 
 let items = []; // { file, type, date, preview }
 let groups = []; // { key, date, title, items }
@@ -39,7 +39,8 @@ async function addFiles(e) {
     const type = mediaKind(file);
     if (!type) continue;
     if (type === "video" && file.size > config.maxVideoMB * 1024 * 1024) { skipped.push(file.name); continue; }
-    items.push({ file, type, date: await photoDate(file), preview: URL.createObjectURL(file) });
+    const { date, sure } = await photoDateInfo(file);
+    items.push({ file, type, date, sure, preview: URL.createObjectURL(file) });
   }
   if (skipped.length) toast(t("bulkSkipped", { n: skipped.length, mb: config.maxVideoMB }), 8000);
   regroup();
@@ -55,8 +56,9 @@ function regroup() {
   const map = new Map();
   items.forEach((it, i) => {
     const key = perPhoto ? `${it.date}#${i}` : it.date;
-    if (!map.has(key)) map.set(key, { key, date: it.date, title: titles.get(key) || "", items: [] });
+    if (!map.has(key)) map.set(key, { key, date: it.date, title: titles.get(key) || "", items: [], unsure: false });
     map.get(key).items.push(it);
+    if (!it.sure) map.get(key).unsure = true;
   });
   groups = [...map.values()].sort((a, b) => a.date.localeCompare(b.date));
   renderGroups();
@@ -73,7 +75,11 @@ function renderGroups() {
         : h("video", { src: `${it.preview}#t=0.1`, muted: true, preload: "metadata" })),
       g.items.length > 4 && h("span", { class: "more" }, `+${g.items.length - 4}`)),
     h("div", { class: "bulk-fields" },
-      h("input", { type: "date", value: g.date, required: true, onchange: (e) => { g.date = e.target.value; } }),
+      h("input", {
+        type: "date", value: g.date, required: true, class: g.unsure ? "unsure" : null,
+        onchange: (e) => { g.date = e.target.value; g.unsure = false; e.target.classList.remove("unsure"); e.target.nextElementSibling?.classList.contains("date-warn") && e.target.nextElementSibling.remove(); },
+      }),
+      g.unsure && h("small", { class: "date-warn" }, t("bulkDateUnsure")),
       h("input", {
         value: g.title, maxlength: "120", placeholder: t("bulkDefaultTitle", { date: fmtDate(g.date) }),
         oninput: (e) => { g.title = e.target.value; },

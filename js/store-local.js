@@ -127,6 +127,20 @@ export class LocalStore {
     return id;
   }
 
+  async updateEvent(id, fields) {
+    const rec = await this.#get("events", id);
+    if (rec) await this.#put("events", { ...rec, ...fields, updatedAt: new Date().toISOString() });
+  }
+
+  // Other files (profile photo, songs) live in the media store under their path.
+  async uploadFile(folder, file) {
+    const path = `${folder}/${crypto.randomUUID()}`;
+    await this.#put("media", file, path);
+    return path;
+  }
+  async fileUrl(path) { return this.#mediaUrl(path); }
+  async deleteFile(path) { await this.#deleteMedia([{ mediaId: path }]); }
+
   async setEventStatus(id, status) {
     const rec = await this.#get("events", id);
     if (rec) await this.#put("events", { ...rec, status });

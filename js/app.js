@@ -13,6 +13,10 @@ import { attachEmojiInsert, attachEmojiSelect } from "./emoji.js";
 import { openSlideshow } from "./slideshow.js";
 import { openFamily, handleInviteLink } from "./family.js";
 import { ensureName } from "./social.js";
+import { initMusic, stopMusic } from "./music.js";
+import { renderAvatar, initProfileFields, commitProfile } from "./profile.js";
+import { setCuteCursor } from "./cursor.js";
+import { photoDateInfo } from "./exif.js";
 
 const tagLabel = (tag) => (PRESET_TAGS.includes(tag) ? t(`tag_${tag}`) : `🏷️ ${tag}`);
 
@@ -22,7 +26,9 @@ function renderHero() {
   const s = state.settings;
   const name = s.name || t("defaultName");
   $("#heroName").textContent = name;
-  $("#heroEmoji").textContent = s.emoji || config.defaults.emoji;
+  renderAvatar($("#heroAvatar"), { ...s, emoji: s.emoji || config.defaults.emoji });
+  $("#btnHeroEdit").hidden = !state.editing;
+  setCuteCursor(s.cuteCursor !== false);
   $("#heroTagline").textContent = s.tagline || t("defaultTagline");
   let age = "";
   if (s.birthday && s.birthday <= todayISO()) {
@@ -118,7 +124,12 @@ function renderFilters() {
   bar.replaceChildren(...[chip(null, t("filterAll")),
     pending > 0 && chip("__pending", `📬 ${t("filterPending")} · ${pending}`),
     drafts > 0 && chip("__draft", `📝 ${t("filterDrafts")} · ${drafts}`),
-    ...ordered.map((tag) => chip(tag, `${tagLabel(tag)} · ${counts.get(tag)}`))].filter(Boolean));
+    ...ordered.map((tag) => {
+      const c = chip(tag, `${tagLabel(tag)} · ${counts.get(tag)}`);
+      if (!state.editing || PRESET_TAGS.includes(tag)) return c;
+      return h("span", { class: "chip-wrap" }, c,
+        h("button", { type: "button", class: "chip-x", title: t("deleteTag"), "aria-label": t("deleteTag"), onclick: () => deleteTag(tag) }, "✕"));
+    })].filter(Boolean));
 }
 
 function jumpAgeLabel(date) {
@@ -195,7 +206,9 @@ function renderTimeline({ keepScroll = false } = {}) {
         h("button", { class: "card-edit", type: "button", onclick: () => openEditor(ev) }, t("editCard")),
         statusBar(ev),
         h("div", { class: "card-meta" },
-          h("span", { class: "chip" }, fmtDate(ev.date)),
+          state.editing
+            ? h("input", { type: "date", class: "chip date-edit", value: ev.date, title: t("changeDate"), onchange: (e) => changeDate(ev, e.target.value) })
+            : h("span", { class: "chip" }, fmtDate(ev.date)),
           age && h("span", { class: "chip age" }, age)),
         h("h3", {}, ev.title),
         ev.description && h("p", { class: "desc" }, ev.description),
@@ -211,6 +224,35 @@ function renderTimeline({ keepScroll = false } = {}) {
   updateLineFill();
 }
 hooks.renderTimeline = renderTimeline;
+
+/** Edit mode: change a memory's date right on its card. */
+async function changeDate(ev, date) {
+  if (!date || date === ev.date) return;
+  try {
+    await state.store.updateEvent(ev.id, { date });
+    await reloadEvents();
+    toast(t("dateChanged", { date: fmtDate(date) }));
+    flash(ev.id);
+  } catch (ex) {
+    toast(ex.message, 5000);
+  }
+}
+
+/** Removes a tag from every memory (for tags made by mistake). */
+async function deleteTag(tag) {
+  const tagged = state.events.filter((ev) => ev.tags?.includes(tag));
+  if (!confirm(t("deleteTagConfirm", { tag: tagLabel(tag), n: tagged.length }))) return false;
+  try {
+    for (const ev of tagged) await state.store.updateEvent(ev.id, { tags: ev.tags.filter((x) => x !== tag) });
+    if (state.filterTag === tag) state.filterTag = null;
+    await reloadEvents();
+    toast(t("tagDeleted"));
+    return true;
+  } catch (ex) {
+    toast(ex.message, 5000);
+    return false;
+  }
+}
 
 /** Draft / waiting-for-approval banner on a card, with the admin's publish/approve buttons. */
 function statusBar(ev) {
@@ -289,6 +331,7 @@ window.addEventListener("resize", updateLineFill);
 function setEditing(on) {
   state.editing = on;
   document.body.classList.toggle("editing", on);
+  $("#btnHeroEdit").hidden = !on;
   renderToolbar();
   setView(state.view);
   renderTimeline({ keepScroll: true });
@@ -335,6 +378,7 @@ async function loadAll() {
   state.settings = { ...config.defaults, ...(settings || {}) };
   state.events = events;
   state.myName = myName;
+  initMusic();
   // Each extra feature loads on its own, so one missing table can't take down the timeline.
   await Promise.all([loadSocial(), loadGrowth(), loadLetters()].map((p) => p.catch((ex) => console.warn(ex))));
   renderAll();
@@ -359,6 +403,8 @@ $("#btnGateLogin").addEventListener("click", () => openDialog("#loginDialog"));
 $("#btnEditMode").addEventListener("click", () => setEditing(!state.editing));
 
 async function signOut() {
+  stopMusic();
+  $("#btnMusic").hidden = true;
   await state.store.signOut();
   setEditing(false);
   Object.assign(state, { events: [], comments: [], reactions: [], measurements: [], letters: [], myName: "", settings: { ...config.defaults } });
@@ -422,6 +468,7 @@ function openEditor(ev = null, { submit = false } = {}) {
   f.date.value = ev?.date || todayISO();
   f.description.value = ev?.description || "";
   $("#tagCustom").value = "";
+  $("#photoDateHint").hidden = true;
   draft = {
     id: ev?.id || null,
     color: ev?.color || COLOR_KEYS[Math.floor(Math.random() * COLOR_KEYS.length)],
@@ -450,13 +497,21 @@ function renderTagPicker() {
   const all = [...new Set([...PRESET_TAGS, ...used, ...draft.tags])];
   $("#tagPicker").replaceChildren(...all.map((tag) => {
     const on = draft.tags.includes(tag);
-    return h("button", {
+    const chip = h("button", {
       type: "button", class: `filter-chip${on ? " on" : ""}`, "aria-pressed": String(on),
       onclick: () => {
         draft.tags = on ? draft.tags.filter((x) => x !== tag) : [...draft.tags, tag];
         renderTagPicker();
       },
     }, tagLabel(tag));
+    if (PRESET_TAGS.includes(tag) || draft.submit) return chip;
+    return h("span", { class: "chip-wrap" }, chip, h("button", {
+      type: "button", class: "chip-x", title: t("deleteTag"), "aria-label": t("deleteTag"),
+      onclick: async () => {
+        if (!used.has(tag)) { draft.tags = draft.tags.filter((x) => x !== tag); return renderTagPicker(); }
+        if (await deleteTag(tag)) { draft.tags = draft.tags.filter((x) => x !== tag); renderTagPicker(); }
+      },
+    }, "✕"));
   }));
 }
 
@@ -490,7 +545,22 @@ function renderMediaEdit() {
   }));
 }
 
+// Offer the date the photo was taken (e.g. "📷 Use the photo's date: 14 March 2024").
+async function suggestPhotoDate(files) {
+  const hint = $("#photoDateHint");
+  for (const file of files) {
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) continue;
+    const info = await photoDateInfo(file);
+    if (!info.sure || info.date === $("#eventForm").date.value) continue;
+    hint.textContent = t("usePhotoDate", { date: fmtDate(info.date) });
+    hint.onclick = () => { $("#eventForm").date.value = info.date; hint.hidden = true; };
+    hint.hidden = false;
+    return;
+  }
+}
+
 $("#fileInput").addEventListener("change", (e) => {
+  suggestPhotoDate([...e.target.files]);
   for (const file of e.target.files) {
     const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
     if (!type) continue;
@@ -635,13 +705,19 @@ $("#btnSettings").addEventListener("click", () => {
   f.birthday.value = s.birthday || "";
   f.tagline.value = s.tagline || "";
   f.newestFirst.checked = !!s.newestFirst;
+  f.cuteCursor.checked = s.cuteCursor !== false;
+  initProfileFields(s);
   openDialog("#settingsDialog");
 });
 
 $("#settingsForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target;
+  const btn = f.querySelector("button[type=submit]");
+  btn.disabled = true;
   const settings = {
+    ...state.settings,
+    cuteCursor: f.cuteCursor.checked,
     name: f.name.value.trim(),
     emoji: f.emoji.value.trim(),
     birthday: f.birthday.value,
@@ -649,6 +725,7 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     newestFirst: f.newestFirst.checked,
   };
   try {
+    Object.assign(settings, await commitProfile(state.settings));
     await state.store.saveSettings(settings);
     state.settings = { ...config.defaults, ...settings };
     $("#settingsDialog").close();
@@ -656,8 +733,11 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     toast(t("saved"));
   } catch (ex) {
     toast(ex.message);
+  } finally {
+    btn.disabled = false;
   }
 });
+$("#btnHeroEdit").addEventListener("click", () => $("#btnSettings").click());
 
 // ---------- Sample data (local mode) ----------
 

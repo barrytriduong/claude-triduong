@@ -26,6 +26,11 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 | ▶️ **Slideshow** | Pick a date range and a speed; the timeline scrolls by itself (tap to pause). Great on a TV. |
 | 📁 **Folder upload & drafts** | On a computer, pick a whole folder (e.g. 100 photos and videos). They're sorted by the date taken and saved as drafts that only you see; add stories, then Publish. |
 | 📬 **Family sharing** | Family members can share a memory with photos; it waits for your approval (📬 button) before it appears. |
+| 🖼️ **Her photo** | Her photo at the top in a round frame, with a cute decoration (bow, crown, flowers, stars, hearts, bunny). |
+| 🎵 **Music** | Music-box lullabies made right in the browser (nothing to download), or upload your own songs. Optional during the slideshow. |
+| 📅 **Quick date fixes** | Change a memory's date right on its card; dates are read from photos, videos and file names. |
+| 🏷️ **Delete tags** | Remove a tag made by mistake from every memory at once. |
+| ✨ **Cute pointer** | A pink pointer and magic wand with a sparkle trail on computers (can be turned off). |
 | 👨‍👩‍👧 **Family panel** | Invite people with a link, change who can edit or view, set a new password, or remove someone — all from the site. |
 
 ## Try it locally
@@ -78,6 +83,7 @@ When a new version needs database changes, the admin sees a reminder on the site
 
 Use **Edit → 👨‍👩‍👧 Family** on the site:
 
+- **Create a login yourself:** name, email and password; the account works right away (needs the same two Supabase settings as invites).
 - **Invite:** type their name, choose *Family (can view)* or *Admin (can edit)*, and send them the link (Zalo, Messenger, email…). They open it and choose their own email and password. Links work once and expire after 14 days.
 - **Change access, set a new password, or remove someone** from the same panel.
 

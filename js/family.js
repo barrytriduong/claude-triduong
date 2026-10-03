@@ -43,6 +43,22 @@ async function renderFamily() {
         h("button", { class: "btn btn-primary", type: "submit" }, t("famCreateInvite")))),
     h("div", { id: "newInvite" }),
 
+    // Create a login directly
+    state.store.createMember && h("form", { class: "invite-form create-form", onsubmit: createLogin },
+      h("h3", {}, t("famCreateTitle")),
+      h("p", { class: "muted small" }, t("famCreateHelp")),
+      h("div", { class: "row" },
+        h("input", { name: "name", required: true, maxlength: "40", placeholder: t("famInviteNamePh"), class: "grow" }),
+        h("input", { name: "email", type: "email", required: true, placeholder: t("email"), class: "grow", autocomplete: "off" })),
+      h("div", { class: "row" },
+        h("input", { name: "password", required: true, minlength: "8", placeholder: t("famPwPh"), class: "grow", autocomplete: "new-password", spellcheck: "false" }),
+        h("button", { type: "button", class: "btn btn-ghost small-btn", title: t("famPwSuggest"), onclick: (e) => { e.currentTarget.form.password.value = suggestPassword(); } }, "🎲"),
+        h("select", { name: "role" },
+          h("option", { value: "family" }, t("role_family")),
+          h("option", { value: "admin" }, t("role_admin")))),
+      h("button", { class: "btn btn-primary", type: "submit" }, t("famCreateBtn"))),
+    h("div", { id: "newLogin" }),
+
     // Open invites
     invites.length > 0 && h("div", { class: "fam-section" },
       h("h3", {}, t("famPending")),
@@ -99,6 +115,41 @@ function showNewInvite(code, name) {
     h("div", { class: "row" },
       h("button", { type: "button", class: "btn btn-primary", onclick: () => copy(url) }, t("famCopy")),
       navigator.share && h("button", { type: "button", class: "btn btn-ghost", onclick: () => shareLink(code, name) }, t("famShare")))));
+}
+
+/** Easy-to-type password like "sunny-panda-42". */
+function suggestPassword() {
+  const a = ["sunny", "happy", "lucky", "pink", "sweet", "bright", "cozy", "merry", "tiny", "jolly"];
+  const b = ["panda", "bunny", "kitty", "lotus", "mango", "star", "cloud", "tulip", "puppy", "otter"];
+  const pick = (arr) => arr[crypto.getRandomValues(new Uint32Array(1))[0] % arr.length];
+  return `${pick(a)}-${pick(b)}-${10 + (crypto.getRandomValues(new Uint32Array(1))[0] % 90)}`;
+}
+
+async function createLogin(e) {
+  e.preventDefault();
+  const f = e.target;
+  const btn = f.querySelector("button[type=submit]");
+  const who = { name: f.name.value.trim(), email: f.email.value.trim(), password: f.password.value, role: f.role.value };
+  btn.disabled = true;
+  try {
+    const { needsConfirmation } = await state.store.createMember(who);
+    await renderFamily();
+    const site = `${location.origin}${location.pathname}`;
+    const message = t("famLoginMessage", { name: who.name, site, email: who.email, password: who.password });
+    $("#newLogin").replaceChildren(h("div", { class: "invite-link" },
+      h("p", {}, needsConfirmation ? t("famCreatedConfirm", { name: who.name }) : t("famCreated", { name: who.name })),
+      h("textarea", { readonly: true, rows: "5", onfocus: (ev) => ev.target.select() }, message),
+      h("div", { class: "row" },
+        h("button", { type: "button", class: "btn btn-primary", onclick: () => copy(message) }, t("famCopyMessage")))));
+  } catch (ex) {
+    const msg = /already registered/i.test(ex.message) ? t("famEmailTaken")
+      : /signups? (are )?not allowed|disabled/i.test(ex.message) ? t("famSignupsOff")
+        : /password/i.test(ex.message) && /least|short|weak/i.test(ex.message) ? t("famPwShort")
+          : ex.message;
+    toast(msg, 8000);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function copy(text) {

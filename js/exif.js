@@ -8,18 +8,40 @@ import { mediaKind } from "./media.js";
 const CHUNK = 512 * 1024;
 
 export async function photoDate(file) {
+  return (await photoDateInfo(file)).date;
+}
+
+/**
+ * { date, sure }. "sure" means the date came from inside the photo/video or from a
+ * dated file name; otherwise it's only the file's modified date (which is often the
+ * day it was downloaded or sent through Zalo/Messenger, not the day it was taken).
+ */
+export async function photoDateInfo(file) {
   try {
     const head = await file.slice(0, CHUNK).arrayBuffer();
-    if (mediaKind(file) === "image") {
-      const taken = readExifDate(head) || findExif(head);
-      if (taken) return taken;
-    } else if (mediaKind(file) === "video") {
+    let taken = null;
+    if (mediaKind(file) === "image") taken = readExifDate(head) || findExif(head);
+    else if (mediaKind(file) === "video") {
       // The header can sit at the start or the end of the file.
-      const taken = readMvhd(head) || (file.size > CHUNK && readMvhd(await file.slice(-CHUNK).arrayBuffer()));
-      if (taken) return taken;
+      taken = readMvhd(head) || (file.size > CHUNK && readMvhd(await file.slice(-CHUNK).arrayBuffer()));
     }
+    if (taken) return { date: taken, sure: true };
   } catch { /* fall through */ }
-  return isoOf(new Date(file.lastModified || Date.now()));
+  const fromName = dateFromName(file.name);
+  if (fromName) return { date: fromName, sure: true };
+  return { date: isoOf(new Date(file.lastModified || Date.now())), sure: false };
+}
+
+/**
+ * Dates in file names: IMG_20240315_101500.jpg, PXL_20240315…, VID-20240315-WA0001.mp4,
+ * Screenshot_2024-03-15…, "Photo 2024-03-15 10.15.00.jpg", 2024_03_15.jpg …
+ */
+export function dateFromName(name) {
+  const m = name.match(/(?:^|[^0-9])(20\d{2}|19\d{2})[-_.]?(0[1-9]|1[0-2])[-_.]?(0[1-9]|[12]\d|3[01])(?![0-9]{3,})/);
+  if (!m) return null;
+  const iso = `${m[1]}-${m[2]}-${m[3]}`;
+  const d = new Date(`${iso}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.getTime() <= Date.now() + 86400000 ? iso : null;
 }
 
 /** HEIC and friends: find the "Exif\0\0" marker anywhere in the header and read the TIFF after it. */

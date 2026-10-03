@@ -3,6 +3,7 @@
 import { state, hooks } from "./state.js";
 import { $, h, openDialog } from "./util.js";
 import { t } from "./i18n.js";
+import { startMusic, stopMusic, musicOn } from "./music.js";
 
 const SPEEDS = { slow: 28, normal: 55, fast: 100 }; // pixels per second
 
@@ -27,6 +28,9 @@ $("#slideForm").addEventListener("submit", (e) => {
   state.range = { from, to };
   show.speed = f.speed.value;
   show.loop = f.loop.checked;
+  // Start the music from this tap (browsers need a tap before playing sound).
+  show.ownMusic = f.music.checked && !musicOn();
+  if (show.ownMusic) startMusic();
   $("#slideDialog").close();
   start();
 });
@@ -81,6 +85,8 @@ export function stop() {
   show.lock?.release?.().catch(() => {});
   show.lock = null;
   document.body.classList.remove("slideshow");
+  if (show.ownMusic) stopMusic();
+  show.ownMusic = false;
   state.range = null;
   hooks.renderTimeline({ keepScroll: true });
 }

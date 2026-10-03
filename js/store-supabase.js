@@ -19,7 +19,12 @@ export class SupabaseStore {
   #sb;
   #bucket;
 
+  #url;
+  #key;
+
   constructor({ url, anonKey, bucket }) {
+    this.#url = url;
+    this.#key = anonKey;
     this.#sb = createClient(url, anonKey);
     this.#bucket = bucket || "timeline-media";
   }
@@ -169,6 +174,31 @@ export class SupabaseStore {
     return id;
   }
 
+  /** Change just some fields of a memory (e.g. its date or tags). */
+  async updateEvent(id, fields) {
+    check(await this.#sb.from("events").update({ ...fields, updated_at: new Date().toISOString() }).eq("id", id));
+  }
+
+  // ---------- Other files (profile photo, songs) ----------
+
+  async uploadFile(folder, file) {
+    const ext = (file.name.match(/\.(\w+)$/)?.[1] || "bin").toLowerCase();
+    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await this.#sb.storage.from(this.#bucket).upload(path, file, { contentType: file.type || undefined, cacheControl: "31536000" });
+    if (error) throw new Error(`Upload failed for ${file.name}: ${error.message}`);
+    return path;
+  }
+
+  async fileUrl(path) {
+    const { data, error } = await this.#sb.storage.from(this.#bucket).createSignedUrl(path, 60 * 60 * 12);
+    if (error) throw error;
+    return data.signedUrl;
+  }
+
+  async deleteFile(path) {
+    await this.#sb.storage.from(this.#bucket).remove([path]);
+  }
+
   async setEventStatus(id, status) {
     check(await this.#sb.from("events").update({ status }).eq("id", id));
   }
@@ -263,4 +293,27 @@ export class SupabaseStore {
   async setMemberRole(userId, role) { check(await this.#sb.rpc("admin_set_role", { target: userId, new_role: role })); }
   async setMemberPassword(userId, password) { check(await this.#sb.rpc("admin_set_password", { target: userId, new_password: password })); }
   async removeMember(userId) { check(await this.#sb.rpc("admin_remove_member", { target: userId })); }
+
+  /**
+   * Admin creates a login directly (email + password). Uses a one-off invite code and a
+   * separate client that doesn't remember its session, so the admin stays signed in.
+   * Needs "Allow new users to sign up" ON and "Confirm email" OFF in Supabase.
+   */
+  async createMember({ email, password, name, role }) {
+    const code = await this.createInvite(name, role);
+    const temp = createClient(this.#url, this.#key, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "create-member" },
+    });
+    const { data, error } = await temp.auth.signUp({ email, password, options: { data: { name, invite_code: code } } });
+    if (error) {
+      await this.deleteInvite(code).catch(() => {});
+      throw error;
+    }
+    // Supabase returns a user with no identities when the email already exists.
+    if (data.user && data.user.identities?.length === 0) {
+      await this.deleteInvite(code).catch(() => {});
+      throw new Error("already registered");
+    }
+    return { needsConfirmation: !data.session };
+  }
 }

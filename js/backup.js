@@ -49,6 +49,11 @@ async function cloudZip() {
     if (res.ok) zip.file(`media/${m.path}`, await res.blob());
     done++;
   }
+  // Her profile photo and any uploaded songs.
+  for (const path of [settings?.photo, ...(settings?.songs || []).map((x) => x.path)].filter(Boolean)) {
+    const res = await fetch(await s.fileUrl(path)).catch(() => null);
+    if (res?.ok) zip.file(`media/${path}`, await res.blob());
+  }
   const clean = events.map(({ updatedAt, ...ev }) => ({ ...ev, media: ev.media.map(({ src, ...m }) => m) }));
   zip.file("data.json", JSON.stringify({
     app: "little-timeline", version: 2, exportedAt: new Date().toISOString(),
