@@ -27,7 +27,8 @@ function showPicker(anchor, onPick) {
   closePop();
   const pop = h("div", { class: "emoji-pop", role: "dialog" },
     EMOJI_GROUPS.flat().map((em) => h("button", {
-      type: "button", class: "emoji-opt", onclick: () => { onPick(em); closePop(); },
+      // preventDefault: inside a <label>, the click would otherwise re-open the dropdown.
+      type: "button", class: "emoji-opt", onclick: (e) => { e.preventDefault(); onPick(em); closePop(); },
     }, em)));
   pop.anchor = anchor;
   anchor.parentElement.append(pop);
@@ -61,7 +62,7 @@ export function attachEmojiSelect(field, fallback = "⭐") {
   field.type = "hidden";
   const btn = h("button", { type: "button", class: "emoji-trigger emoji-select", "aria-label": "Emoji" });
   const sync = () => { btn.textContent = field.value || fallback; };
-  btn.addEventListener("click", () => showPicker(btn, (em) => { field.value = em; sync(); }));
+  btn.addEventListener("click", (e) => { e.preventDefault(); showPicker(btn, (em) => { field.value = em; sync(); }); });
   field.after(btn);
   // Keep the button in sync when code sets field.value (e.g. opening the editor).
   const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");

@@ -610,3 +610,11 @@ body.editing .status-bar { margin-top: 28px; }
 .fam-who { min-width: 0; }
 .fam-who .chip { margin-left: 6px; background: #fff0f5; }
 .fam-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Edit mode shows up to eight toolbar buttons; below very wide screens the
+   secondary ones become icon-only (their label is in the tooltip) so they
+   don't cover the tabs. */
+@media (max-width: 1500px) {
+  body.editing .toolbar .btn-ghost span { display: none; }
+  body.editing .toolbar .btn-ghost { padding: 8px 11px; }
+}

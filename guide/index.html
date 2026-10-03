@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>How to use your family timeline</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌷</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff8f3; --ink: #5a4660; --soft: #8a7690; --pink: #ff8fb1; --peach: #ffb38a; --mint: #74d6b8;
+      --sky: #86c5ff; --lav: #b8a2ff; --lemon: #ffd66b; --card: #fff;
+      --shadow: 0 10px 30px rgba(255, 143, 177, .16), 0 2px 6px rgba(90, 70, 96, .06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--ink); font: 17px/1.65 Nunito, system-ui, sans-serif;
+      background: radial-gradient(circle at 10% 0%, #ffe3ee 0, transparent 40%), radial-gradient(circle at 90% 10%, #e3f3ff 0, transparent 35%), var(--bg);
+    }
+    h1, h2, h3 { font-family: Fredoka, Nunito, sans-serif; font-weight: 600; line-height: 1.2; }
+    a { color: #d9487a; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px 80px; }
+    header { text-align: center; padding: 56px 0 18px; }
+    header .flower { font-size: 64px; }
+    header h1 {
+      font-size: clamp(34px, 6vw, 56px); margin: 6px 0;
+      background: linear-gradient(90deg, var(--pink), var(--peach), var(--lav)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    header p { color: var(--soft); font-size: 19px; margin: 0; }
+    nav.toc { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 22px 0 8px; }
+    nav.toc a {
+      text-decoration: none; color: var(--ink); background: #fff; border-radius: 99px; padding: 8px 16px;
+      font-family: Fredoka, sans-serif; font-weight: 500; box-shadow: 0 3px 10px rgba(90, 70, 96, .08);
+    }
+    nav.toc a:hover { background: var(--pink); color: #fff; }
+    section { background: var(--card); border-radius: 28px; padding: 26px 28px; margin: 22px 0; box-shadow: var(--shadow); }
+    section > h2 { font-size: 30px; margin: 0 0 6px; color: var(--pink); }
+    section > p.lead { color: var(--soft); margin-top: 0; }
+    .video { border-radius: 20px; overflow: hidden; background: #2d2233; aspect-ratio: 16 / 9; }
+    .video video, .video iframe { width: 100%; height: 100%; display: block; border: 0; }
+    .step { display: grid; grid-template-columns: 1fr 1.15fr; gap: 22px; align-items: center; padding: 18px 0; border-top: 2px dashed #f6e6ee; }
+    .step:first-of-type { border-top: 0; }
+    .step.noimg { grid-template-columns: 1fr; }
+    .step h3 { margin: 0 0 6px; font-size: 22px; }
+    .step p, .step ul, .step ol { margin: 6px 0; }
+    .step ol, .step ul { padding-left: 22px; }
+    .step img { width: 100%; border-radius: 16px; box-shadow: 0 6px 20px rgba(90, 70, 96, .15); display: block; cursor: zoom-in; }
+    .phones { display: flex; gap: 14px; justify-content: center; }
+    .phones img { width: 46%; max-width: 230px; border-radius: 24px; box-shadow: 0 6px 20px rgba(90, 70, 96, .15); }
+    .btn { display: inline-block; padding: 1px 10px; border-radius: 99px; background: #fff0f5; font-weight: 700; white-space: nowrap; }
+    .tip { background: #fff7dc; border-radius: 16px; padding: 10px 14px; margin: 10px 0; }
+    .tip b { color: #9a7a14; }
+    .who { display: inline-block; font-size: 13px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
+    .who.parents { background: #ffe1ea; color: #b73f6a; }
+    .who.everyone { background: #e0f6ee; color: #2b7a63; }
+    .faq dt { font-weight: 700; margin-top: 12px; }
+    .faq dd { margin: 2px 0 0; color: var(--ink); }
+    footer { text-align: center; color: var(--soft); margin-top: 30px; }
+    @media (max-width: 720px) {
+      section { padding: 20px 18px; border-radius: 22px; }
+      .step { grid-template-columns: 1fr; }
+      section > h2 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="flower">🌷</div>
+    <h1>How to use your family timeline</h1>
+    <p>Everything you need, in plain words. The pictures show a demo family.</p>
+    <nav class="toc">
+      <a href="#video">▶️ Video tour</a>
+      <a href="#start">👋 Getting started</a>
+      <a href="#look">👀 Looking around</a>
+      <a href="#parents">✏️ For parents</a>
+      <a href="#family">👨‍👩‍👧 For family</a>
+      <a href="#help">❓ Help</a>
+    </nav>
+  </header>
+
+  <!-- ================= VIDEO ================= -->
+  <section id="video">
+    <h2>▶️ Video tour</h2>
+    <p class="lead">A 4-minute walk through every feature, with captions. No sound needed.</p>
+    <div class="video">
+      <video controls preload="metadata" poster="img/02-home.jpg" src="tour.webm"></video>
+    </div>
+    <p class="tip"><b>Video won't play?</b> It works in Chrome, Android and recent iPhones. On an older iPhone, open this page in Chrome, or ask whoever set up the site for the YouTube link.</p>
+  </section>
+
+  <!-- ================= START ================= -->
+  <section id="start">
+    <h2>👋 Getting started</h2>
+    <p class="lead">You only do this once.</p>
+
+    <div class="step">
+      <div>
+        <h3>1. Open your invite link</h3>
+        <p>You'll receive a link by Zalo, Messenger or email. Tap it, then:</p>
+        <ol>
+          <li>Check your name.</li>
+          <li>Type your email address.</li>
+          <li>Choose a password (at least 8 characters) and type it twice.</li>
+          <li>Tap <span class="btn">Join 🎉</span>.</li>
+        </ol>
+        <p>That's it: you're in. Next time, tap <span class="btn">💕 Sign in</span> and use the same email and password.</p>
+      </div>
+      <img src="img/01-sign-in.jpg" alt="The sign-in screen" loading="lazy">
+    </div>
+
+    <div class="step noimg">
+      <div>
+        <h3>2. Put it on your phone's home screen</h3>
+        <p>So it opens like an app:</p>
+        <ul>
+          <li><b>iPhone (Safari):</b> tap the Share button <span class="btn">⬆️</span>, then <b>Add to Home Screen</b>.</li>
+          <li><b>Android (Chrome):</b> tap <span class="btn">⋮</span> at the top right, then <b>Add to Home screen</b>.</li>
+        </ul>
+        <p>Your phone remembers that you're signed in.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOOK AROUND ================= -->
+  <section id="look">
+    <h2>👀 Looking around <span class="who everyone">everyone</span></h2>
+    <p class="lead">Things everyone in the family can do.</p>
+
+    <div class="step">
+      <div>
+        <h3>The top of the page</h3>
+        <p>Her name, and how old she is today. The age updates by itself.</p>
+        <p>Below it are three tabs: <span class="btn">🌈 Timeline</span> <span class="btn">📏 Growth</span> <span class="btn">💌 Letters</span>.</p>
+      </div>
+      <img src="img/02-home.jpg" alt="The top of the site" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>On this day, jump bar and tags</h3>
+        <ul>
+          <li><b>🗓️ On this day</b> shows what happened on today's date in earlier years. Tap one to go to it.</li>
+          <li><b>Jump to</b> takes you straight to a year.</li>
+          <li><b>Tags</b> (like 🎂 Birthdays or 🌟 Firsts) show only those memories. Tap <span class="btn">All</span> to see everything again.</li>
+        </ul>
+      </div>
+      <img src="img/03-on-this-day.jpg" alt="On this day, the jump bar and the tag filters" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>The timeline</h3>
+        <p>Scroll down to read her story, from the very beginning. Each memory shows the date and how old she was.</p>
+        <p><b>Tap a photo</b> to see it big. Use <span class="btn">‹</span> <span class="btn">›</span> to see the others, and <span class="btn">✕</span> to close.</p>
+      </div>
+      <img src="img/04-timeline.jpg" alt="Memories along the timeline" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Hearts and comments</h3>
+        <ul>
+          <li>Tap <span class="btn">🤍</span> to send a heart. Tap again to take it back.</li>
+          <li>Tap <span class="btn">💬</span> to read and write comments. The <span class="btn">😊</span> button adds emoji.</li>
+          <li>The first time, the site asks what to call you (for example “Grandma Rose”).</li>
+        </ul>
+      </div>
+      <img src="img/06-comments.jpg" alt="Hearts and comments under a memory" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>English or Tiếng Việt</h3>
+        <p>Tap <span class="btn">🌐</span> at the top to switch language. Each phone remembers its own choice.</p>
+      </div>
+      <img src="img/07-vietnamese.jpg" alt="The site in Vietnamese" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Slideshow</h3>
+        <ol>
+          <li>Tap <span class="btn">▶️ Slideshow</span> above the timeline.</li>
+          <li>Choose the dates and a speed (🐢 slow, 🚶 normal, 🐇 fast).</li>
+          <li>Tap <span class="btn">▶️ Start</span>. The page scrolls by itself.</li>
+        </ol>
+        <p>Tap the screen to pause; <span class="btn">⏹️ Stop</span> to finish. Lovely on a TV or tablet.</p>
+      </div>
+      <img src="img/08-slideshow-options.jpg" alt="Slideshow options" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>📏 Growth</h3>
+        <p>Her latest height and weight, and a chart of each over time. Point at (or tap) the chart to see a measurement. <b>All measurements</b> at the bottom lists every one.</p>
+      </div>
+      <img src="img/09-growth.jpg" alt="Growth charts" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>💌 Letters to her</h3>
+        <p>Anyone in the family can write her a letter: tap <span class="btn">✍️ Write a letter</span>.</p>
+        <p>To keep it for later, pick a date under <b>Keep sealed until</b>. Until then, others only see the envelope 🔒 (for example, a letter for her 18th birthday).</p>
+      </div>
+      <img src="img/10-letters.jpg" alt="Letters, one of them sealed" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>On a phone</h3>
+        <p>Everything works the same way on a phone. The timeline line moves to the left side.</p>
+      </div>
+      <div class="phones">
+        <img src="img/phone-home.jpg" alt="The site on a phone" loading="lazy">
+        <img src="img/phone-timeline.jpg" alt="The timeline on a phone" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PARENTS ================= -->
+  <section id="parents">
+    <h2>✏️ For parents <span class="who parents">admins only</span></h2>
+    <p class="lead">Tap <span class="btn">✏️ Edit</span> at the top right to add and change things. Tap <span class="btn">✅ Done</span> when you're finished. Family members don't see this button.</p>
+
+    <div class="step">
+      <div>
+        <h3>Add a memory</h3>
+        <ol>
+          <li>Tap <span class="btn">＋ Add a memory</span> at the bottom.</li>
+          <li>Write a <b>title</b> and choose the <b>date</b>.</li>
+          <li>Pick a bubble <b>emoji</b> from the list, and a <b>color</b>.</li>
+          <li>Write <b>the story</b>. The <span class="btn">😊</span> button adds emoji.</li>
+          <li>Tap some <b>tags</b> (or type your own and press Enter).</li>
+          <li>Tap <span class="btn">📷 Add photos / videos</span>.</li>
+          <li>Tap <span class="btn">Save memory</span>.</li>
+        </ol>
+        <p>To change or delete a memory later, tap <span class="btn">✏️ Edit</span> on its card.</p>
+      </div>
+      <img src="img/11-add-memory.jpg" alt="The add a memory form" loading="lazy">
+    </div>
+
+    <div class="step noimg">
+      <div>
+        <h3>About videos</h3>
+        <ul>
+          <li>Short clips (under 50 MB) can be added directly.</li>
+          <li>For longer videos, upload them to <b>YouTube as “Unlisted”</b> or to <b>Google Drive</b> (shared as “Anyone with the link”), then paste the link into the box under <b>Add photos / videos</b>. The video plays right inside the memory, and it keeps the site fast and free.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Tell the family</h3>
+        <p>After you add a memory, the site offers <span class="btn">📧 Email the family</span>. It opens your email app with a short message to everyone already filled in. Just press send, or tap <b>Not now</b>.</p>
+      </div>
+      <img src="img/12-email-family.jpg" alt="The email the family prompt" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Add many photos at once</h3>
+        <ol>
+          <li>Tap <span class="btn">🖼️ Many photos</span>.</li>
+          <li>Tap <span class="btn">📷 Choose photos &amp; videos</span>. On a computer you can use <span class="btn">📁 Choose a folder</span>.</li>
+          <li>Photos are grouped by the <b>day they were taken</b>. Give each day a title if you like.</li>
+          <li>Tap <span class="btn">Add … memories</span>.</li>
+        </ol>
+        <p>Leave <b>Save as drafts</b> ticked: the new memories stay private (📝 Draft) until you add a story and tap <span class="btn">Publish</span>.</p>
+      </div>
+      <img src="img/13-many-photos.jpg" alt="Adding many photos at once" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Drafts</h3>
+        <p>Drafts have a purple 📝 banner and only parents can see them. Tap <span class="btn">📝 Drafts</span> in the tag row to see them all. Edit one to add the story, then tap <span class="btn">Publish</span>.</p>
+        <p>You can also turn any memory into a draft: edit it and untick <b>Visible to family</b>.</p>
+      </div>
+      <img src="img/14-drafts.jpg" alt="Draft memories waiting to be published" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Approve photos from family</h3>
+        <p>When a family member shares a memory, a <span class="btn">📬 1 to review</span> button appears at the top. Tap it, then for each one:</p>
+        <ul>
+          <li><span class="btn">✅ Approve</span> puts it on the timeline,</li>
+          <li><span class="btn">✏️ Edit</span> lets you fix it first,</li>
+          <li><span class="btn">Reject</span> deletes it.</li>
+        </ul>
+      </div>
+      <img src="img/15-review.jpg" alt="A shared memory waiting for approval" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Invite family and choose who can edit</h3>
+        <ol>
+          <li>In Edit mode, tap <span class="btn">👨‍👩‍👧 Family</span>.</li>
+          <li>Type their name and choose <b>👀 Family (can view)</b> or <b>👑 Admin (can edit)</b>.</li>
+          <li>Tap <span class="btn">Create invite link</span>, then <span class="btn">📋 Copy link</span> and send it to them.</li>
+        </ol>
+        <p>Each link works once and expires after 14 days. In the same place you can change someone's access, <b>set a new password</b> for them (if they forgot it), or <b>remove</b> them.</p>
+      </div>
+      <img src="img/16-family.jpg" alt="The family panel with an invite link" loading="lazy">
+    </div>
+
+    <div class="step">
+      <div>
+        <h3>Settings and backup</h3>
+        <ul>
+          <li><span class="btn">⚙️ Settings</span>: her name, birthday (used for all the ages), emoji and tagline, and whether the newest memories come first.</li>
+          <li><span class="btn">📏 Growth</span> → <span class="btn">＋ Add measurement</span>: add her height and weight now and then.</li>
+          <li><span class="btn">💾 Backup</span>: downloads everything (photos, stories, letters…) as one file. Do it every month or two, and keep it somewhere safe like Google Drive.</li>
+        </ul>
+      </div>
+      <img src="img/17-settings.jpg" alt="The settings window" loading="lazy">
+    </div>
+  </section>
+
+  <!-- ================= FAMILY ================= -->
+  <section id="family">
+    <h2>👨‍👩‍👧 For family</h2>
+    <p class="lead">Grandparents, aunts, uncles and friends can look, send hearts, comment and write letters. They can't change or delete anything.</p>
+
+    <div class="step">
+      <div>
+        <h3>Share a memory</h3>
+        <p>Have a lovely photo of her? Tap <span class="btn">📷 Share a memory</span> at the top, add a title, the date and your photos, then tap <span class="btn">📬 Send for approval</span>.</p>
+        <p>You'll see it marked ⏳ <b>waiting for approval</b> until the parents approve it. Then everyone can see it.</p>
+      </div>
+      <img src="img/18-share.jpg" alt="The share a memory form" loading="lazy">
+    </div>
+  </section>
+
+  <!-- ================= HELP ================= -->
+  <section id="help">
+    <h2>❓ Help</h2>
+    <dl class="faq">
+      <dt>I forgot my password.</dt>
+      <dd>Ask a parent. They can set a new one for you in <b>👨‍👩‍👧 Family → Set password</b>.</dd>
+      <dt>The site says “This account hasn't been given access yet”.</dt>
+      <dd>Ask a parent to send you an invite link, or to change your access in the Family panel.</dd>
+      <dt>My invite link doesn't work.</dt>
+      <dd>Links work once and expire after 14 days. Ask for a new one.</dd>
+      <dt>A video is “over 50 MB”.</dt>
+      <dd>Upload it to YouTube (Unlisted) or Google Drive and paste the link instead. See <a href="#parents">About videos</a>.</dd>
+      <dt>The site says “The database setup needs updating”.</dt>
+      <dd>This only appears for parents after a new version comes out. Tell whoever set up the site; it takes them a minute.</dd>
+      <dt>The site won't load at all.</dt>
+      <dd>If nobody has visited for a week, the free storage goes to sleep. Tell whoever set up the site; one click wakes it up and nothing is lost.</dd>
+    </dl>
+  </section>
+
+  <script>
+    // Tap a screenshot to open it full size.
+    document.querySelectorAll(".step img, .phones img").forEach((img) => img.addEventListener("click", () => window.open(img.src, "_blank")));
+  </script>
+  <footer>Made with <span style="color:var(--pink)">♥</span> · <a href="../">← Back to the timeline</a></footer>
+</div>
+</body>
+</html>
