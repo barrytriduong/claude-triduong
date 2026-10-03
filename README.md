@@ -23,7 +23,7 @@ Scroll down and the memories pop in along a rainbow line down the middle. Each m
 | 🎙️ **Voice memories** | Record sound right on the site (or upload an audio file) for a memory or a saying. |
 | 👥 **Who & where** | Tag the people in a memory and where it happened (place search by OpenStreetMap). |
 | 🎂 **Birthday mode** | On her birthday: balloons, fireworks and a "write a birthday wish" button for everyone. |
-| 📖 **Year book** | Turn a year into printable pages: cover, month by month, milestones, sayings, growth. Print or "Save as PDF" for a photo book. |
+| 📖 **Year book** | Turn a year into a printable scrapbook: taped polaroid photos, handwritten titles and stories, paper patterns and stickers (A4 pages; memories with only videos are left out). Print or "Save as PDF". |
 | 🔔 **Gentle reminders** | A small note for parents on her "month-day" if nothing was added lately, a backup reminder, and a monthly calendar reminder to download. |
 | 🖼️ **Many photos** | Pick a batch of photos; they're grouped by the day they were taken (read from the photo), one memory per day or per photo. |
 | 📧 **Email the family** | After you add memories, one tap opens your email app with a message to every family member. |

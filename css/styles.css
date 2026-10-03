@@ -992,30 +992,6 @@ button.milestone:hover { transform: translateY(-3px); }
 }
 .place-row:hover { background: #e8f7f1; }
 
-/* ---------- 📖 Year book ---------- */
-.yearbook { position: fixed; inset: 0; z-index: 70; overflow-y: auto; background: #f4eef1; padding: 24px 16px 60px; }
-.yb-tools {
-  position: sticky; top: 0; z-index: 1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;
-  max-width: 800px; margin: 0 auto 20px; padding: 10px; border-radius: 99px; background: rgba(255, 255, 255, .95); box-shadow: var(--shadow);
-}
-.yb-page {
-  max-width: 800px; margin: 0 auto 24px; background: #fff; padding: 48px 56px; border-radius: 8px;
-  box-shadow: 0 6px 24px rgba(90, 70, 96, .12);
-}
-.yb-page h2 { font-size: 34px; color: var(--pink); margin-bottom: 18px; text-transform: capitalize; }
-.yb-cover { text-align: center; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-.yb-cover img { width: min(100%, 460px); aspect-ratio: 1; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 10px #fff0f5; margin-bottom: 18px; }
-.yb-cover h1 { font-size: 54px; color: var(--pink); }
-.yb-year { font-family: var(--font-head); font-size: 40px; margin: 0; }
-.yb-memory { break-inside: avoid; margin-bottom: 28px; }
-.yb-memory h3 { font-size: 22px; }
-.yb-meta { color: var(--ink-soft); font-size: 14px; margin: 2px 0 8px; }
-.yb-memory > p { white-space: pre-wrap; }
-.yb-photos { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-.yb-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
-.yb-page blockquote { font-family: var(--font-head); font-size: 18px; margin: 0 0 10px; }
-body:has(.yearbook) { overflow: hidden; }
-
 @media (max-width: 760px) {
   .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 10px; }
   .tabs a { padding: 8px 4px; font-size: 13px; text-align: center; line-height: 1.25; display: grid; place-items: center; }
@@ -1023,21 +999,11 @@ body:has(.yearbook) { overflow: hidden; }
   .subnav::-webkit-scrollbar { display: none; }
   .subnav button { flex: none; font-size: 14px; padding: 7px 13px; }
   .birthday-banner { border-radius: 24px; font-size: 16px; }
-  .yb-page { padding: 28px 22px; }
   .tools-menu { position: fixed; top: auto; bottom: 16px; left: 12px; right: 12px; }
   .sayings { columns: 1; }
   .health-row { flex-wrap: wrap; }
 }
 
-@media print {
-  body > *:not(.yearbook) { display: none !important; }
-  body:has(.yearbook) { overflow: visible; background: #fff; }
-  .yearbook { position: static; overflow: visible; background: #fff; padding: 0; }
-  .no-print { display: none !important; }
-  .yb-page { box-shadow: none; border-radius: 0; margin: 0; padding: 0 0 12mm; max-width: none; break-after: page; }
-  .yb-cover { min-height: 90vh; }
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .balloons span, .rec-btn.recording, .subpanel { animation: none; }
@@ -1066,3 +1032,105 @@ body.viewer #btnWriteLetter, body.viewer .comment-form, body.viewer #wishesBody 
 body.viewer .birthday-banner .btn, body.viewer #btnShare { display: none !important; }
 body.viewer .heart-btn { pointer-events: none; }
 .gate .btn-ghost { box-shadow: inset 0 0 0 2px #f3e3ec; }
+
+/* ---------- 📖 Year book: a printable scrapbook ---------- */
+.yearbook { position: fixed; inset: 0; z-index: 70; overflow: auto; background: #e9e1e6; padding: 16px 12px 60px; }
+body:has(.yearbook) { overflow: hidden; }
+.yb-tools {
+  position: sticky; top: 0; left: 0; z-index: 2; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;
+  max-width: 760px; margin: 0 auto 16px; padding: 10px 14px; border-radius: 26px; background: rgba(255, 255, 255, .96); box-shadow: var(--shadow);
+}
+.sb-sheets { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.sb-page {
+  --ink: #4b3a50; position: relative; flex: none; width: 210mm; height: 297mm; padding: 16mm 14mm; overflow: hidden;
+  box-shadow: 0 8px 26px rgba(90, 70, 96, .22); color: var(--ink); background-color: #fff8ee;
+}
+/* Stitched border */
+.sb-page::after {
+  content: ""; position: absolute; inset: 7mm; border: .6mm dashed rgba(90, 70, 96, .2); border-radius: 5mm; pointer-events: none;
+}
+.paper-dots { background-color: #fff8ee; background-image: radial-gradient(#ecd9c3 1.1px, transparent 1.4px); background-size: 6mm 6mm; }
+.paper-gingham {
+  background-color: #fff3f6;
+  background-image: linear-gradient(90deg, rgba(255, 170, 196, .18) 50%, transparent 50%), linear-gradient(rgba(255, 170, 196, .18) 50%, transparent 50%);
+  background-size: 9mm 9mm;
+}
+.paper-grid {
+  background-color: #f2fbf7;
+  background-image: linear-gradient(rgba(116, 214, 184, .22) 1px, transparent 1px), linear-gradient(90deg, rgba(116, 214, 184, .22) 1px, transparent 1px);
+  background-size: 7mm 7mm;
+}
+.paper-stripes { background-color: #fffbea; background-image: repeating-linear-gradient(90deg, rgba(255, 214, 107, .2) 0 5mm, transparent 5mm 10mm); }
+.paper-hearts {
+  background-color: #f7f2ff;
+  background-image: radial-gradient(circle at 30% 30%, rgba(184, 162, 255, .22) 1.6mm, transparent 1.7mm), radial-gradient(circle at 70% 70%, rgba(255, 170, 196, .2) 1.2mm, transparent 1.3mm);
+  background-size: 14mm 14mm;
+}
+.sb-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; gap: 8mm; overflow: hidden; }
+.sb-sticker { position: absolute; z-index: 3; font-size: 13mm; line-height: 1; rotate: var(--r); filter: drop-shadow(0 1mm 1mm rgba(90, 70, 96, .2)); }
+.sb-sticker.tl { top: 3mm; left: 3mm; } .sb-sticker.tr { top: 3mm; right: 3mm; }
+.sb-sticker.bl { bottom: 3mm; left: 3mm; } .sb-sticker.br { bottom: 3mm; right: 3mm; }
+
+/* One memory: title → photos → story */
+.sb-mem { --ph: 90mm; --fs: 1; flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5mm; padding: 2mm 4mm; }
+/* A memory without photos is a big note card. */
+.sb-mem.n0 { --base: 1.35; }
+.sb-title {
+  position: relative; max-width: 88%; margin: 3mm 0 0; padding: 2.5mm 9mm; rotate: var(--r); text-align: center;
+  font-family: "Pangolin", "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 400; font-size: calc(24pt * var(--fs) * var(--base, 1)); line-height: 1.15; color: var(--ink);
+  background: #fff; box-shadow: 0 1mm 2.5mm rgba(90, 70, 96, .15); border-radius: 1mm;
+}
+.sb-photos { flex: 0 1 auto; min-height: 0; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center; gap: 4mm 6mm; padding: 4mm 2mm 2mm; }
+.sb-photo {
+  position: relative; margin: 0; padding: 3mm 3mm 9mm; background: #fff; rotate: var(--r);
+  box-shadow: 0 1.2mm 3.5mm rgba(60, 40, 60, .25); flex: none;
+}
+.sb-photo img { display: block; max-width: 100%; max-height: var(--ph); width: auto; height: auto; }
+.n1 .sb-photo { max-width: 78%; }
+.n2 .sb-photo, .n3 .sb-photo, .n4 .sb-photo { max-width: 46%; }
+.n3 .sb-photo:nth-child(3) { max-width: 52%; }
+/* Washi tape */
+.sb-photo::before, .sb-title::before {
+  content: ""; position: absolute; top: -3.5mm; left: 50%; width: 24mm; height: 7mm; translate: -50% 0; rotate: -4deg; opacity: .85;
+  background: repeating-linear-gradient(45deg, var(--tape) 0 2.2mm, color-mix(in srgb, var(--tape) 55%, #fff) 2.2mm 4.4mm);
+  box-shadow: 0 .4mm 1mm rgba(0, 0, 0, .08);
+}
+.sb-title::before { width: 16mm; height: 6mm; top: -3mm; left: 8mm; rotate: -12deg; translate: 0 0; }
+.sb-photo:nth-child(even)::before { rotate: 5deg; }
+.tape-pink { --tape: #ffb3c8; } .tape-mint { --tape: #a6e6d2; } .tape-lemon { --tape: #ffe08a; }
+.tape-sky { --tape: #b0d9ff; } .tape-lavender { --tape: #cdbdff; } .tape-peach { --tape: #ffc9a8; }
+.sb-note {
+  --lh: calc(8mm * var(--fs) * var(--base, 1));
+  max-width: 86%; padding: 0 7mm; border-top: 3mm solid #fff; border-bottom: 2mm solid #fff; rotate: var(--r); background-color: #fff;
+  background-image: repeating-linear-gradient(transparent 0 calc(var(--lh) - .3mm), #f3dbe5 calc(var(--lh) - .3mm) var(--lh));
+  box-shadow: 0 1mm 2.5mm rgba(90, 70, 96, .15); position: relative;
+}
+.sb-note::before { content: ""; position: absolute; top: -3mm; bottom: -2mm; left: 0; width: 1.2mm; background: #ffc4d6; }
+.sb-note p {
+  margin: 0; white-space: pre-wrap; font-family: "Patrick Hand", "Nunito", system-ui, sans-serif;
+  font-size: calc(15pt * var(--fs) * var(--base, 1)); line-height: var(--lh); color: var(--ink);
+}
+
+/* Cover */
+.sb-cover .sb-content { align-items: center; justify-content: center; gap: 4mm; --ph: 120mm; --fs: 1; }
+.cover-photos { flex: 0 1 auto; }
+.cover-photos.n1 .sb-photo { max-width: 70%; }
+.cover-photos.n2 .sb-photo, .cover-photos.n3 .sb-photo { max-width: 44%; }
+.cover-photos.n3 .sb-photo:nth-child(3) { max-width: 40%; margin-top: -10mm; }
+.sb-cover-name {
+  margin: 4mm 0 0; font-family: "Pangolin", "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 400; font-size: calc(46pt * var(--fs)); text-align: center;
+  color: #ff7fa6; filter: drop-shadow(.6mm .6mm 0 #ffe0ea);
+}
+.sb-cover-year { margin: 0; font-family: "Patrick Hand", "Nunito", system-ui, sans-serif; font-size: calc(30pt * var(--fs)); letter-spacing: .3em; color: var(--ink); }
+
+@page { size: A4; margin: 0; }
+@media print {
+  body > *:not(.yearbook) { display: none !important; }
+  html, body, body:has(.yearbook) { overflow: visible !important; background: #fff !important; }
+  .yearbook { position: static; overflow: visible; background: none; padding: 0; }
+  .no-print { display: none !important; }
+  .sb-sheets { zoom: 1 !important; display: block; }
+  .sb-page { box-shadow: none; break-after: page; page-break-after: always; }
+  .sb-page:last-child { break-after: auto; page-break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

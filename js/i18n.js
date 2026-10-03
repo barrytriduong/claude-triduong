@@ -209,9 +209,8 @@ const en = {
   placeSearchFailed: "Couldn't search right now — try again in a moment.",
   placesIntro: "{n} place so far|{n} places so far", placesEmpty: "No places yet.", placesEmptyAdmin: "Add a place to a memory (under “People, place & tags”) and it appears on this map.",
   // Year book
-  ybBtn: "Year book", ybTitle: "📖 Year book", ybIntro: "Turns one year into pages you can print or save as a PDF (e.g. for a photo book).",
-  ybYear: "Year", ybMake: "Make the book", ybPrint: "🖨️ Print or save as PDF", ybHint: "In the print window choose “Save as PDF” to keep a file.",
-  ybExtras: "This year", ybMilestones: "Milestones", ybSayings: "Things she said", ybGrowth: "Growing",
+  ybBtn: "Year book", ybTitle: "📖 Year book", ybIntro: "Turns one year into scrapbook pages you can print or save as a PDF. Memories with only videos are left out.", ybLoading: "Preparing photos…",
+  ybYear: "Year", ybMake: "Make the book", ybPrint: "🖨️ Print or save as PDF", ybHint: "In the print window choose “Save as PDF”, paper size A4, margins None.",
   // Reminders
   nudgeMonth: "{name} is {age} today 💕 Add a photo or a few words?", nudgeBackup: "It's been a while since your last backup.",
   nudgeBackupNever: "Keep everything safe — download a backup now and then.",
@@ -407,9 +406,8 @@ const vi = {
   placeLabel: "📍 Ở đâu?", placePh: "Tìm địa điểm, ví dụ: Đà Lạt", placeSearch: "Tìm", placeNone: "Chưa có địa điểm.", placeNotFound: "Không tìm thấy — thử tên khác.",
   placeSearchFailed: "Chưa tìm được lúc này — thử lại sau một chút.",
   placesIntro: "Đã đến {n} nơi", placesEmpty: "Chưa có nơi nào.", placesEmptyAdmin: "Thêm địa điểm cho kỷ niệm (mục “Người, nơi chốn & nhãn”) để hiện trên bản đồ.",
-  ybBtn: "Sách năm", ybTitle: "📖 Sách năm", ybIntro: "Biến một năm thành các trang để in hoặc lưu PDF (ví dụ làm sách ảnh).",
-  ybYear: "Năm", ybMake: "Tạo sách", ybPrint: "🖨️ In hoặc lưu PDF", ybHint: "Trong cửa sổ in, chọn “Lưu dưới dạng PDF” để giữ file.",
-  ybExtras: "Năm nay", ybMilestones: "Cột mốc", ybSayings: "Con đã nói", ybGrowth: "Lớn lên",
+  ybBtn: "Sách năm", ybTitle: "📖 Sách năm", ybIntro: "Biến một năm thành các trang sổ lưu niệm để in hoặc lưu PDF. Kỷ niệm chỉ có video sẽ được bỏ qua.", ybLoading: "Đang chuẩn bị ảnh…",
+  ybYear: "Năm", ybMake: "Tạo sách", ybPrint: "🖨️ In hoặc lưu PDF", ybHint: "Trong cửa sổ in, chọn “Lưu dưới dạng PDF”, khổ giấy A4, lề: Không.",
   nudgeMonth: "Hôm nay {name} {age} 💕 Thêm một tấm ảnh hay đôi dòng nhé?", nudgeBackup: "Đã lâu rồi chưa sao lưu.",
   nudgeBackupNever: "Giữ mọi thứ an toàn — thỉnh thoảng hãy tải bản sao lưu.",
   icsTitle: "Tròn tháng của {name} 💕 Thêm một kỷ niệm", icsBody: "Có khoảnh khắc nào tháng này không? {url}",
